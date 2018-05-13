@@ -1,5 +1,7 @@
 package com.springboot.dailyclock.system.interceptor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -12,8 +14,11 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class WebInterceptor implements HandlerInterceptor {
 
+    private static final Logger logger = LoggerFactory.getLogger(WebInterceptor.class);
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>当前的session ID：" + request.getSession().getId());
         return true;// 只有返回true才会继续向下执行，返回false取消当前请求
     }
 

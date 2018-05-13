@@ -23,6 +23,10 @@ server:
 spring:
   application:
       name: daily-clock-admin-client
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_default
   thymeleaf:
     # 关闭thymeleaf缓存 开发时使用 否则没有实时画面
     cache: false
@@ -60,8 +64,8 @@ spring:
   redis:
     host: 47.98.181.26
     port: 6379
-    password: mypass
-    timeout: 1000
+    password: ROOT@redis.com
+    timeout: 10000
     database: 0
     pool:
       # 连接池中的最小空闲连接
@@ -74,7 +78,7 @@ spring:
       max-wait: 10000
   datasource:
       type: com.alibaba.druid.pool.DruidDataSource
-      url: jdbc:mysql://47.98.181.26:3306/springboot?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+      url: jdbc:mysql://47.98.181.26:3306/clock?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false
       name: root
       password: ROOT@mysql.123
       driverClassName: com.mysql.cj.jdbc.Driver
@@ -122,3 +126,6 @@ wechat:
     mchId: 1497923022
     mchKey: HAFh14FTtbiiOyBZ6Fv9GorqVSDG2Hie
     keyPath: classpath:apiclient_cert.p12
+aliyun:
+  accessKeyId: accessKeyId
+  accessKeySecret: accessKeySecret

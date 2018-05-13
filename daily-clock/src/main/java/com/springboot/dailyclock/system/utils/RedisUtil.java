@@ -1,5 +1,6 @@
 package com.springboot.dailyclock.system.utils;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
 
@@ -10,6 +11,15 @@ import java.util.concurrent.TimeUnit;
 
 public class RedisUtil {
 
+    private RedisUtil() {}
+
+    private static final RedisUtil redisUtil = new RedisUtil();
+
+    public static RedisUtil getInstance() {
+        return redisUtil;
+    }
+
+    @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
     public void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {

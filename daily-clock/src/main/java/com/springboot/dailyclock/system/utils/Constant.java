@@ -36,4 +36,22 @@ public class Constant {
     // 当前用户未登录
     public static final String ADMIN_NO_LOGIN = "-1";
 
+    // 全局成功代码
+    public static final String SUCCESS_CODE = "1";
+
+    // 全局失败代码
+    public static final String FAIL_CODE = "0";
+
+    // 缓存打卡列表key
+    public static final String TODAY_SIGN_USER = "TODAY_SIGN_USER";
+
+    // 未打卡标志位
+    public static final String CLOCK_TYPE_0 = "0";
+
+    // 已打卡标志位
+    public static final String CLOCK_TYPE_1 = "1";
+
+    // 补打卡标志位
+    public static final String CLOCK_TYPE_2 = "2";
+
 }
