@@ -12,8 +12,8 @@ import java.util.Date;
  * @create: 2018-05-12 21:40
  **/
 @Entity
-@Table(name = "sign_config")
-public class SignConfigModel implements java.io.Serializable {
+@Table(name = "clock_config")
+public class ClockConfigModel implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 

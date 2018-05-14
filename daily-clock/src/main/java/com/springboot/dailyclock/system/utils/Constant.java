@@ -42,8 +42,29 @@ public class Constant {
     // 全局失败代码
     public static final String FAIL_CODE = "0";
 
-    // 缓存打卡列表key
-    public static final String TODAY_SIGN_USER = "TODAY_SIGN_USER";
+    // 缓存需打卡列表盘口0
+    public static final String TODAY_NEED_SIGN_USER_0 = "TODAY_NEED_SIGN_USER_0";
+
+    // 缓存打卡记录列表key盘口0
+    public static final String TODAY_SIGN_USER_LOG_0 = "TODAY_SIGN_USER_LOG_0";
+
+    // 缓存需打卡列表盘口1
+    public static final String TODAY_NEED_SIGN_USER_1 = "TODAY_NEED_SIGN_USER_1";
+
+    // 缓存打卡记录列表key盘口1
+    public static final String TODAY_SIGN_USER_LOG_1 = "TODAY_SIGN_USER_LOG_1";
+
+    // 缓存需打卡列表盘口2
+    public static final String TODAY_NEED_SIGN_USER_2 = "TODAY_NEED_SIGN_USER_2";
+
+    // 缓存打卡记录列表key盘口2
+    public static final String TODAY_SIGN_USER_LOG_2 = "TODAY_SIGN_USER_LOG_2";
+
+    // 缓存需打卡列表盘口3
+    public static final String TODAY_NEED_SIGN_USER_3 = "TODAY_NEED_SIGN_USER_3";
+
+    // 缓存打卡记录列表key盘口3
+    public static final String TODAY_SIGN_USER_LOG_3 = "TODAY_SIGN_USER_LOG_3";
 
     // 未打卡标志位
     public static final String CLOCK_TYPE_0 = "0";

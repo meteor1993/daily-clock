@@ -1,27 +1,35 @@
 package com.springboot.dailyclock.sign.controller;
 
-import com.springboot.dailyclock.sign.dao.SignConfigDao;
+import com.google.common.collect.Maps;
+import com.springboot.dailyclock.sign.dao.ClockConfigDao;
+import com.springboot.dailyclock.sign.dao.NeedClockUserDao;
 import com.springboot.dailyclock.sign.dao.UserClockLogDao;
 import com.springboot.dailyclock.sign.dao.WechatMpUserDao;
+import com.springboot.dailyclock.sign.model.ClockConfigModel;
+import com.springboot.dailyclock.sign.model.NeedClockUserModel;
 import com.springboot.dailyclock.sign.model.UserClockLogModel;
 import com.springboot.dailyclock.sign.model.WechatMpUserModel;
 import com.springboot.dailyclock.sms.utils.AliyunSMSUtils;
 import com.springboot.dailyclock.system.model.CommonJson;
 import com.springboot.dailyclock.system.utils.Constant;
 import com.springboot.dailyclock.system.utils.ContextHolderUtils;
-import com.springboot.dailyclock.system.utils.RedisUtil;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @program: daily-clock
@@ -31,18 +39,24 @@ import java.util.Map;
  **/
 @RestController
 @RequestMapping(path = "/wechatUser")
-public class SignController {
+public class ClockController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SignController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClockController.class);
 
     @Autowired
     WechatMpUserDao wechatMpUserDao;
 
     @Autowired
-    SignConfigDao signConfigDao;
+    ClockConfigDao clockConfigDao;
 
     @Autowired
     UserClockLogDao userClockLogDao;
+
+    @Autowired
+    NeedClockUserDao needClockUserDao;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     /**
      * 发送短信验证码
@@ -121,23 +135,77 @@ public class SignController {
      * 早晨打卡
      * @return
      */
-    @PostMapping(value = "/sign")
-    public CommonJson sign() {
+    @PostMapping(value = "/clock")
+    public CommonJson clock(@RequestParam String no) throws ParseException {
         CommonJson json = new CommonJson();
 
         WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
+        // 判断盘口静态变量付值
+        String TODAY_NEED_SIGN_USER, TODAY_SIGN_USER_LOG;
+        switch (no) {
+            case "0":
+                TODAY_NEED_SIGN_USER = Constant.TODAY_NEED_SIGN_USER_0;
+                TODAY_SIGN_USER_LOG = Constant.TODAY_SIGN_USER_LOG_0;
+                break;
+            case "1":
+                TODAY_NEED_SIGN_USER = Constant.TODAY_NEED_SIGN_USER_1;
+                TODAY_SIGN_USER_LOG = Constant.TODAY_SIGN_USER_LOG_1;
+                break;
+            case "2":
+                TODAY_NEED_SIGN_USER = Constant.TODAY_NEED_SIGN_USER_2;
+                TODAY_SIGN_USER_LOG = Constant.TODAY_SIGN_USER_LOG_2;
+                break;
+            case "3":
+                TODAY_NEED_SIGN_USER = Constant.TODAY_NEED_SIGN_USER_3;
+                TODAY_SIGN_USER_LOG = Constant.TODAY_SIGN_USER_LOG_3;
+                break;
+            default:
+                TODAY_NEED_SIGN_USER = Constant.TODAY_NEED_SIGN_USER_0;
+                TODAY_SIGN_USER_LOG = Constant.TODAY_SIGN_USER_LOG_0;
+                break;
+        }
 
-        RedisUtil redisUtil = RedisUtil.getInstance();
+        boolean hasNeedSign = redisTemplate.hasKey(TODAY_NEED_SIGN_USER);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
-        boolean haskey = redisUtil.hasKey(Constant.TODAY_SIGN_USER);
+        if (!hasNeedSign) { // 如果需打卡列表不存在
+            // 获取当日所有需要打卡列表
+            List<NeedClockUserModel> needClockUserModelList = needClockUserDao.findAllByCreateDateBetweenAndNo(simpleDateFormat.parse(sdf.format(new Date()) + " 00:00:00"), simpleDateFormat.parse(sdf.format(new Date()) + " 23:59:59"), no);
+            Map<String, Object> map = Maps.newHashMap();
+            for (NeedClockUserModel model : needClockUserModelList) {
+                map.put(model.getOpenid(), model);
+            }
+            redisTemplate.opsForHash().putAll(TODAY_NEED_SIGN_USER, map);
+            redisTemplate.expire(TODAY_NEED_SIGN_USER, 4, TimeUnit.HOURS); // 设定4小时过期
+        }
+
+        if (!redisTemplate.opsForHash().hasKey(TODAY_NEED_SIGN_USER, wxMpUser.getOpenId())) { // 如果当前openid不存在需打卡列表
+            json.setResultCode(Constant.JSON_ERROR_CODE);
+            json.setResultMsg("您当前无需打卡");
+            return json;
+        }
+
+        ClockConfigModel clockConfigModel = clockConfigDao.getByIdIs(no);
+
+        Long startTime = simpleDateFormat.parse(sdf.format(new Date()) + clockConfigModel.getClockStartTime()).getTime();
+        Long endTime = simpleDateFormat.parse(sdf.format(new Date()) + clockConfigModel.getClockEndTime()).getTime();
+        Long nowTime = new Date().getTime();
+
+        if (nowTime < startTime || nowTime > endTime) { // 当前时间不在打卡时间中
+            json.setResultCode(Constant.JSON_ERROR_CODE);
+            json.setResultMsg("当前时间不在打卡时间中");
+            return json;
+        }
+
+        // 已打卡记录
+        boolean haskey = redisTemplate.hasKey(TODAY_SIGN_USER_LOG);
 
         if (haskey) { // 先判断缓存是否存在
-
-            Map<Object, Object> signMap = redisUtil.hmget(Constant.TODAY_SIGN_USER);
-
-            if (signMap.containsKey(wxMpUser.getOpenId())) { // 判断当前用户是否打卡
+            boolean hasSign = redisTemplate.opsForHash().hasKey(TODAY_SIGN_USER_LOG, wxMpUser.getOpenId());
+            if (hasSign) { // 判断当前用户是否打卡
                 json.setResultCode(Constant.JSON_ERROR_CODE);
-                json.setResultMsg("您今日已签到，请勿重复打卡");
+                json.setResultMsg("您今日已打卡，请勿重复打卡");
                 return json;
             } else {
                 UserClockLogModel userClockLogModel = new UserClockLogModel();
@@ -145,10 +213,21 @@ public class SignController {
                 userClockLogModel.setOpenId(wxMpUser.getOpenId());
                 userClockLogModel.setType(Constant.CLOCK_TYPE_1);
                 userClockLogDao.save(userClockLogModel);
-                signMap.put(wxMpUser.getOpenId(), userClockLogModel);
-//                redisUtil.hmset(Constant.TODAY_SIGN_USER, signMap, 1000 * 60 * 60 * 2);
+                redisTemplate.opsForHash().put(TODAY_SIGN_USER_LOG, wxMpUser.getOpenId(), userClockLogModel);
+                redisTemplate.expire(TODAY_SIGN_USER_LOG, 2, TimeUnit.HOURS); // 设定2小时过期
             }
+        } else {
+            UserClockLogModel userClockLogModel = new UserClockLogModel();
+            userClockLogModel.setCreateDate(new Date());
+            userClockLogModel.setOpenId(wxMpUser.getOpenId());
+            userClockLogModel.setType(Constant.CLOCK_TYPE_1);
+            userClockLogDao.save(userClockLogModel);
+            Map<String, Object> map = Maps.newHashMap();
+            map.put(wxMpUser.getOpenId(), userClockLogModel);
+            redisTemplate.opsForHash().putAll(TODAY_SIGN_USER_LOG, map);
+            redisTemplate.expire(TODAY_SIGN_USER_LOG, 2, TimeUnit.HOURS); // 设定2小时过期
         }
+
         return json;
     }
 
