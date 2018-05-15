@@ -4,6 +4,8 @@ import com.springboot.dailyclock.sign.model.UserClockLogModel;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+import java.util.List;
+
 /**
  * @program: daily-clock
  * @description:
@@ -11,4 +13,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * @create: 2018-05-13 22:00
  **/
 public interface UserClockLogDao extends PagingAndSortingRepository<UserClockLogModel, Long>, JpaSpecificationExecutor<UserClockLogModel> {
+
+    List<UserClockLogModel> findAllByOpenIdOrderByCreateDateDesc(String openid);
 }

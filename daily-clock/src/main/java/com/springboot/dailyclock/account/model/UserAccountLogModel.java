@@ -37,6 +37,11 @@ public class UserAccountLogModel implements java.io.Serializable {
      */
     private String amount;
 
+    /**
+     * 来源盘口
+     */
+    private String no;
+
     public String getId() {
         return id;
     }
@@ -75,5 +80,13 @@ public class UserAccountLogModel implements java.io.Serializable {
 
     public void setAmount(String amount) {
         this.amount = amount;
+    }
+
+    public String getNo() {
+        return no;
+    }
+
+    public void setNo(String no) {
+        this.no = no;
     }
 }

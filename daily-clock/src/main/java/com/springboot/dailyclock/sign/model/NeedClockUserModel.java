@@ -56,6 +56,14 @@ public class NeedClockUserModel implements java.io.Serializable {
         this.createDate = createDate;
     }
 
+    public String getNo() {
+        return no;
+    }
+
+    public void setNo(String no) {
+        this.no = no;
+    }
+
     @Override
     public String toString() {
         return "NeedClockUserModel{" +
