@@ -83,7 +83,7 @@ public class NeedClockUserTask {
                 if (yesterday.equals(orderTime)) { // 如果充值记录是昨天，则可以今日打卡
                     NeedClockUserModel needClockUserModel = new NeedClockUserModel();
                     needClockUserModel.setCreateDate(new Date());
-                    needClockUserModel.setNo("0");
+                    needClockUserModel.setNo(no);
                     needClockUserModel.setOpenid(model.getOpenid());
                     map.put(model.getOpenid(), needClockUserModel);
                     needClockUserDao.save(needClockUserModel);
