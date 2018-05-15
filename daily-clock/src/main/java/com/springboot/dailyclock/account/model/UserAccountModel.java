@@ -74,6 +74,46 @@ public class UserAccountModel implements java.io.Serializable {
      */
     private String type3;
 
+    /**
+     * 盘口0最后缴费时间
+     */
+    private Date orderDate0;
+
+    /**
+     * 盘口1最后缴费时间
+     */
+    private Date orderDate1;
+
+    /**
+     * 盘口2最后缴费时间
+     */
+    private Date orderDate2;
+
+    /**
+     * 盘口3最后缴费时间
+     */
+    private Date orderDate3;
+
+    /**
+     * 盘口0上次打卡时间
+     */
+    private Date clockDate0;
+
+    /**
+     * 盘口1上次打卡时间
+     */
+    private Date clockDate1;
+
+    /**
+     * 盘口2上次打卡时间
+     */
+    private Date clockDate2;
+
+    /**
+     * 盘口3上次打卡时间
+     */
+    private Date clockDate3;
+
     public String getId() {
         return id;
     }
@@ -176,5 +216,69 @@ public class UserAccountModel implements java.io.Serializable {
 
     public void setType3(String type3) {
         this.type3 = type3;
+    }
+
+    public Date getOrderDate0() {
+        return orderDate0;
+    }
+
+    public void setOrderDate0(Date orderDate0) {
+        this.orderDate0 = orderDate0;
+    }
+
+    public Date getOrderDate1() {
+        return orderDate1;
+    }
+
+    public void setOrderDate1(Date orderDate1) {
+        this.orderDate1 = orderDate1;
+    }
+
+    public Date getOrderDate2() {
+        return orderDate2;
+    }
+
+    public void setOrderDate2(Date orderDate2) {
+        this.orderDate2 = orderDate2;
+    }
+
+    public Date getOrderDate3() {
+        return orderDate3;
+    }
+
+    public void setOrderDate3(Date orderDate3) {
+        this.orderDate3 = orderDate3;
+    }
+
+    public Date getClockDate0() {
+        return clockDate0;
+    }
+
+    public void setClockDate0(Date clockDate0) {
+        this.clockDate0 = clockDate0;
+    }
+
+    public Date getClockDate1() {
+        return clockDate1;
+    }
+
+    public void setClockDate1(Date clockDate1) {
+        this.clockDate1 = clockDate1;
+    }
+
+    public Date getClockDate2() {
+        return clockDate2;
+    }
+
+    public void setClockDate2(Date clockDate2) {
+        this.clockDate2 = clockDate2;
+    }
+
+    public Date getClockDate3() {
+        return clockDate3;
+    }
+
+    public void setClockDate3(Date clockDate3) {
+        this.clockDate3 = clockDate3;
     }
 }

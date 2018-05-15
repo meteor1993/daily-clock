@@ -47,6 +47,11 @@ public class ClockConfigModel implements java.io.Serializable {
 
     private Date updateDate;
 
+    /**
+     * 当前盘口是否开放1.开放2.未开放
+     */
+    private String status;
+
     public String getId() {
         return id;
     }
@@ -103,4 +108,11 @@ public class ClockConfigModel implements java.io.Serializable {
         this.updateDate = updateDate;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

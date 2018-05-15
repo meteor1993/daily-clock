@@ -1,6 +1,8 @@
 package com.springboot.dailyclock.sign.controller;
 
 import com.google.common.collect.Maps;
+import com.springboot.dailyclock.account.dao.UserAccountDao;
+import com.springboot.dailyclock.account.model.UserAccountModel;
 import com.springboot.dailyclock.sign.dao.ClockConfigDao;
 import com.springboot.dailyclock.sign.dao.NeedClockUserDao;
 import com.springboot.dailyclock.sign.dao.UserClockLogDao;
@@ -55,6 +57,9 @@ public class ClockController {
 
     @Autowired
     NeedClockUserDao needClockUserDao;
+
+    @Autowired
+    UserAccountDao userAccountDao;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -214,6 +219,27 @@ public class ClockController {
                 userClockLogModel.setOpenId(wxMpUser.getOpenId());
                 userClockLogModel.setType(Constant.CLOCK_TYPE_1);
                 userClockLogDao.save(userClockLogModel);
+                UserAccountModel userAccountModel = userAccountDao.getByOpenidIs(wxMpUser.getOpenId());
+                // 向账户信息中写入最近一次打卡时间
+                switch (no) {
+                    case "0":
+                        userAccountModel.setClockDate0(new Date());
+                        break;
+                    case "1":
+                        userAccountModel.setClockDate1(new Date());
+                        break;
+                    case "2":
+                        userAccountModel.setClockDate2(new Date());
+                        break;
+                    case "3":
+                        userAccountModel.setClockDate3(new Date());
+                        break;
+                    default:
+                        userAccountModel.setClockDate0(new Date());
+                        break;
+                }
+                userAccountDao.save(userAccountModel);
+                // 将打卡信息写入缓存
                 redisTemplate.opsForHash().put(TODAY_SIGN_USER_LOG, wxMpUser.getOpenId(), userClockLogModel);
                 redisTemplate.expire(TODAY_SIGN_USER_LOG, 2, TimeUnit.HOURS); // 设定2小时过期
             }
@@ -223,6 +249,26 @@ public class ClockController {
             userClockLogModel.setOpenId(wxMpUser.getOpenId());
             userClockLogModel.setType(Constant.CLOCK_TYPE_1);
             userClockLogDao.save(userClockLogModel);
+            UserAccountModel userAccountModel = userAccountDao.getByOpenidIs(wxMpUser.getOpenId());
+            // 向账户信息中写入最近一次打卡时间
+            switch (no) {
+                case "0":
+                    userAccountModel.setClockDate0(new Date());
+                    break;
+                case "1":
+                    userAccountModel.setClockDate1(new Date());
+                    break;
+                case "2":
+                    userAccountModel.setClockDate2(new Date());
+                    break;
+                case "3":
+                    userAccountModel.setClockDate3(new Date());
+                    break;
+                default:
+                    userAccountModel.setClockDate0(new Date());
+                    break;
+            }
+            userAccountDao.save(userAccountModel);
             Map<String, Object> map = Maps.newHashMap();
             map.put(wxMpUser.getOpenId(), userClockLogModel);
             redisTemplate.opsForHash().putAll(TODAY_SIGN_USER_LOG, map);

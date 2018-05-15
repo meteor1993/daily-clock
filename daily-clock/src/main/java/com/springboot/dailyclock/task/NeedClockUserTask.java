@@ -73,6 +73,10 @@ public class NeedClockUserTask {
         Map<String, Object> map = Maps.newHashMap();
 
         for (UserAccountModel model : userAccountModelList) {
+
+
+
+
             // 查询当前人员所有打卡记录
             List<UserClockLogModel> userClockLogModelList = userClockLogDao.findAllByOpenIdOrderByCreateDateDesc(model.getOpenid());
             List<WxPayOrderModel> wxPayOrderModelList = wxPayOrderDao.findAllByOpenIdAndOrderStatusOrderByOrderTimeDesc(model.getOpenid(), Constant.SUCCESS_CODE);
