@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping(path = "/wechatUser")
 public class ClockController {
 
+
     private static final Logger logger = LoggerFactory.getLogger(ClockController.class);
 
     @Autowired
