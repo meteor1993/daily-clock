@@ -74,7 +74,13 @@ public class NeedClockUserTask {
 
         for (UserAccountModel model : userAccountModelList) {
 
+            // 先判断昨天是否打卡
 
+            // 判断是否打卡周期结束
+
+            // 判断是否昨日充值
+
+            //
 
 
             // 查询当前人员所有打卡记录
