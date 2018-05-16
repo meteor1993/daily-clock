@@ -274,7 +274,7 @@ public class ClockController {
                 if (p.getDays() + 1 == clockConfigModel.getClockTime()) {
                     userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance2())).toString());
                     userAccountModel.setUseBalance2("");
-                    userAccountModel.setOrderDate1(null);
+                    userAccountModel.setOrderDate2(null);
                 }
                 break;
             case "3":
@@ -284,7 +284,7 @@ public class ClockController {
                 if (p.getDays() + 1 == clockConfigModel.getClockTime()) {
                     userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance3())).toString());
                     userAccountModel.setUseBalance3("");
-                    userAccountModel.setOrderDate1(null);
+                    userAccountModel.setOrderDate3(null);
                 }
                 break;
             default:
@@ -294,7 +294,7 @@ public class ClockController {
                 if (p.getDays() + 1 == clockConfigModel.getClockTime()) {
                     userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance0())).toString());
                     userAccountModel.setUseBalance0("");
-                    userAccountModel.setOrderDate1(null);
+                    userAccountModel.setOrderDate0(null);
                 }
                 break;
         }

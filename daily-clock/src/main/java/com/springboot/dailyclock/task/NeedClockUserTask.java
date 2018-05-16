@@ -74,58 +74,27 @@ public class NeedClockUserTask {
 
         for (UserAccountModel model : userAccountModelList) {
 
-            // 先判断昨天是否打卡
+            DateTime nowDate = new DateTime(new Date());
+            DateTime orderDate = new DateTime(model.getOrderDate0());
+            DateTime clockDate = new DateTime(model.getClockDate0());
 
-            // 判断是否打卡周期结束
-
-            // 判断是否昨日充值
-
-            //
+            Period orderP = new Period(orderDate, nowDate, PeriodType.days());
+            Period clockP = new Period(clockDate, nowDate, PeriodType.days());
 
 
-            // 查询当前人员所有打卡记录
-            List<UserClockLogModel> userClockLogModelList = userClockLogDao.findAllByOpenIdOrderByCreateDateDesc(model.getOpenid());
-            List<WxPayOrderModel> wxPayOrderModelList = wxPayOrderDao.findAllByOpenIdAndOrderStatusOrderByOrderTimeDesc(model.getOpenid(), Constant.SUCCESS_CODE);
-            DateTime dateTime = new DateTime(new Date());
-            String yesterday = dateTime.minusDays(1).toString("yyyy-MM-dd");
-            String orderTime = new DateTime(wxPayOrderModelList.get(0).getOrderTime()).toString("yyyy-MM-dd");
-            if (userClockLogModelList.size() == 0){ // 如果当前人员没有打卡记录，去查询充值记录是否为昨日
-                if (yesterday.equals(orderTime)) { // 如果充值记录是昨天，则可以今日打卡
-                    NeedClockUserModel needClockUserModel = new NeedClockUserModel();
-                    needClockUserModel.setCreateDate(new Date());
-                    needClockUserModel.setNo(no);
-                    needClockUserModel.setOpenid(model.getOpenid());
-                    map.put(model.getOpenid(), needClockUserModel);
-                    needClockUserDao.save(needClockUserModel);
-                }
-            } else { // 如果有打卡记录
-                // 对比是否完成打卡周期
-                DateTime begin = new DateTime(userClockLogModelList.get(0).getCreateDate());
-                DateTime end = new DateTime(userClockLogModelList.get(userClockLogModelList.size() - 1).getCreateDate());
-                Period p = new Period(begin, end, PeriodType.days());
-                int days = p.getDays();
-                if (clockConfigModel.getClockTime() % days == 0) { // 先判断打卡次数是否等于一个或者多个周期
-                    // 如果正好为一个周期，则当日无需打卡
+            // 先判断是否打卡周期结束
+            if ("".equals(model.getUseBalance0())) { // 当前打卡周期结束，今日无需打卡
+
+            } else {
+                // 再判断是否昨日充值
+                if (orderP.getDays() == 1) { // 如果昨天充值，则今天可以打卡
+                    commonClock(no, model.getOpenid(), map);
                 } else {
-                    // 如果是不是一个周期，则判断昨日是否是充值日
-                    if (yesterday.equals(orderTime)) { // 如果充值记录是昨天，则可以今日打卡
-                        NeedClockUserModel needClockUserModel = new NeedClockUserModel();
-                        needClockUserModel.setCreateDate(new Date());
-                        needClockUserModel.setNo(no);
-                        needClockUserModel.setOpenid(model.getOpenid());
-                        map.put(model.getOpenid(), needClockUserModel);
-                        needClockUserDao.save(needClockUserModel);
-                    } else {
-                        // 如果充值记录不是昨日，则判断昨日是否打卡
-                        String lastClockTime = new DateTime(userClockLogModelList.get(0).getCreateDate()).toString("yyyy-MM-dd");
-                        if (yesterday.equals(lastClockTime)) { // 上次打卡是昨日，则可以今日打卡
-                            NeedClockUserModel needClockUserModel = new NeedClockUserModel();
-                            needClockUserModel.setCreateDate(new Date());
-                            needClockUserModel.setNo(no);
-                            needClockUserModel.setOpenid(model.getOpenid());
-                            map.put(model.getOpenid(), needClockUserModel);
-                            needClockUserDao.save(needClockUserModel);
-                        }
+                    // 再判断昨日是否正常打卡
+                    if (clockP.getDays() == 1) { // 昨天正常打卡，今天可打卡
+                        commonClock(no, model.getOpenid(), map);
+                    } else { // 昨日未打卡，今日无需打卡
+
                     }
                 }
             }
@@ -135,5 +104,14 @@ public class NeedClockUserTask {
         redisTemplate.opsForHash().putAll(Constant.TODAY_NEED_SIGN_USER_0, map);
         redisTemplate.expire(Constant.TODAY_NEED_SIGN_USER_0, 4, TimeUnit.HOURS); // 设定4小时过期
 
+    }
+
+    private void commonClock(String no, String openid, Map<String, Object> map) {
+        NeedClockUserModel needClockUserModel = new NeedClockUserModel();
+        needClockUserModel.setCreateDate(new Date());
+        needClockUserModel.setNo(no);
+        needClockUserModel.setOpenid(openid);
+        map.put(openid, needClockUserModel);
+        needClockUserDao.save(needClockUserModel);
     }
 }
