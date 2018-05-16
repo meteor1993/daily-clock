@@ -2,10 +2,14 @@ spring:
   application:
     name: daily-clock-eureka-server
 server:
-  port: 8888
+  port: 8761
 eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
   serviceUrl:
     defaultZone: http://localhost:${server.port}/eureka/
+  instance:
+    prefer-ip-address: true
+logging:
+  file: /opt/tmp/eureka.log

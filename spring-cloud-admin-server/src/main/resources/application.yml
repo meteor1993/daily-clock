@@ -1,16 +1,18 @@
 server:
-  port: 8000
-security:
-  user:
-    name: kaixindaka
-    password: kaixindaka@admin.com
+  port: 8888
 spring:
   application:
     name: spring-cloud-admin-server
+management:
+  security:
+    enabled: false
 eureka:
   instance:
     leaseRenewalIntervalInSeconds: 10
+    prefer-ip-address: true
   client:
     registryFetchIntervalSeconds: 5
     serviceUrl:
-      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8888}/eureka/
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761}/eureka/
+logging:
+  file: /opt/tmp/admin.log
