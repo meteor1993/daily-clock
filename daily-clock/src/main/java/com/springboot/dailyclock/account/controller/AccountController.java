@@ -30,6 +30,11 @@ public class AccountController {
 
     private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 
+    /**
+     * 查询个人账户信息
+     * @param openid
+     * @return
+     */
     @PostMapping(value = "/info")
     public CommonJson info(@RequestParam String openid) {
         CommonJson json = new CommonJson();
