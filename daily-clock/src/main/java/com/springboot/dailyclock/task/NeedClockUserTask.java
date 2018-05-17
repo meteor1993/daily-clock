@@ -58,7 +58,7 @@ public class NeedClockUserTask {
     private StringRedisTemplate redisTemplate;
 
     /**
-     * 默认活动定时任务，每天凌晨五点启动
+     * 生成可打卡列表定时任务，每天凌晨五点启动
      */
     @Scheduled(cron="0 0 5 * * *")
     public void needClockUserTask_0(){

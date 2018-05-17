@@ -32,6 +32,11 @@ public class UserClockLogModel implements java.io.Serializable {
      */
     private String type;
 
+    /**
+     * 盘口
+     */
+    private String no;
+
     public String getId() {
         return id;
     }
@@ -62,5 +67,13 @@ public class UserClockLogModel implements java.io.Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getNo() {
+        return no;
+    }
+
+    public void setNo(String no) {
+        this.no = no;
     }
 }

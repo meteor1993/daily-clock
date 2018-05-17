@@ -226,6 +226,60 @@ public class ClockController {
     }
 
     /**
+     * 盘口0当日打卡情况
+     * @return
+     */
+    @PostMapping(value = "/signInfo0")
+    public CommonJson signInfo0() {
+        CommonJson json = new CommonJson();
+        // 当日已打卡总金额
+        String sumClockBalance0 = userAccountDao.getClockUserBalance0Sum(new Date());
+        // 当日未打卡总金额
+        String unClockUserBalance0Sum = userAccountDao.getUnClockUserBalance0Sum(new Date());
+        // 当日打卡总人数
+        String clockUserCount = userAccountDao.getClockUserCount0(new Date());
+        // 当日未打卡总人数
+        String unClockUserCount = userAccountDao.getUnClockUserCount0(new Date());
+
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("sumClockBalance0", sumClockBalance0);
+        map.put("unClockUserBalance0Sum", unClockUserBalance0Sum);
+        map.put("clockUserCount", clockUserCount);
+        map.put("unClockUserCount", unClockUserCount);
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultData(map);
+        json.setResultMsg("成功");
+        return json;
+    }
+
+    /**
+     * 盘口0数据汇总
+     * @return
+     */
+    @PostMapping(value = "/dataAmount")
+    public CommonJson dataAmount(@RequestParam String no) {
+        CommonJson json = new CommonJson();
+        // 盘口0 总金额
+        String userBalance0Sum = userAccountDao.getUserBalance0Sum();
+        // 盘口0 总账户数
+        String userCount0 = userAccountDao.getUserCount0();
+        // 盘口0 当日打卡列表
+        List<String> openidList = userClockLogDao.findEarlyClockUser(no, new Date());
+        WechatMpUserModel wechatMpUserModel = null;
+        if (openidList.size() > 0) {
+            wechatMpUserModel = wechatMpUserDao.getByWechatOpenIdIs(openidList.get(0));
+        }
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("userBalance0Sum", userBalance0Sum);
+        map.put("userCount0", userCount0);
+        map.put("wechatMpUserModel", wechatMpUserModel);
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultData(map);
+        json.setResultMsg("成功");
+        return json;
+    }
+
+    /**
      * 正常打卡流程
      * 1.先保存用户打卡日志
      * 2.向账户信息中写入最近一次打卡时间 并判断当前用户是否打卡周期结束
@@ -255,6 +309,7 @@ public class ClockController {
                     userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance0())).toString());
                     userAccountModel.setUseBalance0("");
                     userAccountModel.setOrderDate0(null);
+                    userAccountModel.setType0("");
                 }
                 break;
             case "1":
@@ -265,6 +320,7 @@ public class ClockController {
                     userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance1())).toString());
                     userAccountModel.setUseBalance1("");
                     userAccountModel.setOrderDate1(null);
+                    userAccountModel.setType1("");
                 }
                 break;
             case "2":
@@ -275,6 +331,7 @@ public class ClockController {
                     userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance2())).toString());
                     userAccountModel.setUseBalance2("");
                     userAccountModel.setOrderDate2(null);
+                    userAccountModel.setType2("");
                 }
                 break;
             case "3":
@@ -285,6 +342,7 @@ public class ClockController {
                     userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance3())).toString());
                     userAccountModel.setUseBalance3("");
                     userAccountModel.setOrderDate3(null);
+                    userAccountModel.setType3("");
                 }
                 break;
             default:
@@ -295,6 +353,7 @@ public class ClockController {
                     userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance0())).toString());
                     userAccountModel.setUseBalance0("");
                     userAccountModel.setOrderDate0(null);
+                    userAccountModel.setType0("");
                 }
                 break;
         }

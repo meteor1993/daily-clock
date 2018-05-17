@@ -1,6 +1,8 @@
 package com.springboot.dailyclock;
 
+import com.springboot.dailyclock.account.dao.UserAccountDao;
 import com.springboot.dailyclock.sign.dao.NeedClockUserDao;
+import com.springboot.dailyclock.sign.dao.UserClockLogDao;
 import com.springboot.dailyclock.sign.model.NeedClockUserModel;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -26,14 +28,19 @@ public class DailyClockApplicationTests {
 	@Autowired
 	NeedClockUserDao needClockUserDao;
 
+	@Autowired
+	UserAccountDao userAccountDao;
+
+	@Autowired
+	UserClockLogDao userClockLogDao;
+
 
 
 	@Test
 	public void contextLoads() throws ParseException {
-        DateTime begin = new DateTime("2018-04-27");
-        DateTime end = new DateTime(new Date());
-        Period p = new Period(begin, end, PeriodType.days());
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"+new BigDecimal("1.03").add(new BigDecimal("10983.21")).toString());
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>" + userClockLogDao.findEarlyClockUser("0", new Date()));
+//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>" + userAccountDao.getClockUserCount0(new Date()));
+//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>" + userAccountDao.getUnClockUserCount0(new Date()));
 	}
 
 }
