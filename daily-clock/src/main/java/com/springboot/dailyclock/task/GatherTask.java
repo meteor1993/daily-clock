@@ -1,8 +1,15 @@
 package com.springboot.dailyclock.task;
 
+import com.springboot.dailyclock.account.dao.UserAccountDao;
+import com.springboot.dailyclock.account.model.UserAccountModel;
+import com.springboot.dailyclock.sign.dao.NeedClockUserDao;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * @program: daily-clock
@@ -14,16 +21,27 @@ import org.springframework.scheduling.annotation.Scheduled;
 @EnableScheduling
 public class GatherTask {
 
+    @Autowired
+    UserAccountDao userAccountDao;
+
+    @Autowired
+    NeedClockUserDao needClockUserDao;
+
     /**
      * 核算定时任务，每天上午八点 启动
      */
     @Scheduled(cron="0 0 8 * * *")
     public void collectTask_0() {
         String no = "0";
-        // 查询所有今日有资格打卡人
+        // 查询盘口0所有今日有资格打卡人
+        List<String> openidList =  needClockUserDao.findAllNeedClockUserModel(new Date());
 
-        // 对照打卡日志表和账户信息滚一圈
+        // 循环今日所有有资格打卡人
+        for (String str : openidList) {
+            UserAccountModel userAccountModel = userAccountDao.getByOpenidIs(str);
 
-        // 计算总计金额
+
+
+        }
     }
 }

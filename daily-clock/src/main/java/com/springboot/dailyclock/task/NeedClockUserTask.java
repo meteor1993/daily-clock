@@ -68,7 +68,7 @@ public class NeedClockUserTask {
         ClockConfigModel clockConfigModel = clockConfigDao.getByIdIs(no);
 
         // 查询所有开通盘口0的账户
-        List<UserAccountModel> userAccountModelList = userAccountDao.findAllByType0(no);
+        List<UserAccountModel> userAccountModelList = userAccountDao.findAllByType0("1");
 
         Map<String, Object> map = Maps.newHashMap();
 

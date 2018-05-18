@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface UserAccountDao extends PagingAndSortingRepository<UserAccountModel, Long>, JpaSpecificationExecutor<UserAccountModel> {
 
-    List<UserAccountModel> findAllByType0(String no);
+    List<UserAccountModel> findAllByType0(String type);
 
     UserAccountModel getByOpenidIs(String openid);
 
