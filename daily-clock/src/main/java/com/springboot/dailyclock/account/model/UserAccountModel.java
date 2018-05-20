@@ -114,6 +114,26 @@ public class UserAccountModel implements java.io.Serializable {
      */
     private Date clockDate3;
 
+    /**
+     * 盘口0 当日新增奖金
+     */
+    private String todayBalance0;
+
+    /**
+     * 盘口1 当日新增奖金
+     */
+    private String todayBalance1;
+
+    /**
+     * 盘口2 当日新增奖金
+     */
+    private String todayBalance2;
+
+    /**
+     * 盘口3 当日新增奖金
+     */
+    private String todayBalance3;
+
     public String getId() {
         return id;
     }
@@ -280,5 +300,37 @@ public class UserAccountModel implements java.io.Serializable {
 
     public void setClockDate3(Date clockDate3) {
         this.clockDate3 = clockDate3;
+    }
+
+    public String getTodayBalance0() {
+        return todayBalance0;
+    }
+
+    public void setTodayBalance0(String todayBalance0) {
+        this.todayBalance0 = todayBalance0;
+    }
+
+    public String getTodayBalance1() {
+        return todayBalance1;
+    }
+
+    public void setTodayBalance1(String todayBalance1) {
+        this.todayBalance1 = todayBalance1;
+    }
+
+    public String getTodayBalance2() {
+        return todayBalance2;
+    }
+
+    public void setTodayBalance2(String todayBalance2) {
+        this.todayBalance2 = todayBalance2;
+    }
+
+    public String getTodayBalance3() {
+        return todayBalance3;
+    }
+
+    public void setTodayBalance3(String todayBalance3) {
+        this.todayBalance3 = todayBalance3;
     }
 }

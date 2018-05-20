@@ -18,11 +18,10 @@ server:
     #是否开启access log ，默认: false
     accesslog:
       enabled: true
-  context-path: /daily-clock
   connection-timeout: 1800
 spring:
   application:
-      name: daily-clock-admin-client
+      name: daily-clock-server
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai
@@ -107,6 +106,19 @@ spring:
   session:
     #开启redis方式的session存储
     store-type: redis
+  mail:
+    default-encoding: UTF-8
+    host: smtp.qq.com
+    username: wsy1993@vip.qq.com
+    password: oyeodwbmapakbgdb
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 25000
+          starttls:
+            enable: true
+            required: true
 logging:
   level:
     org.springframework.web: INFO
@@ -114,18 +126,14 @@ logging:
   pattern:
     level: INFO
   file: /opt/logs/daily_clock.log
-#公众号配置
-wechat:
-  mp:
-    appId: wx626df2feb975a668
-    secret: 1d6b47a2c6973d8ce916441ba4decd00
-    token: TdbjScsWLoRDLRFYLA27in6o9YSOa6vI
-    aesKey:
-  pay:
-    appId: wx626df2feb975a668
-    mchId: 1497923022
-    mchKey: HAFh14FTtbiiOyBZ6Fv9GorqVSDG2Hie
-    keyPath: classpath:apiclient_cert.p12
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    prefer-ip-address: true
+  client:
+    registryFetchIntervalSeconds: 5
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVICE_URL:http://47.100.173.182:8761}/eureka/
 aliyun:
   accessKeyId: accessKeyId
   accessKeySecret: accessKeySecret

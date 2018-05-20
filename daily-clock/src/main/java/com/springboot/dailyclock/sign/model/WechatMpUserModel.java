@@ -99,6 +99,16 @@ public class WechatMpUserModel implements java.io.Serializable {
      */
     private String mobile;
 
+    /**
+     * 年龄
+     */
+    private String age;
+
+    /**
+     * 职业
+     */
+    private String professional;
+
     public String getId() {
         return id;
     }
@@ -209,5 +219,21 @@ public class WechatMpUserModel implements java.io.Serializable {
 
     public void setMobile(String mobile) {
         this.mobile = mobile;
+    }
+
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
+    }
+
+    public String getProfessional() {
+        return professional;
+    }
+
+    public void setProfessional(String professional) {
+        this.professional = professional;
     }
 }

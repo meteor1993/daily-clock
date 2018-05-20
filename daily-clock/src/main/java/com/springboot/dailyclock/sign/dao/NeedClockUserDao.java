@@ -25,6 +25,15 @@ public interface NeedClockUserDao extends PagingAndSortingRepository<NeedClockUs
      * @param now
      * @return
      */
-    @Query("select n.openid from NeedClockUserModel n where n.no = '1' and TO_DAYS(u.createDate) = TO_DAYS(?1)")
+    @Query("select n.openid from NeedClockUserModel n where n.no = '0' and TO_DAYS(n.createDate) = TO_DAYS(?1)")
     List<String> findAllNeedClockUserModel(Date now);
+
+    /**
+     * 查询 某日期某盘口所有押金
+     * @param no
+     * @param date
+     * @return
+     */
+    @Query("select sum (n.useBalance) from NeedClockUserModel n where n.no = ?1 and TO_DAYS(n.createDate) = TO_DAYS(?2)")
+    String getbalanceSumByNo(String no, Date date);
 }

@@ -11,10 +11,12 @@ import com.springboot.dailyclock.sign.model.ClockConfigModel;
 import com.springboot.dailyclock.sign.model.NeedClockUserModel;
 import com.springboot.dailyclock.sign.model.UserClockLogModel;
 import com.springboot.dailyclock.sign.model.WechatMpUserModel;
+import com.springboot.dailyclock.sms.dao.SMSDao;
+import com.springboot.dailyclock.sms.model.SMSModel;
 import com.springboot.dailyclock.sms.utils.AliyunSMSUtils;
 import com.springboot.dailyclock.system.model.CommonJson;
 import com.springboot.dailyclock.system.utils.Constant;
-import com.springboot.dailyclock.system.utils.ContextHolderUtils;
+import com.springboot.dailyclock.system.utils.ExceptionUtil;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -35,6 +37,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -44,7 +47,7 @@ import java.util.concurrent.TimeUnit;
  * @create: 2018-05-13 10:02
  **/
 @RestController
-@RequestMapping(path = "/wechatUser")
+@RequestMapping(path = "/api")
 public class ClockController {
 
 
@@ -66,6 +69,9 @@ public class ClockController {
     UserAccountDao userAccountDao;
 
     @Autowired
+    SMSDao smsDao;
+
+    @Autowired
     private StringRedisTemplate redisTemplate;
 
     /**
@@ -74,7 +80,8 @@ public class ClockController {
      * @return
      */
     @PostMapping(value = "/sendSMS")
-    public CommonJson sendSMS(@RequestParam String mobile) {
+    public CommonJson sendSMS(@RequestParam String sessionId, @RequestParam String mobile) {
+        logger.info(">>>>>>>>>sessionId:" + sessionId + ">>>>>>>>>>mobile:" + mobile);
         CommonJson json = new CommonJson();
         if (StringUtils.isEmpty(mobile) || mobile.length() != 11) {
             json.setResultCode(Constant.JSON_ERROR_CODE);
@@ -84,7 +91,19 @@ public class ClockController {
         // ---------------进入发短信流程--------------
         AliyunSMSUtils smsUtils = AliyunSMSUtils.getInstance();
 
-        boolean flag = smsUtils.sendSMS(mobile);
+        String code = getRandomCode();
+        logger.info("---------------sendSMS--------------mobile:" + mobile + ",code" + code);
+//        boolean flag = smsUtils.sendAliyunSMS(mobile, code);
+        boolean flag = true;
+        if (flag) {
+            SMSModel smsModel = new SMSModel();
+            smsModel.setCreateDate(new Date());
+            smsModel.setMobile(mobile);
+            smsModel.setCreateSessionID(sessionId);
+            smsModel.setIsValid(Constant.SUCCESS_CODE);
+            smsModel.setVerificationCode(code);
+            smsDao.save(smsModel);
+        }
 
         if (flag) {
             json.setResultCode(Constant.JSON_SUCCESS_CODE);
@@ -104,21 +123,58 @@ public class ClockController {
      * @return
      */
     @PostMapping(value = "/binding")
-    public CommonJson binding(@RequestParam String mobile, @RequestParam String code) {
+    public CommonJson binding(@RequestParam WxMpUser wxMpUser, @RequestParam String sessionId, @RequestParam String mobile, @RequestParam String code) {
+
+        logger.info(">>>>>>>>openid:" + wxMpUser.getOpenId() + ">>>>>>>sessionId:" + sessionId + ">>>>>>>>>>mobile:" + mobile + ">>>>>>>>>>code:" + code);
+
         CommonJson json = new CommonJson();
         if (StringUtils.isEmpty(mobile) || StringUtils.isEmpty(code)) {
             json.setResultCode(Constant.JSON_ERROR_CODE);
             json.setResultMsg("手机号或验证码为空");
             return json;
         }
-        AliyunSMSUtils smsUtils = AliyunSMSUtils.getInstance();
 
         int checkMinutes = 5; // 校验短信有效期
 
-        json = smsUtils.checkVerificationCode(code, checkMinutes);
+        // 校验短信验证码
+        List<SMSModel> smsModelList = smsDao.findAllByCreateSessionIDAndIsValidOrderByCreateDateDesc(sessionId, code);
+        SMSModel smsModel = smsModelList.get(0);
+        SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String createDate = simpleFormat.format(smsModel.getCreateDate());
+        String nowDate = simpleFormat.format(new Date());
+        try {
+            long create = simpleFormat.parse(createDate).getTime();
+            long now = simpleFormat.parse(nowDate).getTime();
+            int times = (int) ((now - create)/(1000 * 60));
+            if (smsModelList.size() > 0) { // 查询到相关数据
+                if (Constant.FAIL_CODE.equals(smsModel.getIsValid())) { // 判断当前验证码是否有效
+                    if (times < checkMinutes) { // 判断时间是否小于有效时间
+                        // 将验证码变为无效
+                        smsModel.setIsValid(Constant.FAIL_CODE);
+                        smsDao.save(smsModel);
+                        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+                        json.setResultMsg("验证码输入正确");
+                    } else {
+                        json.setResultCode(Constant.JSON_ERROR_CODE);
+                        json.setResultMsg("当前验证码已过期，请重新获取");
+                        return json;
+                    }
+                } else {
+                    json.setResultCode(Constant.JSON_ERROR_CODE);
+                    json.setResultMsg("您到验证码已失效，请重新获取");
+                    return json;
+                }
+            } else {
+                json.setResultCode(Constant.JSON_ERROR_CODE);
+                json.setResultMsg("请输入正确到验证码");
+                return json;
+            }
+        } catch (ParseException e) {
+            logger.info(ExceptionUtil.getStackMsg(e));
+        }
 
         if (Constant.JSON_SUCCESS_CODE.equals(json.getResultCode())) { // 验证码校验通过
-            WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
+//            WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
             if (StringUtils.isEmpty(wxMpUser.getOpenId())) { //判断当前是否存在openid
                 WechatMpUserModel wechatMpUserModel = new WechatMpUserModel();
                 wechatMpUserModel.setMobile(mobile);
@@ -146,9 +202,10 @@ public class ClockController {
      * @return
      */
     @PostMapping(value = "/clock")
-    public CommonJson clock(@RequestParam String no) throws ParseException {
+    public CommonJson clock(@RequestParam WxMpUser wxMpUser, @RequestParam String no) throws ParseException {
+        logger.info(">>>>>>>>openid:" + wxMpUser.getOpenId() + ">>>>>>>>>>no:" + no);
         CommonJson json = new CommonJson();
-        WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
+//        WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
         // 判断盘口静态变量付值
         String TODAY_NEED_SIGN_USER, TODAY_SIGN_USER_LOG;
         switch (no) {
@@ -290,12 +347,14 @@ public class ClockController {
      * @param TODAY_SIGN_USER_LOG
      */
     private void commonSign(String openid, String no, ClockConfigModel clockConfigModel, String TODAY_SIGN_USER_LOG) {
+        UserAccountModel userAccountModel = userAccountDao.getByOpenidIs(openid);
         UserClockLogModel userClockLogModel = new UserClockLogModel();
         userClockLogModel.setCreateDate(new Date());
         userClockLogModel.setOpenId(openid);
         userClockLogModel.setType(Constant.CLOCK_TYPE_1);
+        userClockLogModel.setNo(no);
         userClockLogDao.save(userClockLogModel);
-        UserAccountModel userAccountModel = userAccountDao.getByOpenidIs(openid);
+
         // 向账户信息中写入最近一次打卡时间 并判断当前用户是否打卡周期结束
         DateTime begin;
         DateTime end = new DateTime(new Date());
@@ -309,6 +368,7 @@ public class ClockController {
                     userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance0())).toString());
                     userAccountModel.setUseBalance0("");
                     userAccountModel.setOrderDate0(null);
+                    userAccountModel.setUpdateDate(new Date());
                     userAccountModel.setType0("");
                 }
                 break;
@@ -320,6 +380,7 @@ public class ClockController {
                     userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance1())).toString());
                     userAccountModel.setUseBalance1("");
                     userAccountModel.setOrderDate1(null);
+                    userAccountModel.setUpdateDate(new Date());
                     userAccountModel.setType1("");
                 }
                 break;
@@ -331,6 +392,7 @@ public class ClockController {
                     userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance2())).toString());
                     userAccountModel.setUseBalance2("");
                     userAccountModel.setOrderDate2(null);
+                    userAccountModel.setUpdateDate(new Date());
                     userAccountModel.setType2("");
                 }
                 break;
@@ -342,6 +404,7 @@ public class ClockController {
                     userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance3())).toString());
                     userAccountModel.setUseBalance3("");
                     userAccountModel.setOrderDate3(null);
+                    userAccountModel.setUpdateDate(new Date());
                     userAccountModel.setType3("");
                 }
                 break;
@@ -353,6 +416,7 @@ public class ClockController {
                     userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance0())).toString());
                     userAccountModel.setUseBalance0("");
                     userAccountModel.setOrderDate0(null);
+                    userAccountModel.setUpdateDate(new Date());
                     userAccountModel.setType0("");
                 }
                 break;
@@ -362,6 +426,21 @@ public class ClockController {
         map.put(openid, userClockLogModel);
         redisTemplate.opsForHash().putAll(TODAY_SIGN_USER_LOG, map);
         redisTemplate.expire(TODAY_SIGN_USER_LOG, 2, TimeUnit.HOURS); // 设定2小时过期
+    }
+
+    /**
+     * 获取随机数
+     * @return
+     */
+    private String getRandomCode() {
+        Random rad = new Random();
+
+        String result = rad.nextInt(1000000) + "";
+
+        if(result.length() != 6){
+            return getRandomCode();
+        }
+        return result;
     }
 
 }

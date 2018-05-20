@@ -1,0 +1,101 @@
+#server setting
+server:
+  port: 8001
+  tomcat:
+    uri-encoding: utf-8
+    #最大连接数
+    max-connections: 1000
+    #最大线程数，最大并发数
+    max-threads: 1000
+    #最小备用线程数
+    min-spare-threads: 20
+    #线程数达到maxThreads后，后续请求会被放入一个等待队列，accept-count是这个队列的大小
+    accept-count: 500
+    #tomcat连接器
+    connector: org.apache.coyote.http11.Http11NioProtocol
+    #tomcat优化
+    optimize: true
+    #是否开启access log ，默认: false
+    accesslog:
+      enabled: true
+  context-path: /dailyclock
+  connection-timeout: 1800
+spring:
+  application:
+      name: daily-sign-wechat-client
+  jackson:
+      date-format: yyyy-MM-dd HH:mm:ss
+      time-zone: Asia/Shanghai
+      default-property-inclusion: non_default
+  thymeleaf:
+    # 关闭thymeleaf缓存 开发时使用 否则没有实时画面
+    cache: false
+    # 检查模板是否存在，然后再呈现
+    check-template-location: true
+    # Content-Type value.
+    content-type: text/html
+    # 启用MVC Thymeleaf视图分辨率
+    enabled: true
+    # Template encoding.
+    encoding: UTF-8
+    # Template mode to be applied to templates. See also StandardTemplateModeHandlers.
+    mode: LEGACYHTML5
+    # Prefix that gets prepended to view names when building a URL.
+    prefix: classpath:/templates/
+    # Suffix that gets appended to view names when building a URL.
+    suffix: .html
+    #thymeleaf end
+  # JPA Configuration
+  mvc:
+    # 指定静态资源处理路径
+    static-path-pattern: /static/**
+    view:
+      suffix: .html
+  redis:
+      host: 47.98.181.26
+      port: 6379
+      password: ROOT@redis.com
+      timeout: 10000
+      database: 0
+      pool:
+        # 连接池中的最小空闲连接
+        min-idle: 10
+        # 连接池中的最大空闲连接
+        max-idle: 100
+        # 连接池最大连接数（使用负值表示没有限制）
+        max-active: -1
+        # 连接超时时间（毫秒）
+        max-wait: 10000
+  session:
+      #开启redis方式的session存储
+      store-type: redis
+logging:
+  level:
+    org.springframework.web: INFO
+    com.fsg.salary: INFO
+  pattern:
+    level: INFO
+  file: /opt/logs/daily_clock.log
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    prefer-ip-address: true
+  client:
+    registryFetchIntervalSeconds: 5
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVICE_URL:http://47.100.173.182:8761}/eureka/
+#公众号配置
+wechat:
+  mp:
+    appId: wx626df2feb975a668
+    secret: 1d6b47a2c6973d8ce916441ba4decd00
+    token: TdbjScsWLoRDLRFYLA27in6o9YSOa6vI
+    aesKey:
+  pay:
+    appId: wx626df2feb975a668
+    mchId: 1497923022
+    mchKey: HAFh14FTtbiiOyBZ6Fv9GorqVSDG2Hie
+    keyPath: classpath:apiclient_cert.p12
+hystrix:
+  metrics:
+    enabled: true

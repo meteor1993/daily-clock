@@ -43,6 +43,11 @@ public class ClockConfigModel implements java.io.Serializable {
      */
     private String forMeAmount;
 
+    /**
+     * 保底金额
+     */
+    private String baodiAmount;
+
     private Date createDate;
 
     private Date updateDate;
@@ -90,6 +95,14 @@ public class ClockConfigModel implements java.io.Serializable {
 
     public void setForMeAmount(String forMeAmount) {
         this.forMeAmount = forMeAmount;
+    }
+
+    public String getBaodiAmount() {
+        return baodiAmount;
+    }
+
+    public void setBaodiAmount(String baodiAmount) {
+        this.baodiAmount = baodiAmount;
     }
 
     public Date getCreateDate() {

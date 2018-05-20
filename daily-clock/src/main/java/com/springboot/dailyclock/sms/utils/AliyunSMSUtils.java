@@ -11,7 +11,6 @@ import com.springboot.dailyclock.sms.dao.SMSDao;
 import com.springboot.dailyclock.sms.model.SMSModel;
 import com.springboot.dailyclock.system.model.CommonJson;
 import com.springboot.dailyclock.system.utils.Constant;
-import com.springboot.dailyclock.system.utils.ContextHolderUtils;
 import com.springboot.dailyclock.system.utils.ExceptionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,86 +54,6 @@ public class AliyunSMSUtils {
     private String accessKeyId;
     @Value("${aliyun.accessKeySecret}")
     private String accessKeySecret;
-
-    /**
-     * 获取随机数
-     * @return
-     */
-    private String getRandomCode() {
-        Random rad = new Random();
-
-        String result = rad.nextInt(1000000) + "";
-
-        if(result.length() != 6){
-            return getRandomCode();
-        }
-        return result;
-    }
-
-    /**
-     * 发送短信验证码
-     * @param mobile
-     * @return
-     */
-    public boolean sendSMS(String mobile) {
-        String code = getRandomCode();
-        logger.info("---------------sendSMS--------------mobile:" + mobile + ",code" + code);
-        boolean flag = sendAliyunSMS(mobile, code);
-        if (flag) {
-            SMSModel smsModel = new SMSModel();
-            smsModel.setCreateDate(new Date());
-            smsModel.setMobile(mobile);
-            smsModel.setCreateSessionID(ContextHolderUtils.getSession().getId());
-            smsModel.setIsValid(Constant.SUCCESS_CODE);
-            smsModel.setVerificationCode(code);
-            smsDao.save(smsModel);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 校验短信验证码
-     * @param code
-     * @param minutes 有效时间
-     * @return
-     */
-    public CommonJson checkVerificationCode(String code, int minutes) {
-        CommonJson json = new CommonJson();
-        List<SMSModel> smsModelList = smsDao.findAllByCreateSessionIDAndIsValidOrderByCreateDateDesc(ContextHolderUtils.getSession().getId(), code);
-        SMSModel smsModel = smsModelList.get(0);
-        SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        String createDate = simpleFormat.format(smsModel.getCreateDate());
-        String nowDate = simpleFormat.format(new Date());
-        try {
-            long create = simpleFormat.parse(createDate).getTime();
-            long now = simpleFormat.parse(nowDate).getTime();
-            int times = (int) ((now - create)/(1000 * 60));
-            if (smsModelList.size() > 0) { // 查询到相关数据
-                if (Constant.FAIL_CODE.equals(smsModel.getIsValid())) { // 判断当前验证码是否有效
-                    if (times < minutes) { // 判断时间是否小于有效时间
-                        // 将验证码变为无效
-                        smsModel.setIsValid(Constant.FAIL_CODE);
-                        smsDao.save(smsModel);
-                        json.setResultCode(Constant.JSON_SUCCESS_CODE);
-                        json.setResultMsg("验证码输入正确");
-                    } else {
-                        json.setResultCode(Constant.JSON_ERROR_CODE);
-                        json.setResultMsg("当前验证码已过期，请重新获取");
-                    }
-                } else {
-                    json.setResultCode(Constant.JSON_ERROR_CODE);
-                    json.setResultMsg("您到验证码已失效，请重新获取");
-                }
-            } else {
-                json.setResultCode(Constant.JSON_ERROR_CODE);
-                json.setResultMsg("请输入正确到验证码");
-            }
-        } catch (ParseException e) {
-            logger.info(ExceptionUtil.getStackMsg(e));
-        }
-        return json;
-    }
 
     /**
      * 阿里云发送短信
