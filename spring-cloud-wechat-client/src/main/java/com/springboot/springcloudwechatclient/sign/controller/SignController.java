@@ -1,5 +1,6 @@
 package com.springboot.springcloudwechatclient.sign.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.springboot.springcloudwechatclient.sign.model.WechatMpUserModel;
 import com.springboot.springcloudwechatclient.sign.remote.WechatMpUserRemote;
 import com.springboot.springcloudwechatclient.system.model.CommonJson;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @create: 2018-05-20 21:35
  **/
 @Controller
-@RequestMapping(value = "/wxMp")
+@RequestMapping(value = "/wxMp/sign")
 public class SignController {
 
     private static final Logger logger = LoggerFactory.getLogger(SignController.class);
@@ -29,14 +30,20 @@ public class SignController {
 
     @RequestMapping(value = "/index")
     public String index() {
-        WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
+//        WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
+        WxMpUser wxMpUser = new WxMpUser();
+        wxMpUser.setOpenId("111111");
+        logger.info(">>>>>>>>>>>>wechatMpUserRemote.getWechatMpUserByOpenid, openid:" + wxMpUser.getOpenId());
         CommonJson json = wechatMpUserRemote.getWechatMpUserByOpenid(wxMpUser.getOpenId());
-        WechatMpUserModel wechatMpUserModel = (WechatMpUserModel) json.getResultData().get("wechatMpUserModel");
-        // 判断当前用户是否绑定
-        if (wechatMpUserModel != null) { // 已绑定
-            return "wxmp/sign/index";
-        } else { // 未绑定
-            return  "wxmp/sign/binding";
+        logger.info(">>>>>>>>>>>>wechatMpUserRemote.getWechatMpUserByOpenid:" + JSON.toJSONString(json));
+        if (Constant.JSON_SUCCESS_CODE.equals(json.getResultCode())) {
+            WechatMpUserModel wechatMpUserModel = JSON.parseObject(JSON.toJSONString(json.getResultData().get("wechatMpUserModel")), WechatMpUserModel.class);
+            if (wechatMpUserModel.getWechatOpenId() != null) { // 已绑定
+                return "wxmp/sign/index";
+            } else { // 未绑定
+                return  "wxmp/sign/binding";
+            }
         }
+        return  "wxmp/sign/binding";
     }
 }

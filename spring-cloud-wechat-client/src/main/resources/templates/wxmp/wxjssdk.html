@@ -1,0 +1,127 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<meta charset="UTF-8"/>
+<script th:src="@{/static/plug-in/jquery/_js/jquery-3.2.1.min.js}"></script>
+<script th:src="@{/static/plug-in/jweixin/jweixin-1.2.0.js}"></script>
+<script>
+
+
+    //异步获取配置签名
+    function ajaxJsapiSignature() {
+        $.ajax({
+            async : false,
+            cache : false,
+            type : 'POST',
+            url : "/dailyclock/wechatMpOuath/ajaxJsapiSignature",// 请求的action路径
+            data : {"locaHref":location.href.split('#')[0]},
+            error : function() {// 请求失败处理函数
+            },
+            success : function(data) {
+                if (data.success) {
+                    var  jsapiJson = data.attributes.jsapiSignature;
+                    console.log(data.attributes.appId+"__"+jsapiJson.timestamp+"__"+jsapiJson.nonceStr+"__"+jsapiJson.signature);
+                    wxConfig(data.attributes.appId,jsapiJson.timestamp,jsapiJson.nonceStr,jsapiJson.signature);
+                } else {
+
+                }
+            }
+        });
+    }
+    /**
+     * 下载媒体信息
+     * mediaId 媒体id
+     * pathPlx 所属目录
+     * callBackFn 下载
+     */
+    function ajaxMediaDown(mediaId,pathPlx,callBackFn){
+        $.ajax({
+            type : 'POST',
+            url : "/dailyclock/mediaController/ajaxDownMedia",// 请求的action路径
+            data : {
+                "mediaId":mediaId,
+                "pathPlx":pathPlx
+            },
+            error : function() {// 请求失败处理函数
+            },
+            success : function(data) {
+                var jsonData = $.parseJSON(data);
+                if("function" == typeof callBackFn)
+                    callBackFn(jsonData);
+            }
+        });
+    }
+    /**
+     * 微信回调
+     */
+    function wxReadyCallBack(){
+    }
+
+    function wxConfig(appId,timestamp,noncestr,signature){
+        console.log("appId:"+appId+",timestamp:"+timestamp+",noncestr:"+noncestr+",signature:"+signature+"");
+        wx.config({
+            debug: false,// 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+            appId: appId,
+            timestamp: timestamp,
+            nonceStr: noncestr,
+            signature: signature,
+            jsApiList: [
+                'checkJsApi',
+                'onMenuShareTimeline',
+                'onMenuShareAppMessage',
+                'onMenuShareQQ',
+                'onMenuShareWeibo',
+                'hideMenuItems',
+                'showMenuItems',
+                'hideAllNonBaseMenuItem',
+                'showAllNonBaseMenuItem',
+                'translateVoice',
+                'startRecord',
+                'stopRecord',
+                'onRecordEnd',
+                'playVoice',
+                'pauseVoice',
+                'stopVoice',
+                'uploadVoice',
+                'downloadVoice',
+                'chooseImage',
+                'previewImage',
+                'uploadImage',
+                'downloadImage',
+                'getNetworkType',
+                'openLocation',
+                'getLocation',
+                'hideOptionMenu',
+                'showOptionMenu',
+                'closeWindow',
+                'scanQRCode',
+                'chooseWXPay',
+                'openProductSpecificView',
+                'addCard',
+                'chooseCard',
+                'openCard'
+            ]
+        });
+        wx.ready(function(){
+            //默认隐藏
+            wx.hideOptionMenu();
+            wxReadyCallBack();
+            // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+
+        });
+        wx.error(function(res){
+            console.log(res);
+        });
+    }
+
+    //配置签名
+    ajaxJsapiSignature();
+
+    var locationPath = (window.location + '').split('/');
+    var basePath = locationPath[0] + '//' + locationPath[2] + '/'
+        + locationPath[3];
+    function wxReadyCallBack(){
+
+    }
+
+</script>
+</html>

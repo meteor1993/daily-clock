@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0" />
+    <title>开心打卡</title>
+    <!-- 引入 WeUI -->
+    <link rel="stylesheet" th:href="@{/static/plug-in/weui/_css/weui.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/plug-in/weui/_css/example.css}"/>
+</head>
+<body>
+<div th:include="wxmp/wxjssdk"></div>
+<div class="weui-cells__title">用户绑定</div>
+<div class="weui-cells weui-cells_form">
+    <div class="weui-cell weui-cell_select weui-cell_select-after">
+        <div class="weui-cell__hd">
+            <label for="" class="weui-label">年龄</label>
+        </div>
+        <div class="weui-cell__bd">
+            <select class="weui-select" name="select2" id="age">
+                <option value="0">0～17</option>
+                <option value="1">18～24</option>
+                <option value="2">25～36</option>
+                <option value="3">36以上</option>
+            </select>
+        </div>
+    </div>
+    <div class="weui-cell weui-cell_select weui-cell_select-after">
+        <div class="weui-cell__hd">
+            <label for="" class="weui-label">职业</label>
+        </div>
+        <div class="weui-cell__bd">
+            <select class="weui-select" name="select2" id="profession">
+                <option value="0">学生</option>
+                <option value="1">蓝领</option>
+                <option value="2">白领</option>
+                <option value="3">其他</option>
+            </select>
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">手机号</label></div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" type="tel" id="phone" />
+        </div>
+    </div>
+    <div class="weui-cell weui-cell_vcode">
+        <div class="weui-cell__hd">
+            <label class="weui-label">验证码</label>
+        </div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" id="verificationCode" type="tel" placeholder="请输入验证码" />
+        </div>
+        <div class="weui-cell__ft">
+            <button class="weui-vcode-btn" id="getVerificationCode">获取验证码</button>
+        </div>
+    </div>
+</div>
+<div style="height: 20px;"></div>
+<div class="page__bd page__bd_spacing">
+    <a href="javascript:submitData();" id="binding" class="weui-btn weui-btn_primary">用户绑定</a>
+</div>
+<div class="weui-footer weui-footer_fixed-bottom">
+    <p class="weui-footer__text">Copyright © 2017-2018 Allan</p>
+</div>
+<script th:src="@{/static/plug-in/weui/_js/weui.min.js}"></script>
+<script>
+    /*<![CDATA[*/
+    var countdown=60;
+    function settime(obj) {
+        if (countdown == 0) {
+            obj.removeAttribute("disabled");
+            obj.innerHTML="重新获取";
+            countdown = 60;
+            return;
+        } else {
+            obj.setAttribute("disabled", true);
+            obj.innerHTML="重新发送(" + countdown + ")";
+            countdown--;
+        }
+        setTimeout(function() {
+            settime(obj)
+        }, 1000)
+    }
+    $("#getVerificationCode").click(function () { // 点击发送验证码
+        if($("#phone").val().length != 11) {
+            weui.alert("您的手机号有误，请重新填写");
+            return;
+        }
+        $.ajax({
+            url: '/dailyclock/wxMp/signRestApi/sendSMS',
+            async: false,
+            cache : false,
+            data: {
+                mobile: $("#phone").val().trim()
+            },
+            type: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                if (data.success) {
+                    settime($("#getVerificationCode")[0]);
+                } else {
+                    weui.alert(data.resultMsg);
+                }
+            },
+            error : function(e) {// 请求失败处理函数
+                console.log(e);
+            }
+        });
+    });
+    function submitData() {
+        $("#binding").attr("disabled", true);
+        if($("#phone").val().length != 11) {
+            $("#binding").attr("disabled", false);
+            weui.alert("您的手机号有误，请重新输入");
+            return;
+        }
+        $.ajax({
+            url: '/dailyclock/wxMp/signRestApi/binding',
+            async: false,
+            cache : false,
+            data: {
+                age: $("#age").val(),
+                profession: $("#profession").val(),
+                mobile: $("#phone").val().trim()
+            },
+            type: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                if (data.success) {
+                    window.location.href = "/dailyclock/wxMp/sign/index";
+                } else {
+                    $("#binding").attr("disabled", false);
+                    weui.alert(data.msg);
+                }
+            },
+            error : function(e) {// 请求失败处理函数
+                console.log(e);
+            }
+        });
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

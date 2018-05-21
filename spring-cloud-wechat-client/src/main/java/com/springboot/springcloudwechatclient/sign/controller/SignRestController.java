@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * @create: 2018-05-20 19:02
  **/
 @RestController
-@RequestMapping(path = "/signRestApi")
+@RequestMapping(path = "/wxMp/signRestApi")
 public class SignRestController {
 
     private final static Logger logger = LoggerFactory.getLogger(SignRestController.class);

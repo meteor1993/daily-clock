@@ -26,16 +26,16 @@ public class WxMpInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         logger.info(">>>WxInterceptor>>>>>>>进入微信公众号拦截器>>>>>>>>>");
-        setStrPath(request);
-        if (request.getHeader("user-agent").indexOf(Constant.WECHAT_BROWSER) > 0) { // 是否微信浏览器
-            if (request.getSession().getAttribute(Constant.WX_MP_OPENID) == null) { // 如果当前session中没有openid，则去取openid
-                String oauth2scope = request.getParameter("oauth2scope");
-                oauth2Dispath(response,requestAllPath,"wechatMpOuath/generOauthUrl?oauth2scope="+oauth2scope);
-            }
-        } else {
-            response.sendRedirect(request.getContextPath() + "/wechatMpOuath/notwechatbrowser");
-            return false;
-        }
+//        setStrPath(request);
+//        if (request.getHeader("user-agent").indexOf(Constant.WECHAT_BROWSER) > 0) { // 是否微信浏览器
+//            if (request.getSession().getAttribute(Constant.WX_MP_OPENID) == null) { // 如果当前session中没有openid，则去取openid
+//                String oauth2scope = request.getParameter("oauth2scope");
+//                oauth2Dispath(response,requestAllPath,"wechatMpOuath/generOauthUrl?oauth2scope="+oauth2scope);
+//            }
+//        } else {
+//            response.sendRedirect(request.getContextPath() + "/wechatMpOuath/notwechatbrowser");
+//            return false;
+//        }
 
         return true;// 只有返回true才会继续向下执行，返回false取消当前请求
     }

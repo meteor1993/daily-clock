@@ -38,6 +38,7 @@ public class WechatMpUserController {
         Map<String, Object> map = Maps.newHashMap();
         map.put("wechatMpUserModel", wechatMpUserModel);
         json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultData(map);
         json.setResultMsg("成功");
         return json;
     }

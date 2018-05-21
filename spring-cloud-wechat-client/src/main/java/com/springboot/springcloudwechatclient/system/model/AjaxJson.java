@@ -1,7 +1,5 @@
 package com.springboot.springcloudwechatclient.system.model;
 
-import com.alibaba.fastjson.JSONObject;
-
 import java.util.Map;
 
 /**
@@ -43,13 +41,5 @@ public class AjaxJson {
 
     public void setSuccess(boolean success) {
         this.success = success;
-    }
-    public String getJsonStr(){
-        JSONObject obj = new JSONObject();
-        obj.put("success", this.isSuccess());
-        obj.put("msg", this.getMsg());
-        obj.put("obj", this.obj);
-        obj.put("attributes", this.attributes);
-        return obj.toJSONString();
     }
 }
