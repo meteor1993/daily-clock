@@ -21,4 +21,11 @@ public interface WechatMpUserRemote {
      */
     @PostMapping(value = "/api/getWechatMpUserByOpenid")
     CommonJson getWechatMpUserByOpenid(@RequestParam(value = "openid") String openid);
+
+    /**
+     * 盘口0当日打卡情况
+     * @return
+     */
+    @PostMapping(value = "/api/signInfo0")
+    CommonJson signInfo0();
 }

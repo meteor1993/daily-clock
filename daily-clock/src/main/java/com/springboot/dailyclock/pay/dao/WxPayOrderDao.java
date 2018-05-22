@@ -11,4 +11,8 @@ import java.util.List;
  */
 public interface WxPayOrderDao extends PagingAndSortingRepository<WxPayOrderModel, Long>, JpaSpecificationExecutor<WxPayOrderModel> {
     List<WxPayOrderModel> findAllByOpenIdAndOrderStatusOrderByOrderTimeDesc(String openid, String orderStatus);
+
+    WxPayOrderModel getByIdIs(String id);
+
+    WxPayOrderModel getByOrderNo(String orderNo);
 }

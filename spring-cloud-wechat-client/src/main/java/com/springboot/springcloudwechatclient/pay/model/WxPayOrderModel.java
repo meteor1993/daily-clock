@@ -1,14 +1,9 @@
-package com.springboot.dailyclock.pay.model;
+package com.springboot.springcloudwechatclient.pay.model;
 
-import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.*;
 import java.util.Date;
 
-@Entity
-@Table(name = "wechat_pay_order", schema = "")
 public class WxPayOrderModel {
-
+	
 	private String id;//主键ID
 
 	private String orderNo;//订单编号
@@ -37,10 +32,6 @@ public class WxPayOrderModel {
 
 	private Date updateDate;
 
-	@Id
-	@GeneratedValue(generator = "paymentableGenerator")
-	@GenericGenerator(name = "paymentableGenerator", strategy = "uuid")
-	@Column(name ="ID",nullable=false,length=36)
 	public String getId() {
 		return id;
 	}
@@ -49,7 +40,6 @@ public class WxPayOrderModel {
 		this.id = id;
 	}
 
-	@Column(name ="order_no")
 	public String getOrderNo() {
 		return orderNo;
 	}
@@ -58,7 +48,6 @@ public class WxPayOrderModel {
 		this.orderNo = orderNo;
 	}
 
-	@Column(name ="order_time")
 	public Date getOrderTime() {
 		return orderTime;
 	}
@@ -67,7 +56,6 @@ public class WxPayOrderModel {
 		this.orderTime = orderTime;
 	}
 
-	@Column(name ="order_money")
 	public Double getOrderMoney() {
 		return orderMoney;
 	}
@@ -76,7 +64,6 @@ public class WxPayOrderModel {
 		this.orderMoney = orderMoney;
 	}
 
-	@Column(name ="order_comment")
 	public String getOrderComment() {
 		return orderComment;
 	}
@@ -85,7 +72,6 @@ public class WxPayOrderModel {
 		this.orderComment = orderComment;
 	}
 	
-	@Column(name ="order_status")
 	public String getOrderStatus() {
 		return orderStatus;
 	}
@@ -94,7 +80,6 @@ public class WxPayOrderModel {
 		this.orderStatus = orderStatus;
 	}
 
-	@Column(name ="openId")
 	public String getOpenId() {
 		return openId;
 	}
@@ -103,7 +88,6 @@ public class WxPayOrderModel {
 		this.openId = openId;
 	}
 
-	@Column(name ="pay_time")
 	public Date getPayTime() {
 		return payTime;
 	}
@@ -112,7 +96,6 @@ public class WxPayOrderModel {
 		this.payTime = payTime;
 	}
 
-	@Column(name ="tx_order_no")
 	public String getTxOrderNo() {
 		return txOrderNo;
 	}
@@ -121,7 +104,6 @@ public class WxPayOrderModel {
 		this.txOrderNo = txOrderNo;
 	}
 
-	@Column(name ="pay_success_time")
 	public String getPaySuccessTime() {
 		return paySuccessTime;
 	}
@@ -130,7 +112,6 @@ public class WxPayOrderModel {
 		this.paySuccessTime = paySuccessTime;
 	}
 
-	@Column(name ="transaction_id")
 	public String getTransactionId() {
 		return transactionId;
 	}
@@ -139,7 +120,6 @@ public class WxPayOrderModel {
 		this.transactionId = transactionId;
 	}
 
-	@Column(name ="pay_times")
 	public Integer getPayTimes() {
 		return payTimes;
 	}
@@ -148,7 +128,6 @@ public class WxPayOrderModel {
 		this.payTimes = payTimes;
 	}
 	
-	@Column(name ="product_no")
 	public String getProductNo() {
 		return productNo;
 	}

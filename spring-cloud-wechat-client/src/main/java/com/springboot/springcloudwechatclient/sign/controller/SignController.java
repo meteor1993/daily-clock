@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.Map;
+
 /**
  * @program: spring-cloud-wechat-client
  * @description:
@@ -39,6 +41,10 @@ public class SignController {
         if (Constant.JSON_SUCCESS_CODE.equals(json.getResultCode())) {
             WechatMpUserModel wechatMpUserModel = JSON.parseObject(JSON.toJSONString(json.getResultData().get("wechatMpUserModel")), WechatMpUserModel.class);
             if (wechatMpUserModel.getWechatOpenId() != null) { // 已绑定
+                CommonJson commonJson = wechatMpUserRemote.signInfo0();
+                logger.info(">>>>>>>>>>>>wechatMpUserRemote.signInfo0:" + JSON.toJSONString(commonJson));
+                Map<String, Object> map = JSON.parseObject(JSON.toJSONString(json.getResultData()), Map.class);
+                ContextHolderUtils.getRequest().setAttribute("map", map);
                 return "wxmp/sign/index";
             } else { // 未绑定
                 return  "wxmp/sign/binding";
