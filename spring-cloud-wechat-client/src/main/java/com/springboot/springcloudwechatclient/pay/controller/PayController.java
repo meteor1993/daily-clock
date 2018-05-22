@@ -137,6 +137,11 @@ public class PayController {
         return json;
     }
 
+    /**
+     * 支付回调
+     * @param xmlData
+     * @throws WxPayException
+     */
     @RequestMapping(value = "/payNotifyUrl")
     @Deprecated
     public void getOrderNotifyResult(@RequestParam String xmlData) throws WxPayException {
