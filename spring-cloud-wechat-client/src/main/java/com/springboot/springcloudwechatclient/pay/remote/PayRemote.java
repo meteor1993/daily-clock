@@ -1,5 +1,6 @@
 package com.springboot.springcloudwechatclient.pay.remote;
 
+import com.springboot.springcloudwechatclient.pay.model.WechatEntPayModel;
 import com.springboot.springcloudwechatclient.pay.model.WxPayOrderModel;
 import com.springboot.springcloudwechatclient.system.model.CommonJson;
 import org.springframework.cloud.netflix.feign.FeignClient;
@@ -26,4 +27,7 @@ public interface PayRemote {
 
     @PostMapping(value = "/payApi/getWxPayOrderModelByOrderNo")
     CommonJson getWxPayOrderModelByOrderNo(@RequestParam(value = "orderNo") String orderNo);
+
+    @PostMapping(value = "/payApi/saveWechatEntPayModel")
+    CommonJson saveWechatEntPayModel(@RequestBody WechatEntPayModel wechatEntPayModel);
 }

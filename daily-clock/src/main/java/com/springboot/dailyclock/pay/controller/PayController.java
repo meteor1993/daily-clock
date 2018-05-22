@@ -2,7 +2,9 @@ package com.springboot.dailyclock.pay.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
+import com.springboot.dailyclock.pay.dao.WechatEntPayDao;
 import com.springboot.dailyclock.pay.dao.WxPayOrderDao;
+import com.springboot.dailyclock.pay.model.WechatEntPayModel;
 import com.springboot.dailyclock.pay.model.WxPayOrderModel;
 import com.springboot.dailyclock.system.model.CommonJson;
 import com.springboot.dailyclock.system.utils.Constant;
@@ -24,6 +26,9 @@ public class PayController {
 
     @Autowired
     WxPayOrderDao wxPayOrderDao;
+
+    @Autowired
+    WechatEntPayDao wechatEntPayDao;
 
     /**
      * 更新、保存微信订单
@@ -50,6 +55,7 @@ public class PayController {
      */
     @PostMapping(value = "/getWxPayOrderModelById")
     public CommonJson getWxPayOrderModelById(@RequestParam String wxPayOrderId) {
+        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>getWxPayOrderModelById, wxPayOrderId:" + wxPayOrderId);
         CommonJson json = new CommonJson();
         WxPayOrderModel wxPayOrderModel = wxPayOrderDao.getByIdIs(wxPayOrderId);
         Map<String, Object> map = Maps.newHashMap();
@@ -67,10 +73,29 @@ public class PayController {
      */
     @PostMapping(value = "/getWxPayOrderModelByOrderNo")
     public CommonJson getWxPayOrderModelByOrderNo(@RequestParam String orderNo) {
+        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>getWxPayOrderModelByOrderNo, orderNo:" + orderNo);
         CommonJson json = new CommonJson();
         WxPayOrderModel wxPayOrderModel = wxPayOrderDao.getByOrderNo(orderNo);
         Map<String, Object> map = Maps.newHashMap();
         map.put("wxPayOrderModel", wxPayOrderModel);
+        json.setResultData(map);
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("成功");
+        return json;
+    }
+
+    /**
+     * 更新、保存企业付款记录
+     * @param wechatEntPayModel
+     * @return
+     */
+    @PostMapping(value = "/saveWechatEntPayModel")
+    public CommonJson saveWechatEntPayModel(@RequestBody WechatEntPayModel wechatEntPayModel) {
+        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>saveWechatEntPayModel, wechatEntPayModel:" + JSON.toJSONString(wechatEntPayModel));
+        CommonJson json = new CommonJson();
+        WechatEntPayModel wechatEntPayModel1 = wechatEntPayDao.save(wechatEntPayModel);
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("wechatEntPayModel1", wechatEntPayModel1);
         json.setResultData(map);
         json.setResultCode(Constant.JSON_SUCCESS_CODE);
         json.setResultMsg("成功");
