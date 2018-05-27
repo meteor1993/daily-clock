@@ -8,15 +8,404 @@
     <!-- 引入 WeUI -->
     <link rel="stylesheet" th:href="@{/static/plug-in/weui/_css/weui.min.css}"/>
     <link rel="stylesheet" th:href="@{/static/plug-in/weui/_css/example.css}"/>
+    <style>
+        .head {
+            text-align: center;
+        }
+        .head {
+            text-align: center;
+            padding: 20px 0 20px 0;
+            padding-bottom: 20px;
+            background: #d8eeff;
+            background-image: none;
+        }
+        .head {
+            background-image: -webkit-linear-gradient(top, #175D7A 2%, #1B667F 10%, #278190 30%, #28919B 43%, #42C2C3 63%, #FDFEDC 97%);
+            background-image: linear-gradient(-180deg, #175D7A 2%, #1B667F 10%, #278190 30%, #28919B 43%, #42C2C3 63%, #FDFEDC 97%);
+            padding-bottom: 0px;
+            position: relative;
+            padding-bottom: 80px;
+        }
+        .head .text1 {
+            display: block;
+            font-size: 17px;
+        }
+        .head .money {
+            display: block;
+            color: #1cc721;
+            font-size: 50px;
+            padding: 5px 0;
+            font-family: DINAlternate-Bold;
+        }
+        .money {
+            color: #1cc721;
+            font-size: 50px;
+            padding: 0px 0;
+            font-family: DINAlternate-Bold;
+            text-align: center;
+        }
+        .head .text2 {
+            display: block;
+            font-size: 12px;
+        }
+        .headimgs {
+            margin: 0 auto;
+            width: 60%;
+            padding: 5% 0 0 0;
+            text-align: center;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+        }
+        .headimgs img {
+            width: 20%;
+            border-radius: 50%;
+            margin-left: -3%;
+        }
+        .rule-title {
+            border: none;
+        }
+        .cleardog {
+            width: 132px;
+            height: 65px;
+            background: url(https://zaoqi.chuangkapai.com/addons/hai105_daka/static/img/cleardog.png) 0 0 no-repeat;
+            background-size: auto auto;
+            background-size: 100% auto;
+            position: absolute;
+            left: 1rem;
+            z-index: 2;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+        }
+        .pay {
+            padding: 30px 0 10px 0;
+        }
+        .todayStar {
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            text-align: center;
+            padding-bottom: 1.75rem;
+        }
+        .todayStar .flexbox {
+            -ms-flex: 1 1 auto;
+            flex: 1 1 auto;
+            -webkit-box-flex: 1;
+            -ms-flex-positive: 1;
+            flex-grow: 1;
+            -ms-flex-negative: 1;
+            flex-shrink: 1;
+            -ms-flex-preferred-size: 0;
+            flex-basis: 0;
+            margin-top: 1.375rem;
+            overflow: hidden;
+            padding: 0 .625rem;
+            box-sizing: border-box;
+        }
+        .todayStar .flexbox {
+            -ms-flex: 1 1 auto;
+            flex: 1 1 auto;
+            -webkit-box-flex: 1;
+            -ms-flex-positive: 1;
+            flex-grow: 1;
+            -ms-flex-negative: 1;
+            flex-shrink: 1;
+            -ms-flex-preferred-size: 0;
+            flex-basis: 0;
+            margin-top: 1.375rem;
+            overflow: hidden;
+            padding: 0 .625rem;
+            box-sizing: border-box;
+        }
+        .todayStar .imgbox {
+            width: 3.4375rem;
+            height: 3.4375rem;
+            border-radius: 50%;
+            background: url(https://zaoqi.chuangkapai.com/addons/hai105_daka/static/img/headerimg.png) 0 0 no-repeat #EEE;
+            background-size: 100% auto;
+            margin: 0 auto;
+        }
+        .todayStar .label1 {
+            width: 5.0625rem;
+            height: 1.8125rem;
+            background: url(https://zaoqi.chuangkapai.com/addons/hai105_daka/static/img/label1.png) 0 0 no-repeat;
+            background-size: auto auto;
+            background-size: contain;
+        }
+        .todayStar .label {
+            width: 5.0625rem;
+            height: 1.8125rem;
+            margin: 0 auto;
+            margin-top: 0px;
+            margin-top: -1.25rem;
+            font-size: .6875rem;
+            padding-top: .5rem;
+            line-height: 1.25rem;
+            padding-right: .625rem;
+            box-sizing: border-box;
+            color: #FFF;
+            font-weight: 500;
+            text-align: right;
+        }
+        .todayStar .name {
+            font-size: .75rem;
+            line-height: 1.03125rem;
+            color: #666;
+            margin-top: .3125rem;
+            height: 1.03125rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .todayStar .time {
+            font-size: .875rem;
+            line-height: 1.25rem;
+            color: #FF801A;
+            margin-top: .0625rem;
+            font-weight: 500;
+        }
+        .todayStar .label3 {
+            width: 5.0625rem;
+            height: 1.8125rem;
+            background: url(https://zaoqi.chuangkapai.com/addons/hai105_daka/static/img/label3.png) 0 0 no-repeat;
+            background-size: auto auto;
+            background-size: contain;
+        }
+    </style>
 </head>
 <body>
 <div th:include="wxmp/wxjssdk"></div>
+<div id="app" style="padding-bottom: 53px;">
+    <div>
+        <div>
+            <div id="vaptcha_container"></div>
+            <div class="head">
+            <div style="position: absolute; right: 10px; bottom: 10px; display: block; z-index: 100;">
+                <a href="https://kefu.chuangkaban.xyz/index_app.html" style="display: block;">
+                    <img alt="" src="https://zaoqi.chuangkapai.com/addons/hai105_daka/static/img/kefu.jpg" width="50">
+                </a>
+                <a href="#/kefu" class="" style="display: block;">
+                    <img alt="" src="https://zaoqi.chuangkapai.com/addons/hai105_daka/static/img/api01.png" width="50">
+                </a>
+            </div>
+                <span class="text1" style="color: rgb(255, 255, 255); font-size: 17px;">
+                当前实时挑战金(元)
+                </span>
+                <span class="money" style="color: rgb(255, 255, 255);">
+                    <span>5266573</span>
+                </span>
+                <span class="text2" style="color: rgb(255, 255, 255);">
+                当前有
+                    <span class="text3" style="color: rgb(242, 225, 187);">8661</span>
+                人参与打卡挑战
+                </span>
+                <div>
+                    <div class="headimgs">
+                        <div style="padding-left: 3%;">
+                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/YDkZuby68SSibUrUG2P1MXQiatHdiclG9JUnOvF4Csoo1diaqqcopiaryOOWib7dp76kgFwv7FgOmIk0CyMqrp8sd2CMRxMsQib6YAF/132">
+                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/YDkZuby68SSyRVEHVPPgCMkibV6MiaF0zY8YGtQibznE07oYselZmfBrh9Ik63bckPnZV5lrbtpwacGF9RucELnYFhtn3IS4Owv/132">
+                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/cdvZ6UQJlztma7tYuv5o9LVeVDGiaNP9Lgw9FElict2DhzW76X6GFicmUozOFwe21GfyKRmKmGqqRnbhSViaYf3KrSLv1rdQfnbz/132">
+                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/YDkZuby68SSyRVEHVPPgCEdfOfGnScsCGcib5RxicaicbPaicibhaOaIrT1Awjaa0tibZlbyLL1ic6yAibbK8Worg5gmplTqzCbqB1Iz/132">
+                            <img alt="" src="http://pay.wao021.cn/Static/sun.png">
+                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/DEk7iaAVAPpSib6sibPECIdEH7xlUbIWqCh66IpE4VzTUsFzr0KHvl0Aht7SBvn8L8puyIXnnk9Bs8hOQgLia93hH2Y0icRibylSDL/132">
+                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/cdvZ6UQJlzvh10akWwbhibtqYjDFcyrpcZGZz95FibkicujvPeMEFNnoZFpDDZUWFeKltiakmF6XpRWql8oIzIIpWKB79ABc6ibX4/132">
+                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/PiajxSqBRaELubUUlkJ6OL13cZ94Dn4zwHyic5Rqm0o371JIE3SBsRb0bgg0RcpKibVIlCGKLqWWnqIkqxzAbUibFg/132">
+                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/TYIvkoUSdWzkLs5r9GENOpYpibVy0wwdysRPvIRtPNxJB0jrffeeBOw3mDRl2acAg9QVV9pLwcAIWWzL42ItNP1icQ7WLLwSpY/132">
+                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/DEk7iaAVAPpSia2IC7C71laSWD0Jheadimgs imgdIzwxHBekAopajGLcdiapRY0kZe3BoMzr5gzHibYXQQ5Ry0icwH3lM9uA9sNA6H7zGVlVuxiaj/132">
+                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/KFiaW14OP1HiczGshR1zlUpibJFAGZM4bHNib4icLZU2IiaXEt3Hts0F71OrYrc4kC69F7eXEV45KVbXNhgibh4h2pr37Gp0fl7oQ1f/132">
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="rule-title" style="color: rgb(255, 255, 255); position: relative; z-index: 50;">
+                    <span>挑战规则&gt;</span>
+                </div>
+                <img src="https://zaoqi.chuangkapai.com/addons/hai105_daka/static/img/view.png" style="width: 100%; height: auto; position: absolute; left: 0px; bottom: 0px; z-index: 1;"> <div class="dog cleardog"></div>
+            </div>
+            <div class="pay">
+                <div style="padding: 0px 5%;">
+                    <a class="weui-btn weui-btn_primary" id="showIOSActionSheet" href="javascript:;" style="color: rgb(255, 255, 255); background: rgb(255, 128, 25) none repeat scroll 0% 0%; transform: none; border-radius: 0px; box-shadow: rgb(255, 128, 25) -1px 1px 5px;">同意规则并参与挑战</a>
+                </div>
+            </div>
+            <div classname="result" style="text-align: center;">
+                <span style="display: block; font-size: 20px;">今日打卡战况</span>
+                <div style="padding: 10px 0px; color: rgb(153, 153, 153);">
+                    <span style="color: rgb(28, 199, 33);">8639 </span>已打卡
+                    <span style="padding: 0px 10px;">|</span>
+                    <span style="color: rgb(28, 199, 33);">755 </span>未打卡
+                </div>
+            </div>
+        </div>
+        <div class="todayStar">
+            <div class="flexbox">
+                <p class="imgbox" style="background: rgba(0, 0, 0, 0) url(&quot;http://thirdwx.qlogo.cn/mmopen/cdvZ6UQJlzsGnMYXgiaicGiaurjzN9GPObKribP6yKMtdd25IxYsuHHOqQRTxH4QLzD0mkEPrYFeJKC11KdUIOFyZRZSrpF0YkW0/132&quot;) no-repeat scroll 0px 0px / cover;"></p>
+                <p class="label label1">早起之星</p>
+                <p class="name">￥￥￥</p>
+                <p class="time">06:30:00打卡</p>
+            </div>
+            <div class="flexbox">
+                <p class="imgbox" style="background: rgba(0, 0, 0, 0) url(&quot;http://thirdwx.qlogo.cn/mmopen/Q3auHgzwzM7mTxx6gZibTVTjYddSqtXbKtXaGVWo9Rq5MWxyYz16x9wee6IV1xC3vZQUAVbHDwUdVQw8XricOqhg/132&quot;) no-repeat scroll 0px 0px / cover;"></p>
+                <p class="label label3">毅力之星</p>
+                <p class="name">狼</p>
+                <p class="time">连续119次</p>
+            </div>
+        </div>
+        <div class="weui-panel weui-panel_access">
+            <div class="weui-panel__hd">按☞挑战奖励＋影响奖励☜正序排列</div>
+            <div class="weui-panel__bd">
+                <a href="https://kefu.chuangkaban.xyz/" class="weui-media-box weui-media-box_appmsg">
+                    <div class="weui-media-box__hd">
+                        <img src="http://cdn.falvboke.com/images/1/2018/04/UDu5Bz59u0U1drR8R55D60re09hvhP.jpg" alt="" class="weui-media-box__thumb" style="border-radius: 100%;"></div>
+                    <div class="weui-media-box__bd">
+                        <h4 class="weui-media-box__title">戳我！戳我！联系在线客服</h4>
+                        <p class="weui-media-box__desc">打卡时间:06:30<br>已累计打卡
+                            <span style="color: rgb(28, 199, 33);">21</span>
+                            天 累计奖励金
+                            <span style="color: rgb(28, 199, 33);">66666.00</span>元
+                        </p>
+                    </div>
+                    <span style="position: absolute; right: 0px; bottom: 0px; padding: 2px 10px 0px; font-size: 10px; color: rgb(102, 102, 102); background: rgb(237, 237, 237) none repeat scroll 0% 0%;">广告</span></a>
+                <a class="weui-media-box weui-media-box_appmsg">
+                    <div class="weui-media-box__hd">
+                        <img src="http://thirdwx.qlogo.cn/mmopen/ajNVdqHZLLCIsJRXGwg2zm7K2N8auSM18pY5Zg1wNib4otpxHNYsY2jCLbg9AkL7NhIKwthod5o37ZUWJK3tH96lEqmh2WpJGiaxvTP94ia12I/132" alt="" class="weui-media-box__thumb" style="border-radius: 100%;"></div>
+                    <div class="weui-media-box__bd">
+                        <h4 class="weui-media-box__title">大Q¹</h4>
+                        <p class="weui-media-box__desc">打卡时间:06:42:14<br>已累计打卡<span style="color: rgb(28, 199, 33);">120</span>天
+                            累计奖励金<span style="color: rgb(28, 199, 33);">4933.74</span>元
+                        </p>
+                    </div>
+                </a>
+                <a class="weui-media-box weui-media-box_appmsg">
+                    <div class="weui-media-box__hd">
+                        <img src="http://thirdwx.qlogo.cn/mmopen/ajNVdqHZLLBnSmffCeicEjOwRcfDLyIcWl5PNprQ9q9bC7wzHKM2N9AoiaE9HAufLz8iasSowCt4PkUpk9NqwMYNA/132" alt="" class="weui-media-box__thumb" style="border-radius: 100%;">
+                    </div>
+                    <div class="weui-media-box__bd">
+                        <h4 class="weui-media-box__title">.</h4>
+                        <p class="weui-media-box__desc">打卡时间:06:33:16<br>已累计打卡
+                            <span style="color: rgb(28, 199, 33);">21</span>天 累计奖励金<span style="color: rgb(28, 199, 33);">4851.23</span>元
+                        </p>
+                    </div>
+                </a>
+                <a class="weui-media-box weui-media-box_appmsg">
+                    <div class="weui-media-box__hd">
+                        <img src="http://wx.qlogo.cn/mmopen/DEk7iaAVAPpSHAOCW0YJSdufyFqtCcgqE7muibhM7TcBkicQlzQVrUmTdFdQDbmTPjGygNpr5U00kCibWibsxxsBCuAC9HeWZFJDb/132" alt="" class="weui-media-box__thumb" style="border-radius: 100%;">
+                    </div>
+                    <div class="weui-media-box__bd">
+                        <h4 class="weui-media-box__title">小此木</h4>
+                        <p class="weui-media-box__desc">打卡时间:08:00:00<br>已累计打卡
+                            <span style="color: rgb(28, 199, 33);">0</span>天 累计奖励金<span style="color: rgb(28, 199, 33);">4678.68</span>元</p>
+                    </div>
+                </a>
+                <a class="weui-media-box weui-media-box_appmsg">
+                    <div class="weui-media-box__hd">
+                        <img src="http://thirdwx.qlogo.cn/mmopen/cdvZ6UQJlzvoMGbKaOpKpiak5fRD6cJdV3NAO2OlZHfXUaQ9qIvVZ9kBjvrfssjViclSasFevg73nYtRygD1K8Te0qF10EiaVnib/132" alt="" class="weui-media-box__thumb" style="border-radius: 100%;">
+                    </div>
+                    <div class="weui-media-box__bd">
+                        <h4 class="weui-media-box__title">mysun</h4>
+                        <p class="weui-media-box__desc">打卡时间:06:31:20<br>已累计打卡
+                            <span style="color: rgb(28, 199, 33);">42</span>天 累计奖励金<span style="color: rgb(28, 199, 33);">4567.66</span>元</p>
+                    </div>
+                </a>
+                <a class="weui-media-box weui-media-box_appmsg">
+                    <div class="weui-media-box__hd">
+                        <img src="http://wx.qlogo.cn/mmopen/vi_32/DYAIOgq83erHUjI5jEYNIHy5Jj2QMJtU2N9albPfCk0kx8lRib6XAq9HPo0TLVTAMFygwY9I0AAkS35HmFN3Ugg/132" alt="" class="weui-media-box__thumb" style="border-radius: 100%;">
+                    </div>
+                    <div class="weui-media-box__bd">
+                        <h4 class="weui-media-box__title">不准不给钱的黄大仙</h4>
+                        <p class="weui-media-box__desc">打卡时间:07:20:18<br>已累计打卡
+                            <span style="color: rgb(28, 199, 33);">91</span>天 累计奖励金<span style="color: rgb(28, 199, 33);">4269.68</span>元
+                        </p>
+                    </div>
+                </a>
+                <a class="weui-media-box weui-media-box_appmsg">
+                    <div class="weui-media-box__hd">
+                        <img alt="" class="weui-media-box__thumb" style="border-radius: 100%;">
+                    </div>
+                    <div class="weui-media-box__bd"><h4 class="weui-media-box__title">无极APP推广-Journee</h4>
+                        <p class="weui-media-box__desc">打卡时间:08:00:00<br>已累计打卡
+                            <span style="color: rgb(28, 199, 33);">0</span>天 累计奖励金<span style="color: rgb(28, 199, 33);">3630.00</span>元
+                        </p>
+                    </div>
+                </a>
+                <a class="weui-media-box weui-media-box_appmsg">
+                    <div class="weui-media-box__hd">
+                        <img src="http://thirdwx.qlogo.cn/mmopen/ajNVdqHZLLBf7kSKrDN9eibEhucGQcGrBhp4UGCoFYTFC3FiclKByeNRhTZ0KltNqrh8EsBxIyR4qEIKROadDrpw/132" alt="" class="weui-media-box__thumb" style="border-radius: 100%;">
+                    </div>
+                    <div class="weui-media-box__bd">
+                        <h4 class="weui-media-box__title">空白</h4>
+                        <p class="weui-media-box__desc">打卡时间:06:36:25<br>已累计打卡
+                            <span style="color: rgb(28, 199, 33);">9</span>天 累计奖励金<span style="color: rgb(28, 199, 33);">3564.30</span>元
+                        </p>
+                    </div>
+                </a>
+                <a class="weui-media-box weui-media-box_appmsg">
+                    <div class="weui-media-box__hd">
+                        <img src="http://thirdwx.qlogo.cn/mmopen/DEk7iaAVAPpSLAbn42icbicTPoYuI6fIMzGXK3zPjer0L0WADDIiblNrMaywM47IlW0EjDtAnicMPpwBR3riaHYu2ceocwbF7Dc3k9/132" alt="" class="weui-media-box__thumb" style="border-radius: 100%;">
+                    </div>
+                    <div class="weui-media-box__bd">
+                        <h4 class="weui-media-box__title">一</h4>
+                        <p class="weui-media-box__desc">打卡时间:08:00:00<br>已累计打卡
+                            <span style="color: rgb(28, 199, 33);">0</span>天 累计奖励金<span style="color: rgb(28, 199, 33);">3460.00</span>元
+                        </p>
+                    </div>
+                </a>
+            </div>
+            <div class="weui-panel__ft">
+                <a class="weui-cell weui-cell_access weui-cell_link">
+                    <div class="weui-cell__bd">查看更多</div>
+                    <span class="weui-cell__ft"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div th:include="wxmp/sign/tabbar"></div>
+</div>
+<div>
+    <div class="weui-mask" id="iosMask" style="opacity: 0; display: none;"></div>
+    <div class="weui-actionsheet" id="iosActionsheet">
+        <div class="weui-actionsheet__title">
+            <p class="weui-actionsheet__title-text">这是一个标题，可以为一行或者两行。</p>
+        </div>
+        <div class="weui-actionsheet__menu">
+            <div class="weui-actionsheet__cell">示例菜单</div>
+            <div class="weui-actionsheet__cell">示例菜单</div>
+            <div class="weui-actionsheet__cell">示例菜单</div>
+            <div class="weui-actionsheet__cell">示例菜单</div>
+        </div>
+        <div class="weui-actionsheet__action">
+            <div class="weui-actionsheet__cell" id="iosActionsheetCancel">取消</div>
+        </div>
+    </div>
+</div>
 
 
-<div th:include="wxmp/sign/tabbar"></div>
 <script th:src="@{/static/plug-in/weui/_js/weui.min.js}"></script>
 <script>
     /*<![CDATA[*/
+
+    // ios
+    $(function(){
+        var $iosActionsheet = $('#iosActionsheet');
+        var $iosMask = $('#iosMask');
+
+        function hideActionSheet() {
+            $iosActionsheet.removeClass('weui-actionsheet_toggle');
+            $iosMask.fadeOut(200);
+        }
+
+        $iosMask.on('click', hideActionSheet);
+        $('#iosActionsheetCancel').on('click', hideActionSheet);
+        $("#showIOSActionSheet").on("click", function(){
+            $iosActionsheet.addClass('weui-actionsheet_toggle');
+            $iosMask.fadeIn(200);
+        });
+    });
 
     /*]]>*/
 </script>
