@@ -83,7 +83,7 @@ eureka:
   client:
     registryFetchIntervalSeconds: 5
     serviceUrl:
-      defaultZone: ${EUREKA_SERVICE_URL:http://47.100.173.182:8761}/eureka/
+      defaultZone: ${EUREKA_SERVICE_URL:http://203.195.229.143:8761}/eureka/
 #公众号配置
 wechat:
   mp:
