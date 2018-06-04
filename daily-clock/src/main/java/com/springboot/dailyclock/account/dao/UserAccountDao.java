@@ -21,7 +21,7 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
      * 盘口0所有账户总押金
      * @return
      */
-    @Query("select sum (u.useBalance0) from UserAccountModel u where u.type0 = '1'")
+    @Query("select round(sum (u.useBalance0), 0) from UserAccountModel u where u.type0 = '1'")
     String getUserBalance0Sum();
 
     /**
@@ -60,6 +60,6 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
      * @param now
      * @return
      */
-    @Query("select count (1) from UserAccountModel u where u.type0 = '1' and u.useBalance0 <> '' and TO_DAYS(?1) - TO_DAYS(u.clockDate0) <= 1")
+    @Query("select count (1) from UserAccountModel u where u.type0 = '1' and u.useBalance0 <> '' and TO_DAYS(?1) - TO_DAYS(u.clockDate0) >= 1")
     String getUnClockUserCount0(Date now);
 }

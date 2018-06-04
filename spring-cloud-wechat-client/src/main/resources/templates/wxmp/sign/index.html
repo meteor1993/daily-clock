@@ -198,27 +198,17 @@
                 当前实时挑战金(元)
                 </span>
                 <span class="money" style="color: rgb(255, 255, 255);">
-                    <span>5266573</span>
+                    <span th:text="${map.userBalance0Sum}"></span>
                 </span>
                 <span class="text2" style="color: rgb(255, 255, 255);">
                 当前有
-                    <span class="text3" style="color: rgb(242, 225, 187);">8661</span>
+                    <span class="text3" style="color: rgb(242, 225, 187);" th:text="${map.userCount0}"></span>
                 人参与打卡挑战
                 </span>
                 <div>
                     <div class="headimgs">
-                        <div style="padding-left: 3%;">
-                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/YDkZuby68SSibUrUG2P1MXQiatHdiclG9JUnOvF4Csoo1diaqqcopiaryOOWib7dp76kgFwv7FgOmIk0CyMqrp8sd2CMRxMsQib6YAF/132">
-                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/YDkZuby68SSyRVEHVPPgCMkibV6MiaF0zY8YGtQibznE07oYselZmfBrh9Ik63bckPnZV5lrbtpwacGF9RucELnYFhtn3IS4Owv/132">
-                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/cdvZ6UQJlztma7tYuv5o9LVeVDGiaNP9Lgw9FElict2DhzW76X6GFicmUozOFwe21GfyKRmKmGqqRnbhSViaYf3KrSLv1rdQfnbz/132">
-                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/YDkZuby68SSyRVEHVPPgCEdfOfGnScsCGcib5RxicaicbPaicibhaOaIrT1Awjaa0tibZlbyLL1ic6yAibbK8Worg5gmplTqzCbqB1Iz/132">
-                            <img alt="" src="http://pay.wao021.cn/Static/sun.png">
-                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/DEk7iaAVAPpSib6sibPECIdEH7xlUbIWqCh66IpE4VzTUsFzr0KHvl0Aht7SBvn8L8puyIXnnk9Bs8hOQgLia93hH2Y0icRibylSDL/132">
-                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/cdvZ6UQJlzvh10akWwbhibtqYjDFcyrpcZGZz95FibkicujvPeMEFNnoZFpDDZUWFeKltiakmF6XpRWql8oIzIIpWKB79ABc6ibX4/132">
-                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/PiajxSqBRaELubUUlkJ6OL13cZ94Dn4zwHyic5Rqm0o371JIE3SBsRb0bgg0RcpKibVIlCGKLqWWnqIkqxzAbUibFg/132">
-                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/TYIvkoUSdWzkLs5r9GENOpYpibVy0wwdysRPvIRtPNxJB0jrffeeBOw3mDRl2acAg9QVV9pLwcAIWWzL42ItNP1icQ7WLLwSpY/132">
-                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/DEk7iaAVAPpSia2IC7C71laSWD0Jheadimgs imgdIzwxHBekAopajGLcdiapRY0kZe3BoMzr5gzHibYXQQ5Ry0icwH3lM9uA9sNA6H7zGVlVuxiaj/132">
-                            <img alt="" src="http://thirdwx.qlogo.cn/mmopen/KFiaW14OP1HiczGshR1zlUpibJFAGZM4bHNib4icLZU2IiaXEt3Hts0F71OrYrc4kC69F7eXEV45KVbXNhgibh4h2pr37Gp0fl7oQ1f/132">
+                        <div style="padding-left: 3%;" th:each="mpUser : ${map.wechatMpUserModelList}">
+                            <img alt="" th:src="${mpUser.wechatHeadImgUrl == null} ? 'http://pay.wao021.cn/Static/sun.png' : ${mpUser.wechatHeadImgUrl}">
                         </div>
                     </div>
                 </div>
@@ -236,27 +226,22 @@
             <div classname="result" style="text-align: center;">
                 <span style="display: block; font-size: 20px;">今日打卡战况</span>
                 <div style="padding: 10px 0px; color: rgb(153, 153, 153);">
-                    <span style="color: rgb(28, 199, 33);">8639 </span>已打卡
+                    <span style="color: rgb(28, 199, 33);" th:text="${map.clockUserCount}"> </span>已打卡
                     <span style="padding: 0px 10px;">|</span>
-                    <span style="color: rgb(28, 199, 33);">755 </span>未打卡
+                    <span style="color: rgb(28, 199, 33);" th:text="${map.unClockUserCount}"> </span>未打卡
                 </div>
             </div>
         </div>
         <div class="todayStar">
             <div class="flexbox">
-                <p class="imgbox" style="background: rgba(0, 0, 0, 0) url(&quot;http://thirdwx.qlogo.cn/mmopen/cdvZ6UQJlzsGnMYXgiaicGiaurjzN9GPObKribP6yKMtdd25IxYsuHHOqQRTxH4QLzD0mkEPrYFeJKC11KdUIOFyZRZSrpF0YkW0/132&quot;) no-repeat scroll 0px 0px / cover;"></p>
+                <p class="imgbox" th:style="'background: rgba(0, 0, 0, 0)  no-repeat scroll 0px 0px / cover url(' + @{${map.wechatMpUserModelFirst.wechatHeadImgUrl}} +');'"></p>
                 <p class="label label1">早起之星</p>
-                <p class="name">￥￥￥</p>
-                <p class="time">06:30:00打卡</p>
+                <p class="name" th:text="${map.wechatMpUserModelFirst.wechatNickName}"></p>
+                <p class="time" th:text="${#dates.format(map.userClockLogModel.createDate, 'HH:mm:ss') + '打卡'}"></p>
             </div>
-            <div class="flexbox">
-                <p class="imgbox" style="background: rgba(0, 0, 0, 0) url(&quot;http://thirdwx.qlogo.cn/mmopen/Q3auHgzwzM7mTxx6gZibTVTjYddSqtXbKtXaGVWo9Rq5MWxyYz16x9wee6IV1xC3vZQUAVbHDwUdVQw8XricOqhg/132&quot;) no-repeat scroll 0px 0px / cover;"></p>
-                <p class="label label3">毅力之星</p>
-                <p class="name">狼</p>
-                <p class="time">连续119次</p>
-            </div>
+
         </div>
-        <div class="weui-panel weui-panel_access">
+        <!--<div class="weui-panel weui-panel_access">
             <div class="weui-panel__hd">按☞挑战奖励＋影响奖励☜正序排列</div>
             <div class="weui-panel__bd">
                 <a href="https://kefu.chuangkaban.xyz/" class="weui-media-box weui-media-box_appmsg">
@@ -362,7 +347,7 @@
                     <span class="weui-cell__ft"></span>
                 </a>
             </div>
-        </div>
+        </div>-->
     </div>
     <div th:include="wxmp/sign/tabbar"></div>
 </div>
@@ -370,13 +355,15 @@
     <div class="weui-mask" id="iosMask" style="opacity: 0; display: none;"></div>
     <div class="weui-actionsheet" id="iosActionsheet">
         <div class="weui-actionsheet__title">
-            <p class="weui-actionsheet__title-text">这是一个标题，可以为一行或者两行。</p>
+            <p class="weui-actionsheet__title-text">已阅读并同意挑战规则</p>
         </div>
         <div class="weui-actionsheet__menu">
-            <div class="weui-actionsheet__cell">示例菜单</div>
-            <div class="weui-actionsheet__cell">示例菜单</div>
-            <div class="weui-actionsheet__cell">示例菜单</div>
-            <div class="weui-actionsheet__cell">示例菜单</div>
+            <div class="weui-actionsheet__cell" th:onclick="'javascript:goPayPage(1)'">支付10元参与挑战</div>
+            <div class="weui-actionsheet__cell" th:onclick="'javascript:goPayPage(2)'">支付50元参与挑战</div>
+            <div class="weui-actionsheet__cell" th:onclick="'javascript:goPayPage(3)'">支付100元参与挑战</div>
+            <div class="weui-actionsheet__cell" th:onclick="'javascript:goPayPage(4)'">支付500元参与挑战</div>
+            <div class="weui-actionsheet__cell" th:onclick="'javascript:goPayPage(5)'">支付1000元参与挑战</div>
+            <div class="weui-actionsheet__cell" th:onclick="'javascript:goPayPage(6)'">支付2000元参与挑战</div>
         </div>
         <div class="weui-actionsheet__action">
             <div class="weui-actionsheet__cell" id="iosActionsheetCancel">取消</div>
@@ -386,28 +373,51 @@
 
 
 <script th:src="@{/static/plug-in/weui/_js/weui.min.js}"></script>
-<script>
-    /*<![CDATA[*/
+<script th:inline="javascript">
 
-    // ios
-    $(function(){
-        var $iosActionsheet = $('#iosActionsheet');
-        var $iosMask = $('#iosMask');
-
-        function hideActionSheet() {
-            $iosActionsheet.removeClass('weui-actionsheet_toggle');
-            $iosMask.fadeOut(200);
-        }
-
-        $iosMask.on('click', hideActionSheet);
-        $('#iosActionsheetCancel').on('click', hideActionSheet);
-        $("#showIOSActionSheet").on("click", function(){
-            $iosActionsheet.addClass('weui-actionsheet_toggle');
-            $iosMask.fadeIn(200);
+    function goPayPage(productNo) {
+        $.ajax({
+            url: '/dailyclock//wxMp/pay/saveWxPayOrderModel',
+            type: 'POST',
+            async: false,
+            dataType: 'json',
+            cache: false,
+            data: {
+                productNo: productNo
+            },
+            success: function(data) {
+                if (data.resultCode == '1') {
+                    window.location.href="/dailyclock//wxMp/pay/goPayPage";
+                } else {
+                    weui.alert("网络异常，请稍后再试~~");
+                }
+            },
+            error: function(e) {
+                console.log(e);
+                weui.alert("网络异常，请稍后再试~~");
+            }
         });
+    }
+
+    var $iosActionsheet = $('#iosActionsheet');
+    var $iosMask = $('#iosMask');
+
+    function hideActionSheet() {
+        $iosActionsheet.removeClass('weui-actionsheet_toggle');
+        $iosMask.fadeOut(200);
+    }
+    if ([[${map.userAccountModel.type0}]] == "1") {
+
+    } else {
+        $iosMask.on('click', hideActionSheet);
+    }
+
+    $('#iosActionsheetCancel').on('click', hideActionSheet);
+    $("#showIOSActionSheet").on("click", function(){
+        $iosActionsheet.addClass('weui-actionsheet_toggle');
+        $iosMask.fadeIn(200);
     });
 
-    /*]]>*/
 </script>
 </body>
 </html>

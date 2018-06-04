@@ -14,6 +14,7 @@ import com.springboot.springcloudwechatclient.account.remote.AccountRemote;
 import com.springboot.springcloudwechatclient.pay.model.WechatEntPayModel;
 import com.springboot.springcloudwechatclient.pay.model.WxPayOrderModel;
 import com.springboot.springcloudwechatclient.pay.remote.PayRemote;
+import com.springboot.springcloudwechatclient.sign.model.WechatMpUserModel;
 import com.springboot.springcloudwechatclient.system.model.CommonJson;
 import com.springboot.springcloudwechatclient.system.utils.Constant;
 import com.springboot.springcloudwechatclient.system.utils.ContextHolderUtils;
@@ -52,24 +53,39 @@ public class PayController {
     @Autowired
     AccountRemote accountRemote;
 
+    @RequestMapping(value = "/goPayPage")
+    public String goPayPage() {
+//        WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
+        WxPayOrderModel wxPayOrderModel = (WxPayOrderModel) ContextHolderUtils.getSession().getAttribute("wxPayOrderModel");
+        ContextHolderUtils.getRequest().setAttribute("orderNo", wxPayOrderModel.getOrderNo());
+        ContextHolderUtils.getRequest().setAttribute("orderMoney", wxPayOrderModel.getOrderMoney());
+//        CommonJson json = accountRemote.accountInfo(wxMpUser.getOpenId());
+        CommonJson json = accountRemote.accountInfo("111111");
+        logger.info(">>>>>>>>>>>>wechatMpUserRemote.accountInfo:" + JSON.toJSONString(json));
+        UserAccountModel userAccountModel = JSON.parseObject(JSON.toJSONString(json.getResultData().get("userAccountModel")), UserAccountModel.class);
+        ContextHolderUtils.getRequest().setAttribute("balance", userAccountModel.getBalance());
+        return "wxmp/pay/payPage";
+    }
+
     /**
      * 保存微信订单
      * @param productNo
      * @return
      */
     @PostMapping("/saveWxPayOrderModel")
+    @ResponseBody
     public CommonJson saveWxPayOrderModel(@RequestParam String productNo) {
         CommonJson json = accountRemote.getProductByProductNo(productNo);
         logger.info(">>>>>>>>>>>>accountRemote.getProductByProductNo:" + JSON.toJSONString(json));
         ProductModel productModel = JSON.parseObject(JSON.toJSONString(json.getResultData().get("productModel")), ProductModel.class);
         logger.info(">>>>>>>>>>>>accountRemote.getProductByProductNo>>>>>>>>>>>>productModel:" + JSON.toJSONString(productModel));
 
-        WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
+//        WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
 
         WxPayOrderModel wxPayOrderModel = new WxPayOrderModel();
-        wxPayOrderModel.setOpenId(wxMpUser.getOpenId());
+//        wxPayOrderModel.setOpenId(wxMpUser.getOpenId());
+        wxPayOrderModel.setOpenId("111111");
         wxPayOrderModel.setOrderMoney(Double.parseDouble(productModel.getProductName()));
-        wxPayOrderModel.setOrderTime(new Date());
         wxPayOrderModel.setOrderNo(getOrderNo());
         wxPayOrderModel.setOrderStatus("0");
         wxPayOrderModel.setOrderComment("同意挑战规则并支付挑战金");
@@ -81,7 +97,6 @@ public class PayController {
 
         ContextHolderUtils.getSession().setAttribute("wxPayOrderModel", model);
         json.setResultData(null);
-
         return json;
     }
 
@@ -92,6 +107,7 @@ public class PayController {
      * @throws WxPayException
      */
     @PostMapping("/unifiedOrder")
+    @ResponseBody
     public CommonJson unifiedOrder(HttpServletRequest request) throws WxPayException {
         String wxPayOrderId = (String) request.getSession().getAttribute("wxPayOrderId");
         CommonJson json = payRemote.getWxPayOrderModelById(wxPayOrderId);
@@ -178,6 +194,7 @@ public class PayController {
      * @return
      */
     @PostMapping(value = "/entPay")
+    @ResponseBody
     public CommonJson entPay(@RequestParam String balance) throws WxPayException {
         CommonJson json = new CommonJson();
         int flag1 = new BigDecimal(balance).compareTo(new BigDecimal("1"));

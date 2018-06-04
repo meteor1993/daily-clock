@@ -2,7 +2,9 @@ package com.springboot.springcloudwechatclient.pay.model;
 
 import java.util.Date;
 
-public class WxPayOrderModel {
+public class WxPayOrderModel implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 	
 	private String id;//主键ID
 

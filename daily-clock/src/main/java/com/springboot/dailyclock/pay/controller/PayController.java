@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -39,6 +40,7 @@ public class PayController {
     public CommonJson saveWxPayOrderModel(@RequestBody WxPayOrderModel wxPayOrderModel) {
         logger.info(">>>>>>>>>>>>>>>>>>>>>>>>saveWxPayOrderModel, wxPayOrderModel:" + JSON.toJSONString(wxPayOrderModel));
         CommonJson json = new CommonJson();
+        wxPayOrderModel.setOrderTime(new Date());
         WxPayOrderModel wxPayOrderModel1 = wxPayOrderDao.save(wxPayOrderModel);
         Map<String, Object> map = Maps.newHashMap();
         map.put("wxPayOrderModel1", wxPayOrderModel1);

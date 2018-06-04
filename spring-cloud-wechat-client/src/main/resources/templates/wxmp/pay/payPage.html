@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0" />
+    <title>开心打卡</title>
+    <!-- 引入 WeUI -->
+    <link rel="stylesheet" th:href="@{/static/plug-in/weui/_css/weui.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/plug-in/weui/_css/example.css}"/>
+    <style>
+        .weui-cell__ft{
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div th:include="wxmp/wxjssdk"></div>
+<div class="weui-cells__title">订单详情</div>
+<div class="weui-cells">
+    <div class="weui-cell">
+        <div class="weui-cell__bd">
+            <p>商品名称</p>
+        </div>
+        <div class="weui-cell__ft">同意开心打卡挑战规则并支付挑战金</div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__bd">
+            <p>订单编号</p>
+        </div>
+        <div class="weui-cell__ft" th:text="${orderNo}"></div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__bd">
+            <p>商家名称</p>
+        </div>
+        <div class="weui-cell__ft">开心打卡</div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__bd">
+            <p>商品价格</p>
+        </div>
+        <div class="weui-cell__ft" th:text="${'￥' + #numbers.formatDecimal(orderMoney, 1, 2) + '元'}"></div>
+    </div>
+</div>
+
+<div class="weui-cells">
+    <div class="weui-cell">
+        <div class="weui-cell__bd">
+            <p>还需支付</p>
+        </div>
+        <div class="weui-cell__ft" th:text="${'￥' + #numbers.formatDecimal(orderMoney, 1, 2) + '元'}"></div>
+    </div>
+</div>
+
+<div class="weui-cells__title">选择支付方式</div>
+<div class="weui-cells">
+    <div class="weui-cell">
+        <div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+            <img src="https://zaoqi.chuangkapai.com/app/resource/images/money.png" style="width: 50px;display: block">
+        </div>
+        <div class="weui-cell__bd">
+            <p>余额</p>
+            <p style="font-size: 13px;color: #888888;" th:text="${'￥' + #numbers.formatDecimal(balance, 1, 2)}"></p>
+        </div>
+    </div>
+    <div class="weui-cell" onclick="pay()">
+        <div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
+            <img src="https://zaoqi.chuangkapai.com/app/resource/images/wx-icon.png" style="width: 50px;display: block">
+        </div>
+        <div class="weui-cell__bd">
+            <p>微信支付</p>
+            <p style="font-size: 13px;color: #888888;">微信支付，方便快捷</p>
+        </div>
+    </div>
+</div>
+<script th:src="@{/static/plug-in/weui/_js/weui.min.js}"></script>
+<script th:inline="javascript">
+    function pay() {
+        weui.alert("敬请期待~~");
+    }
+</script>
+</body>
+</html>

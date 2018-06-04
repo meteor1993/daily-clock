@@ -54,7 +54,7 @@ public class GatherTask {
     /**
      * 核算定时任务，每天上午八点 启动
      */
-    @Scheduled(cron="0 0 8 * * *")
+//    @Scheduled(cron="0 0 8 * * *")
     public void collectTask_0() {
         String no = "0";
         // 查询盘口0所有今日有资格打卡人

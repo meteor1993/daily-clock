@@ -1,6 +1,8 @@
 package com.springboot.dailyclock.sign.controller;
 
 import com.google.common.collect.Maps;
+import com.springboot.dailyclock.account.dao.UserAccountDao;
+import com.springboot.dailyclock.account.model.UserAccountModel;
 import com.springboot.dailyclock.sign.dao.WechatMpUserDao;
 import com.springboot.dailyclock.sign.model.WechatMpUserModel;
 import com.springboot.dailyclock.system.model.CommonJson;
@@ -30,13 +32,18 @@ public class WechatMpUserController {
     @Autowired
     WechatMpUserDao wechatMpUserDao;
 
+    @Autowired
+    UserAccountDao userAccountDao;
+
     @PostMapping(value = "/getWechatMpUserByOpenid")
     public CommonJson getWechatMpUserByOpenid(@RequestParam String openid) {
         logger.info(">>>>>>>>>>>>openid:" + openid);
         CommonJson json = new CommonJson();
         WechatMpUserModel wechatMpUserModel = wechatMpUserDao.getByWechatOpenIdIs(openid);
+        UserAccountModel userAccountModel = userAccountDao.getByOpenidIs(openid);
         Map<String, Object> map = Maps.newHashMap();
         map.put("wechatMpUserModel", wechatMpUserModel);
+        map.put("userAccountModel", userAccountModel);
         json.setResultCode(Constant.JSON_SUCCESS_CODE);
         json.setResultData(map);
         json.setResultMsg("成功");

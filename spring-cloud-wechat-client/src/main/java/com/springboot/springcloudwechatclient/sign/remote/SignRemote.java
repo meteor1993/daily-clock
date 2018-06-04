@@ -44,4 +44,12 @@ public interface SignRemote {
      */
     @PostMapping(value = "/api/clock")
     CommonJson clock(@RequestBody WxMpUser wxMpUser, @RequestParam(value = "no") String no);
+
+    /**
+     * 盘口0数据汇总
+     * @param no
+     * @return
+     */
+    @PostMapping(value = "/api/dataAmount")
+    CommonJson dataAmount(@RequestParam(value = "no") String no);
 }

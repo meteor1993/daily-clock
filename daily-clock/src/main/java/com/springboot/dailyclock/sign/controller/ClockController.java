@@ -34,10 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -323,13 +320,31 @@ public class ClockController {
         // 盘口0 当日打卡列表
         List<String> openidList = userClockLogDao.findEarlyClockUser(no, new Date());
         WechatMpUserModel wechatMpUserModel = null;
+        // 盘口0 每日第一打卡人记录
+        UserClockLogModel userClockLogModel = null;
         if (openidList.size() > 0) {
             wechatMpUserModel = wechatMpUserDao.getByWechatOpenIdIs(openidList.get(0));
+            userClockLogModel = userClockLogDao.getByOpenId(openidList.get(0));
+        }
+        List<String> openidLaterList = userClockLogDao.findLaterClockUser(no, new Date());
+        int num = 0;
+        List<WechatMpUserModel> wechatMpUserModelList = new ArrayList<>();
+        WechatMpUserModel wechatMpUserModel1 = null;
+        if (openidLaterList.size() > 9) { // 如果当前打卡人数超过9人，就取十条数据
+            num = 10;
+        } else { // 如果不大于9人，则有几条取几条
+            num = openidLaterList.size();
+        }
+        for (int i = 0; i < num; i++) {
+            wechatMpUserModel1 = wechatMpUserDao.getByWechatOpenIdIs(openidList.get(i));
+            wechatMpUserModelList.add(wechatMpUserModel1);
         }
         Map<String, Object> map = Maps.newHashMap();
         map.put("userBalance0Sum", userBalance0Sum);
         map.put("userCount0", userCount0);
+        map.put("userClockLogModel", userClockLogModel);
         map.put("wechatMpUserModel", wechatMpUserModel);
+        map.put("wechatMpUserModelList", wechatMpUserModelList);
         json.setResultCode(Constant.JSON_SUCCESS_CODE);
         json.setResultData(map);
         json.setResultMsg("成功");

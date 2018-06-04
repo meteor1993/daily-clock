@@ -1,6 +1,6 @@
 #server setting
 server:
-  port: 8001
+  port: 80
   tomcat:
     uri-encoding: utf-8
     #最大连接数
