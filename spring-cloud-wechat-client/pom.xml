@@ -93,6 +93,13 @@
             <version>${wechat.version}</version>
         </dependency>
 
+        <!-- 微信公众号jar包 -->
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-miniapp</artifactId>
+            <version>${wechat.version}</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
         <dependency>
             <groupId>com.alibaba</groupId>
