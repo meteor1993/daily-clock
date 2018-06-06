@@ -7,6 +7,7 @@ import cn.binarywang.wx.miniapp.bean.WxMaUserInfo;
 import com.google.common.collect.Maps;
 import com.springboot.springcloudwechatclient.system.model.CommonJson;
 import com.springboot.springcloudwechatclient.system.utils.Constant;
+import com.springboot.springcloudwechatclient.system.utils.ContextHolderUtils;
 import me.chanjar.weixin.common.exception.WxErrorException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public class WxMaUserController {
     /**
      * 登陆接口
      */
-    @GetMapping("/login")
+    @PostMapping("/login")
     public CommonJson login(@RequestParam String code) {
         this.logger.info(">>>>>>>>>>>>code:" + code);
         CommonJson json = new CommonJson();
@@ -47,6 +48,9 @@ public class WxMaUserController {
         try {
             WxMaJscode2SessionResult session = this.wxService.getUserService().getSessionInfo(code);
             this.logger.info(">>>>>>>SessionKey:" + session.getSessionKey() + ",>>>>>>>>openId:" + session.getOpenid() + ",>>>>>unionId:" + session.getUnionid());
+
+            ContextHolderUtils.getSession().setAttribute(Constant.WX_MINIAPP_OPENID, session.getOpenid());
+
             json.setResultCode(Constant.JSON_SUCCESS_CODE);
             Map<String, Object> map = Maps.newHashMap();
             map.put("session", session);
@@ -66,7 +70,7 @@ public class WxMaUserController {
      * 获取用户信息接口
      * </pre>
      */
-    @GetMapping("/info")
+    @PostMapping("/info")
     public CommonJson info(@RequestParam String sessionKey, @RequestParam String signature, @RequestParam String rawData, @RequestParam String encryptedData, @RequestParam String iv) {
         this.logger.info(">>>>>>>>>>>>sessionKey:" + sessionKey + ", signature:" + signature + ", rawData:" + rawData + ", encryptedData"+ encryptedData + ", iv:" + iv);
         CommonJson json = new CommonJson();
@@ -91,7 +95,7 @@ public class WxMaUserController {
      * 获取用户绑定手机号信息
      * </pre>
      */
-    @GetMapping("/phone")
+    @PostMapping("/phone")
     public CommonJson phone(@RequestParam String sessionKey, @RequestParam String signature, @RequestParam String rawData, @RequestParam String encryptedData, @RequestParam String iv) {
         this.logger.info(">>>>>>>>>>>>sessionKey:" + sessionKey + ", signature:" + signature + ", rawData:" + rawData + ", encryptedData"+ encryptedData + ", iv:" + iv);
         CommonJson json = new CommonJson();
