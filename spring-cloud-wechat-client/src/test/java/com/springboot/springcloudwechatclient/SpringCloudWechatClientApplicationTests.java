@@ -14,8 +14,7 @@ public class SpringCloudWechatClientApplicationTests {
 
     @Test
     public void contextLoads() {
-        String str = getOrderNo();
-        System.out.println(str + "," + str.length());
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>" + new Date(Long.valueOf("1528585200000" + "000")).toString());
     }
 
     private String getOrderNo(){

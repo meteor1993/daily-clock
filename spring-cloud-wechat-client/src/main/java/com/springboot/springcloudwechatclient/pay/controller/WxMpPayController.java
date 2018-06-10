@@ -38,9 +38,9 @@ import java.util.UUID;
  */
 @Controller
 @RequestMapping(value = "/wxMp/pay")
-public class PayController {
+public class WxMpPayController {
 
-    private static final Logger logger = LoggerFactory.getLogger(PayController.class);
+    private static final Logger logger = LoggerFactory.getLogger(WxMpPayController.class);
 
     private static final String payCallUrl = "wxMp/pay/payNotifyUrl";
 

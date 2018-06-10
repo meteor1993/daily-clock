@@ -322,9 +322,12 @@ public class ClockController {
         WechatMpUserModel wechatMpUserModel = null;
         // 盘口0 每日第一打卡人记录
         UserClockLogModel userClockLogModel = null;
+        // 盘口0 当日总需打卡数
+        List<String> needClockUser =  needClockUserDao.findAllNeedClockUserModel(new Date());
         if (openidList.size() > 0) {
             wechatMpUserModel = wechatMpUserDao.getByWechatOpenIdIs(openidList.get(0));
             userClockLogModel = userClockLogDao.getByOpenId(openidList.get(0));
+            logger.info(">>>>>>>>>>>>>>>date:" + userClockLogModel.getCreateDate().getTime());
         }
         List<String> openidLaterList = userClockLogDao.findLaterClockUser(no, new Date());
         int num = 0;
@@ -345,6 +348,10 @@ public class ClockController {
         map.put("userClockLogModel", userClockLogModel);
         map.put("wechatMpUserModel", wechatMpUserModel);
         map.put("wechatMpUserModelList", wechatMpUserModelList);
+        // 盘口0 当日总需打卡数
+        map.put("needClockUserSum", needClockUser.size());
+        // 盘口0 当日事实打卡人数
+        map.put("todayClockUserSum", openidList.size());
         json.setResultCode(Constant.JSON_SUCCESS_CODE);
         json.setResultData(map);
         json.setResultMsg("成功");

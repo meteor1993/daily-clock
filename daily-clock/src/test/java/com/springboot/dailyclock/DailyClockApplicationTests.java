@@ -38,8 +38,12 @@ public class DailyClockApplicationTests {
 
 	@Test
 	public void contextLoads() throws ParseException {
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>" + userClockLogDao.findEarlyClockUser("0", new Date()));
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:ss:mm");
+		System.out.println(simpleDateFormat.parse("2018-06-10 07:00:00").getTime());
+		System.out.println(simpleDateFormat.format(simpleDateFormat.parse("2018-06-10 07:00:00").getTime()));
+//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>" + userClockLogDao.findEarlyClockUser("0", new Date()));
 //		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>" + userAccountDao.getClockUserCount0(new Date()));
+//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>" + new Date(Long.valueOf("1528585200000" + "000")).toString());
 //		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>" + userAccountDao.getUnClockUserCount0(new Date()));
 	}
 

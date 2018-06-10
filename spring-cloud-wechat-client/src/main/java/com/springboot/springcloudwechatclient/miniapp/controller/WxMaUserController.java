@@ -4,6 +4,7 @@ import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import cn.binarywang.wx.miniapp.bean.WxMaPhoneNumberInfo;
 import cn.binarywang.wx.miniapp.bean.WxMaUserInfo;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.springboot.springcloudwechatclient.system.model.CommonJson;
 import com.springboot.springcloudwechatclient.system.utils.Constant;
@@ -13,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -32,12 +34,15 @@ public class WxMaUserController {
     @Autowired
     private WxMaService wxService;
 
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
     /**
      * 登陆接口
      */
     @PostMapping("/login")
     public CommonJson login(@RequestParam String code) {
-        this.logger.info(">>>>>>>>>>>>code:" + code);
+        this.logger.info("WxMaUserController.login>>>>>>>>>>>>code:" + code + ", token:" + ContextHolderUtils.getRequest().getHeader("token"));
         CommonJson json = new CommonJson();
         if (StringUtils.isBlank(code)) {
             json.setResultCode(Constant.JSON_ERROR_CODE);
@@ -47,10 +52,10 @@ public class WxMaUserController {
 
         try {
             WxMaJscode2SessionResult session = this.wxService.getUserService().getSessionInfo(code);
-            this.logger.info(">>>>>>>SessionKey:" + session.getSessionKey() + ",>>>>>>>>openId:" + session.getOpenid() + ",>>>>>unionId:" + session.getUnionid());
+            this.logger.info("WxMaUserController.login>>>>>>>SessionKey:" + session.getSessionKey() + ",>>>>>>>>openId:" + session.getOpenid() + ",>>>>>unionId:" + session.getUnionid());
 
-            ContextHolderUtils.getSession().setAttribute(Constant.WX_MINIAPP_OPENID, session.getOpenid());
-
+            redisTemplate.opsForHash().put(ContextHolderUtils.getRequest().getHeader("token"), Constant.WX_MINIAPP_OPENID, session.getOpenid());
+            this.logger.info("WxMaUserController.login>>>>>>>>>>>>>" + (String) redisTemplate.opsForHash().get(ContextHolderUtils.getRequest().getHeader("token"), Constant.WX_MINIAPP_OPENID));
             json.setResultCode(Constant.JSON_SUCCESS_CODE);
             Map<String, Object> map = Maps.newHashMap();
             map.put("session", session);
@@ -72,7 +77,7 @@ public class WxMaUserController {
      */
     @PostMapping("/info")
     public CommonJson info(@RequestParam String sessionKey, @RequestParam String signature, @RequestParam String rawData, @RequestParam String encryptedData, @RequestParam String iv) {
-        this.logger.info(">>>>>>>>>>>>sessionKey:" + sessionKey + ", signature:" + signature + ", rawData:" + rawData + ", encryptedData"+ encryptedData + ", iv:" + iv);
+        this.logger.info("WxMaUserController.info>>>>>>>>>>>>sessionKey:" + sessionKey + ", signature:" + signature + ", rawData:" + rawData + ", encryptedData:"+ encryptedData + ", iv:" + iv);
         CommonJson json = new CommonJson();
         // 用户信息校验
         if (!this.wxService.getUserService().checkUserInfo(sessionKey, rawData, signature)) {
@@ -83,6 +88,8 @@ public class WxMaUserController {
 
         // 解密用户信息
         WxMaUserInfo userInfo = this.wxService.getUserService().getUserInfo(sessionKey, encryptedData, iv);
+        this.logger.info("WxMaUserController.info>>>>>>>>userInfo:" + JSON.toJSONString(userInfo));
+        redisTemplate.opsForHash().put(ContextHolderUtils.getRequest().getHeader("token"), Constant.WX_MINIAPP_USER, JSON.toJSONString(userInfo));
         Map<String, Object> map = Maps.newHashMap();
         map.put("userInfo", userInfo);
         json.setResultData(map);

@@ -97,8 +97,8 @@ wechat:
     mchKey: HAFh14FTtbiiOyBZ6Fv9GorqVSDG2Hie
     keyPath: classpath:apiclient_cert.p12
   miniapp:
-    appid: wxa3034f5803f11c37
-    secret: ff760c5280c7421a42755c13e44ea482
+    appid: wx48a65c390fb2cab3
+    secret: a8ec30ba2417e2d3ea99625c8b9e5a07
     token:
     aesKey:
     msgDataFormat: JSON

@@ -18,6 +18,8 @@ public class UserClockLogModel implements java.io.Serializable {
 
     private Date createDate;
 
+    private String createStringDate;
+
     /**
      * 打卡类型 0.未打卡1.已打卡2.补打卡
      */
@@ -50,6 +52,14 @@ public class UserClockLogModel implements java.io.Serializable {
 
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
+    }
+
+    public String getCreateStringDate() {
+        return createStringDate;
+    }
+
+    public void setCreateStringDate(String createStringDate) {
+        this.createStringDate = createStringDate;
     }
 
     public String getType() {
