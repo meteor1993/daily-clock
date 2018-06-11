@@ -35,6 +35,8 @@ public class WxPayOrderModel {
 
 	private String productNo; //商品编号
 
+	private String payType; // 支付方式
+
 	private Date updateDate;
 
 	@Id
@@ -155,6 +157,15 @@ public class WxPayOrderModel {
 
 	public void setProductNo(String productNo) {
 		this.productNo = productNo;
+	}
+
+	@Column(name ="pay_type")
+	public String getPayType() {
+		return payType;
+	}
+
+	public void setPayType(String payType) {
+		this.payType = payType;
 	}
 
 	public Date getUpdateDate() {

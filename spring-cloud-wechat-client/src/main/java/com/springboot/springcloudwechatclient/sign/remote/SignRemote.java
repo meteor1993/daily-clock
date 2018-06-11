@@ -52,4 +52,12 @@ public interface SignRemote {
      */
     @PostMapping(value = "/api/dataAmount")
     CommonJson dataAmount(@RequestParam(value = "no") String no);
+
+    /**
+     * 获取盘口配置
+     * @param no
+     * @return
+     */
+    @PostMapping(value = "/api/getClockConfig")
+    CommonJson getClockConfig(@RequestParam(value = "no") String no);
 }

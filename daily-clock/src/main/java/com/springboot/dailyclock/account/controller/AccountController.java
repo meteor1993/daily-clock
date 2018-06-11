@@ -10,10 +10,7 @@ import com.springboot.dailyclock.system.utils.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -86,4 +83,17 @@ public class AccountController {
         json.setResultMsg("成功");
         return json;
     }
+
+    @PostMapping(value = "/saveAccountModel")
+    public CommonJson saveAccountModel(@RequestBody UserAccountModel userAccountModel) {
+        CommonJson json = new CommonJson();
+        UserAccountModel userAccountModel1 = userAccountDao.save(userAccountModel);
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("userAccountModel", userAccountModel1);
+        json.setResultData(map);
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("成功");
+        return json;
+    }
+
 }

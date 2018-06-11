@@ -280,6 +280,24 @@ public class ClockController {
     }
 
     /**
+     * 获取盘口配置
+     * @return
+     */
+    @PostMapping(value = "/getClockConfig")
+    public CommonJson getClockConfig(@RequestParam String no) {
+        ClockConfigModel clockConfigModel = clockConfigDao.getByIdIs(no);
+        CommonJson json = new CommonJson();
+
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("clockConfigModel", clockConfigModel);
+
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("success");
+        json.setResultData(map);
+        return json;
+    }
+
+    /**
      * 盘口0当日打卡情况
      * @return
      */

@@ -1,8 +1,5 @@
-package com.springboot.dailyclock.sign.model;
+package com.springboot.springcloudwechatclient.sign.model;
 
-import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -11,16 +8,10 @@ import java.util.Date;
  * @author: weishiyao
  * @create: 2018-05-12 21:40
  **/
-@Entity
-@Table(name = "clock_config")
 public class ClockConfigModel implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(generator = "paymentableGenerator")
-    @GenericGenerator(name = "paymentableGenerator", strategy = "uuid")
-    @Column(name ="id",nullable=false,length=36)
     private String id;
 
     /**

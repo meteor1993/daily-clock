@@ -32,6 +32,8 @@ public class WxPayOrderModel implements java.io.Serializable {
 
 	private String productNo; //商品编号
 
+	private String payType; // 支付方式
+
 	private Date updateDate;
 
 	public String getId() {
@@ -136,6 +138,14 @@ public class WxPayOrderModel implements java.io.Serializable {
 
 	public void setProductNo(String productNo) {
 		this.productNo = productNo;
+	}
+
+	public String getPayType() {
+		return payType;
+	}
+
+	public void setPayType(String payType) {
+		this.payType = payType;
 	}
 
 	public Date getUpdateDate() {

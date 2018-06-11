@@ -1,8 +1,10 @@
 package com.springboot.springcloudwechatclient.account.remote;
 
+import com.springboot.springcloudwechatclient.account.model.UserAccountModel;
 import com.springboot.springcloudwechatclient.system.model.CommonJson;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -31,4 +33,7 @@ public interface AccountRemote {
      */
     @PostMapping(value = "/api/getProductByProductNo")
     CommonJson getProductByProductNo(@RequestParam(value = "productNo") String productNo);
+
+    @PostMapping(value = "/api/saveAccountModel")
+    CommonJson saveAccountModel(@RequestBody UserAccountModel userAccountModel);
 }
