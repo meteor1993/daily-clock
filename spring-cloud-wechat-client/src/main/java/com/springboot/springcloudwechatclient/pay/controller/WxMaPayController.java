@@ -1,6 +1,11 @@
 package com.springboot.springcloudwechatclient.pay.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
+import com.github.binarywang.wxpay.bean.result.WxPayUnifiedOrderResult;
+import com.github.binarywang.wxpay.exception.WxPayException;
+import com.github.binarywang.wxpay.service.WxPayService;
+import com.github.binarywang.wxpay.util.SignUtils;
 import com.google.common.collect.Maps;
 import com.springboot.springcloudwechatclient.account.model.ProductModel;
 import com.springboot.springcloudwechatclient.account.model.UserAccountModel;
@@ -15,6 +20,7 @@ import com.springboot.springcloudwechatclient.system.model.CommonJson;
 import com.springboot.springcloudwechatclient.system.utils.Constant;
 import com.springboot.springcloudwechatclient.system.utils.ContextHolderUtils;
 import com.springboot.springcloudwechatclient.system.utils.StringUtil;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +34,20 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/miniapp/pay")
 public class WxMaPayController {
 
     private final Logger logger = LoggerFactory.getLogger(WxMaPayController.class);
+
+    private static final String payCallUrl = "pay/payNotifyUrl";
 
     @Autowired
     AccountRemote accountRemote;
@@ -52,6 +63,9 @@ public class WxMaPayController {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    WxPayService wxPayService;
 
     @PostMapping(value = "/saveWxPayOrderModel")
     public CommonJson saveWxPayOrderModel(@RequestParam String productNo) {
@@ -109,17 +123,19 @@ public class WxMaPayController {
      * @return
      */
     @PostMapping(value = "/payByBalance")
-    public CommonJson payByBalance(@RequestParam String productNo, @RequestParam String orderNo) {
+    public CommonJson payByBalance(@RequestParam String productNo, @RequestParam String orderNo) throws ParseException {
 
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
         String token = ContextHolderUtils.getRequest().getHeader("token");
         this.logger.info(">>>>>>>>>>>>>>WxMaPayController.payByBalance>>>>>>>>>>productNo:" + productNo + ">>>>>>>>>>token:" + token + ">>>>>>>>>>>>>orderNo:" + orderNo);
 
+        // 根据产品号获取产品列表
         CommonJson json = accountRemote.getProductByProductNo(productNo);
         this.logger.info(">>>>>>>>>>>>accountRemote.getProductByProductNo:" + JSON.toJSONString(json));
         ProductModel productModel = JSON.parseObject(JSON.toJSONString(json.getResultData().get("productModel")), ProductModel.class);
 
+        // 获取账户信息
         String openid = (String) redisTemplate.opsForHash().get(token, Constant.WX_MINIAPP_OPENID);
         CommonJson accountJson = accountRemote.accountInfo(openid);
         this.logger.info(">>>>>>>>>>>>accountRemote.accountInfo:" + JSON.toJSONString(accountJson));
@@ -155,6 +171,7 @@ public class WxMaPayController {
 
             accountRemote.saveAccountModel(userAccountModel);
 
+            // 获取订单信息
             CommonJson payJson = payRemote.getWxPayOrderModelByOrderNo(orderNo);
             this.logger.info(">>>>>>>>>>>>>>>>>>>>payRemote.getWxPayOrderModelByOrderNo:" + JSON.toJSONString(payJson));
             WxPayOrderModel wxPayOrderModel = JSON.parseObject(JSON.toJSONString(payJson.getResultData().get("wxPayOrderModel")), WxPayOrderModel.class);
@@ -164,13 +181,66 @@ public class WxMaPayController {
             wxPayOrderModel.setPayType("balance");
             payRemote.saveWxPayOrderModel(wxPayOrderModel);
 
+            // 获取待打卡数据
             CommonJson needClockJson = needClockRemote.getByOpenidAndNeedDate(openid, new Date());
             this.logger.info(">>>>>>>>>>>>>>>>>>>>needClockRemote.getByOpenidAndNeedDate:" + JSON.toJSONString(needClockJson));
             NeedClockUserModel needClockUserModel = JSON.parseObject(JSON.toJSONString(needClockJson.getResultData().get("needClockUserModel")), NeedClockUserModel.class);
-            // 如果待打卡列表为空
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+            Long startTime = simpleDateFormat.parse(sdf.format(new Date()) + clockConfigModel.getClockStartTime()).getTime();
+
+            Long nowTime = new Date().getTime();
+
+            // 如果待打卡列表为空，用户为首次充值
             if (needClockUserModel == null) {
+                NeedClockUserModel needClockUserModel1 = new NeedClockUserModel();
+                needClockUserModel1.setCreateDate(new Date());
+                needClockUserModel1.setOpenid(openid);
+                needClockUserModel1.setNo("0");
+                needClockUserModel1.setUseBalance(userAccountModel.getUseBalance0());
+
+                // 如果当前时间小于系统预设时间，则可以当日打卡
+                if (nowTime < startTime) {
+                    needClockUserModel1.setNeedDate(new Date());
+                } else {
+                    // 设置预计打卡时间为明日
+                    needClockUserModel1.setNeedDate(new DateTime().plusDays(1).toLocalDateTime().toDate());
+                }
+
+                needClockRemote.saveNeedClock(needClockUserModel1);
+                // 如果缓存存在
+                if (redisTemplate.hasKey(Constant.TODAY_NEED_SIGN_USER_0)) {
+                    redisTemplate.opsForHash().put(Constant.TODAY_NEED_SIGN_USER_0, openid, needClockUserModel1);
+                } else {
+                    // 如果缓存不存在
+                    Map<String, Object> map = Maps.newHashMap();
+                    map.put(openid, needClockUserModel1);
+                    redisTemplate.opsForHash().putAll(Constant.TODAY_NEED_SIGN_USER_0, map);
+                }
 
             } else {
+                // 如果当前时间小于系统预设时间，更新用户打卡金额
+                if (nowTime < startTime) {
+                    // 更新数据库
+                    needClockUserModel.setUseBalance(userAccountModel.getUseBalance0());
+                    needClockRemote.saveNeedClock(needClockUserModel);
+                    // 更新缓存 不更新缓存信息，会将当日打卡缓存覆盖
+//                    redisTemplate.opsForHash().put(Constant.TODAY_NEED_SIGN_USER_0, openid, needClockUserModel);
+
+                } else {
+                    // 如果大于系统预设时间，创建第二日打卡数据
+                    NeedClockUserModel needClockUserModel1 = new NeedClockUserModel();
+                    needClockUserModel1.setCreateDate(new Date());
+                    needClockUserModel1.setOpenid(openid);
+                    needClockUserModel1.setNo("0");
+                    needClockUserModel1.setUseBalance(userAccountModel.getUseBalance0());
+                    needClockUserModel1.setNeedDate(new DateTime().plusDays(1).toLocalDateTime().toDate());
+                    needClockRemote.saveNeedClock(needClockUserModel1);
+                    // 更新缓存 不更新缓存信息，会将当日打卡缓存覆盖
+//                    redisTemplate.opsForHash().put(Constant.TODAY_NEED_SIGN_USER_0, openid, needClockUserModel);
+                }
 
             }
 
@@ -180,6 +250,82 @@ public class WxMaPayController {
             json.setResultData(null);
         }
 
+        return json;
+    }
+
+    @PostMapping(value = "/unifiedOrder")
+    public CommonJson unifiedOrder(@RequestParam String productNo, @RequestParam String orderNo) throws WxPayException {
+
+        String token = ContextHolderUtils.getRequest().getHeader("token");
+        this.logger.info(">>>>>>>>>>>>>>WxMaPayController.payByBalance>>>>>>>>>>productNo:" + productNo + ">>>>>>>>>>token:" + token + ">>>>>>>>>>>>>orderNo:" + orderNo);
+
+        // 根据产品号获取产品列表
+        CommonJson json = accountRemote.getProductByProductNo(productNo);
+        this.logger.info(">>>>>>>>>>>>accountRemote.getProductByProductNo:" + JSON.toJSONString(json));
+        ProductModel productModel = JSON.parseObject(JSON.toJSONString(json.getResultData().get("productModel")), ProductModel.class);
+
+        // 获取订单信息
+        CommonJson payJson = payRemote.getWxPayOrderModelByOrderNo(orderNo);
+        this.logger.info(">>>>>>>>>>>>>>>>>>>>payRemote.getWxPayOrderModelByOrderNo:" + JSON.toJSONString(payJson));
+        WxPayOrderModel wxPayOrderModel = JSON.parseObject(JSON.toJSONString(payJson.getResultData().get("wxPayOrderModel")), WxPayOrderModel.class);
+
+        // 获取账户信息
+        String openid = (String) redisTemplate.opsForHash().get(token, Constant.WX_MINIAPP_OPENID);
+
+        int batch = (wxPayOrderModel.getPayTimes()==null ? 0:wxPayOrderModel.getPayTimes()) + 1;
+        HttpServletRequest request = ContextHolderUtils.getRequest();
+        String basePath = request.getScheme()+"://"+request.getServerName()+request.getContextPath()+"/";
+
+        WxPayUnifiedOrderRequest wxPayUnifiedOrderRequest = WxPayUnifiedOrderRequest.newBuilder().build();
+        // 随机数
+        wxPayUnifiedOrderRequest.setNonceStr(UUID.randomUUID().toString().replaceAll("-", ""));
+        // openid
+        wxPayUnifiedOrderRequest.setOpenid(openid);
+        // 商品描述
+        wxPayUnifiedOrderRequest.setBody(wxPayOrderModel.getOrderComment());
+        // 商户订单号
+        wxPayUnifiedOrderRequest.setOutTradeNo(getOrderNo() + batch);
+        // 标价金额
+        wxPayUnifiedOrderRequest.setTotalFee(new BigDecimal(wxPayOrderModel.getOrderMoney()).multiply(new BigDecimal("100")).intValue());
+        // 终端IP
+        wxPayUnifiedOrderRequest.setSpbillCreateIp(getIp(request));
+        // 通知地址
+        wxPayUnifiedOrderRequest.setNotifyURL(basePath + payCallUrl);
+        // 交易类型
+        wxPayUnifiedOrderRequest.setTradeType("JSAPI");
+
+        WxPayUnifiedOrderResult result = wxPayService.unifiedOrder(wxPayUnifiedOrderRequest);
+
+        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>result:" + JSON.toJSONString(result));
+
+        wxPayOrderModel.setTxOrderNo(result.getPrepayId());
+        wxPayOrderModel.setPayTimes(batch);
+
+        json = payRemote.saveWxPayOrderModel(wxPayOrderModel);
+        logger.info(">>>>>>>>>>>>payRemote.saveWxPayOrderModel:" + JSON.toJSONString(json));
+        wxPayOrderModel = JSON.parseObject(JSON.toJSONString(json.getResultData().get("wxPayOrderModel")), WxPayOrderModel.class);
+        logger.info(">>>>>>>>>>>>payRemote.saveWxPayOrderModel>>>>>>>>>>>>wxPayOrderModel:" + JSON.toJSONString(wxPayOrderModel));
+
+        String signType = "MD5";
+        String timeStamp = String.valueOf(System.currentTimeMillis());
+        String nonceStr = UUID.randomUUID().toString().replaceAll("-", "");
+        Map<String, String> configMap = Maps.newHashMap();
+        configMap.put("appId", this.wxPayService.getConfig().getAppId());
+        configMap.put("timeStamp", timeStamp);
+        configMap.put("nonceStr", nonceStr);
+        configMap.put("package", result.getPrepayId());
+        String paySign = SignUtils.createSign(configMap, signType, this.wxPayService.getConfig().getMchKey(), false);
+
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("timeStamp", timeStamp);
+        map.put("nonceStr", nonceStr);
+        map.put("package", result.getPrepayId());
+        map.put("signType", signType);
+        map.put("paySign", paySign);
+
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("下单成功");
+        json.setResultData(map);
         return json;
     }
 

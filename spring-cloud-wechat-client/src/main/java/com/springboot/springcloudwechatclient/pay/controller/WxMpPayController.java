@@ -117,7 +117,7 @@ public class WxMpPayController {
 
         WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
 
-        int batch = (wxPayOrderModel.getPayTimes()==null ? 0:wxPayOrderModel.getPayTimes())+1;
+        int batch = (wxPayOrderModel.getPayTimes()==null ? 0:wxPayOrderModel.getPayTimes()) + 1;
 
         String basePath = request.getScheme()+"://"+request.getServerName()+request.getContextPath()+"/";;
         WxPayUnifiedOrderRequest wxPayUnifiedOrderRequest = WxPayUnifiedOrderRequest.newBuilder().build();
