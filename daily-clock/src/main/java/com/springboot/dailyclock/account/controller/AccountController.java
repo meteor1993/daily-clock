@@ -3,7 +3,9 @@ package com.springboot.dailyclock.account.controller;
 import com.google.common.collect.Maps;
 import com.springboot.dailyclock.account.dao.ProductDao;
 import com.springboot.dailyclock.account.dao.UserAccountDao;
+import com.springboot.dailyclock.account.dao.UserAccountLogDao;
 import com.springboot.dailyclock.account.model.ProductModel;
+import com.springboot.dailyclock.account.model.UserAccountLogModel;
 import com.springboot.dailyclock.account.model.UserAccountModel;
 import com.springboot.dailyclock.system.model.CommonJson;
 import com.springboot.dailyclock.system.utils.Constant;
@@ -30,6 +32,9 @@ public class AccountController {
 
     @Autowired
     ProductDao productDao;
+
+    @Autowired
+    UserAccountLogDao userAccountLogDao;
 
     private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 
@@ -93,6 +98,18 @@ public class AccountController {
         json.setResultData(map);
         json.setResultCode(Constant.JSON_SUCCESS_CODE);
         json.setResultMsg("成功");
+        return json;
+    }
+
+    @PostMapping(value = "/saveAccountModelLog")
+    public CommonJson saveAccountModelLog(@RequestBody UserAccountLogModel userAccountLogModel) {
+        CommonJson json = new CommonJson();
+        UserAccountLogModel userAccountLogModel1 = userAccountLogDao.save(userAccountLogModel);
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("userAccountLogModel", userAccountLogModel1);
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("succee");
+        json.setResultData(map);
         return json;
     }
 

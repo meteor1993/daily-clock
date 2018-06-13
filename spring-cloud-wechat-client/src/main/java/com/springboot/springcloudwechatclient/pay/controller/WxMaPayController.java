@@ -47,7 +47,7 @@ public class WxMaPayController {
 
     private final Logger logger = LoggerFactory.getLogger(WxMaPayController.class);
 
-    private static final String payCallUrl = "pay/payNotifyUrl";
+    private static final String payCallUrl = "miniPayNotify/notify";
 
     @Autowired
     AccountRemote accountRemote;
@@ -289,6 +289,7 @@ public class WxMaPayController {
         wxPayUnifiedOrderRequest.setTotalFee(new BigDecimal(wxPayOrderModel.getOrderMoney()).multiply(new BigDecimal("100")).intValue());
         // 终端IP
         wxPayUnifiedOrderRequest.setSpbillCreateIp(getIp(request));
+        wxPayUnifiedOrderRequest.setSpbillCreateIp("172.16.13.50");
         // 通知地址
         wxPayUnifiedOrderRequest.setNotifyURL(basePath + payCallUrl);
         // 交易类型
@@ -303,7 +304,7 @@ public class WxMaPayController {
 
         json = payRemote.saveWxPayOrderModel(wxPayOrderModel);
         logger.info(">>>>>>>>>>>>payRemote.saveWxPayOrderModel:" + JSON.toJSONString(json));
-        wxPayOrderModel = JSON.parseObject(JSON.toJSONString(json.getResultData().get("wxPayOrderModel")), WxPayOrderModel.class);
+        wxPayOrderModel = JSON.parseObject(JSON.toJSONString(json.getResultData().get("wxPayOrderModel1")), WxPayOrderModel.class);
         logger.info(">>>>>>>>>>>>payRemote.saveWxPayOrderModel>>>>>>>>>>>>wxPayOrderModel:" + JSON.toJSONString(wxPayOrderModel));
 
         String signType = "MD5";

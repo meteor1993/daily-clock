@@ -1,6 +1,6 @@
 #server setting
 server:
-  port: 80
+  port: 8081
   tomcat:
     uri-encoding: utf-8
     #最大连接数
@@ -91,9 +91,9 @@ wechat:
     token: TdbjScsWLoRDLRFYLA27in6o9YSOa6vI
     aesKey:
   pay:
-    appId: wx626df2feb975a668
-    mchId: 1497923022
-    mchKey: HAFh14FTtbiiOyBZ6Fv9GorqVSDG2Hie
+    appId: wx48a65c390fb2cab3
+    mchId: 1507089811
+    mchKey: ylduwpbkyzzic3ealeimjwzpa2vm4glg
     keyPath: classpath:apiclient_cert.p12
   miniapp:
     appid: wx48a65c390fb2cab3
