@@ -6,6 +6,8 @@ import cn.binarywang.wx.miniapp.bean.WxMaPhoneNumberInfo;
 import cn.binarywang.wx.miniapp.bean.WxMaUserInfo;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
+import com.springboot.springcloudwechatclient.sign.model.WechatMpUserModel;
+import com.springboot.springcloudwechatclient.sign.remote.WechatMpUserRemote;
 import com.springboot.springcloudwechatclient.system.model.CommonJson;
 import com.springboot.springcloudwechatclient.system.utils.Constant;
 import com.springboot.springcloudwechatclient.system.utils.ContextHolderUtils;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -33,6 +36,9 @@ public class WxMaUserController {
 
     @Autowired
     private WxMaService wxService;
+
+    @Autowired
+    WechatMpUserRemote wechatMpUserRemote;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -55,7 +61,7 @@ public class WxMaUserController {
             this.logger.info("WxMaUserController.login>>>>>>>SessionKey:" + session.getSessionKey() + ",>>>>>>>>openId:" + session.getOpenid() + ",>>>>>unionId:" + session.getUnionid());
 
             redisTemplate.opsForHash().put(ContextHolderUtils.getRequest().getHeader("token"), Constant.WX_MINIAPP_OPENID, session.getOpenid());
-            this.logger.info("WxMaUserController.login>>>>>>>>>>>>>" + (String) redisTemplate.opsForHash().get(ContextHolderUtils.getRequest().getHeader("token"), Constant.WX_MINIAPP_OPENID));
+            this.logger.info("WxMaUserController.login>>>>>>>>>>>>>" + redisTemplate.opsForHash().get(ContextHolderUtils.getRequest().getHeader("token"), Constant.WX_MINIAPP_OPENID));
             json.setResultCode(Constant.JSON_SUCCESS_CODE);
             Map<String, Object> map = Maps.newHashMap();
             map.put("session", session);
@@ -89,6 +95,32 @@ public class WxMaUserController {
         // 解密用户信息
         WxMaUserInfo userInfo = this.wxService.getUserService().getUserInfo(sessionKey, encryptedData, iv);
         this.logger.info("WxMaUserController.info>>>>>>>>userInfo:" + JSON.toJSONString(userInfo));
+
+        CommonJson wechatJson = wechatMpUserRemote.getWechatMpUserByOpenid(userInfo.getOpenId());
+        this.logger.info(">>>>>>>>>>>>>>wechatMpUserRemote.getWechatMpUserByOpenid:" + JSON.toJSONString(wechatJson));
+        WechatMpUserModel wechatMpUserModel = JSON.parseObject(JSON.toJSONString(wechatJson.getResultData().get("wechatMpUserModel")), WechatMpUserModel.class);
+        this.logger.info(">>>>>>>>>>>>>>wechatMpUserRemote.getWechatMpUserByOpenid>>>>>>>>>>>wechatMpUserModel:" + JSON.toJSONString(wechatMpUserModel));
+
+        if (wechatMpUserModel == null) {
+            wechatMpUserModel.setCreateDate(new Date());
+        } else {
+            wechatMpUserModel.setUpdateDate(new Date());
+        }
+
+        wechatMpUserModel.setWechatHeadImgUrl(userInfo.getAvatarUrl());
+        wechatMpUserModel.setWechatOpenId(userInfo.getOpenId());
+        wechatMpUserModel.setWechatCity(userInfo.getCity());
+        wechatMpUserModel.setWechatCountry(userInfo.getCountry());
+        wechatMpUserModel.setWechatSex(userInfo.getGender());
+        wechatMpUserModel.setWechatLanguage(userInfo.getLanguage());
+        wechatMpUserModel.setWechatNickName(userInfo.getNickName());
+        wechatMpUserModel.setWechatProvince(userInfo.getProvince());
+        wechatMpUserModel.setWechatUnionId(userInfo.getUnionId());
+        wechatMpUserModel.setType("miniapp");
+
+        wechatMpUserRemote.saveWechatMpUser(wechatMpUserModel);
+
+
         redisTemplate.opsForHash().put(ContextHolderUtils.getRequest().getHeader("token"), Constant.WX_MINIAPP_USER, JSON.toJSONString(userInfo));
         Map<String, Object> map = Maps.newHashMap();
         map.put("userInfo", userInfo);

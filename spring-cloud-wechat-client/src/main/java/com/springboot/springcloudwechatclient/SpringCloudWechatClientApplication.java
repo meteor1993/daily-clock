@@ -14,15 +14,15 @@ import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboar
 @EnableFeignClients
 @EnableHystrixDashboard
 @EnableCircuitBreaker
-//public class SpringCloudWechatClientApplication extends SpringBootServletInitializer {
-public class SpringCloudWechatClientApplication {
+public class SpringCloudWechatClientApplication extends SpringBootServletInitializer {
+//public class SpringCloudWechatClientApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SpringCloudWechatClientApplication.class, args);
     }
 
-//    @Override
-////    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-////        return application.sources(SpringCloudWechatClientApplication.class);
-////    }
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(SpringCloudWechatClientApplication.class);
+    }
 }

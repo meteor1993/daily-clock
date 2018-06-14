@@ -1,8 +1,10 @@
 package com.springboot.springcloudwechatclient.sign.remote;
 
+import com.springboot.springcloudwechatclient.sign.model.WechatMpUserModel;
 import com.springboot.springcloudwechatclient.system.model.CommonJson;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -28,4 +30,12 @@ public interface WechatMpUserRemote {
      */
     @PostMapping(value = "/api/signInfo0")
     CommonJson signInfo0();
+
+    /**
+     * 保存微信绑定信息
+     * @param wechatMpUserModel
+     * @return
+     */
+    @PostMapping(value = "/api/saveWechatMpUser")
+    CommonJson saveWechatMpUser(@RequestBody WechatMpUserModel wechatMpUserModel);
 }

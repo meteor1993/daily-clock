@@ -134,6 +134,3 @@ eureka:
     registryFetchIntervalSeconds: 5
     serviceUrl:
       defaultZone: ${EUREKA_SERVICE_URL:http://203.195.229.143:8761}/eureka/
-aliyun:
-  accessKeyId: LTAINranU2RSpGiW
-  accessKeySecret: Ctmm4nRvURO9WpJ1IWlJoZloExnOMr

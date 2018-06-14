@@ -8,20 +8,11 @@ import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
 import com.springboot.dailyclock.sms.dao.SMSDao;
-import com.springboot.dailyclock.sms.model.SMSModel;
-import com.springboot.dailyclock.system.model.CommonJson;
-import com.springboot.dailyclock.system.utils.Constant;
 import com.springboot.dailyclock.system.utils.ExceptionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
 
 /**
  * @program: daily-clock
@@ -50,10 +41,8 @@ public class AliyunSMSUtils {
     static final String domain = "dysmsapi.aliyuncs.com";
 
     // TODO 此处需要替换成开发者自己的AK(在阿里云访问控制台寻找)
-    @Value("${aliyun.accessKeyId}")
-    private String accessKeyId;
-    @Value("${aliyun.accessKeySecret}")
-    private String accessKeySecret;
+    private String accessKeyId = "LTAINranU2RSpGiW";
+    private String accessKeySecret = "Ctmm4nRvURO9WpJ1IWlJoZloExnOMr";
 
     /**
      * 阿里云发送短信
@@ -61,7 +50,7 @@ public class AliyunSMSUtils {
      * @param code
      * @return
      */
-    private boolean sendAliyunSMS(String mobile, String code) {
+    public boolean sendAliyunSMS(String mobile, String code) {
         //可自助调整超时时间
         System.setProperty("sun.net.client.defaultConnectTimeout", "10000");
         System.setProperty("sun.net.client.defaultReadTimeout", "10000");

@@ -28,6 +28,11 @@ public interface PayRemote {
     @PostMapping(value = "/payApi/getWxPayOrderModelByOrderNo")
     CommonJson getWxPayOrderModelByOrderNo(@RequestParam(value = "orderNo") String orderNo);
 
+    /**
+     * 保存企业付款到零钱记录
+     * @param wechatEntPayModel
+     * @return
+     */
     @PostMapping(value = "/payApi/saveWechatEntPayModel")
     CommonJson saveWechatEntPayModel(@RequestBody WechatEntPayModel wechatEntPayModel);
 }

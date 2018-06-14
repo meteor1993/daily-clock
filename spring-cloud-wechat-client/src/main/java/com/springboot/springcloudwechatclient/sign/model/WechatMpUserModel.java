@@ -89,6 +89,11 @@ public class WechatMpUserModel implements java.io.Serializable {
      */
     private String professional;
 
+    /**
+     * 来源类型
+     */
+    private String type;
+
     public String getId() {
         return id;
     }
@@ -215,5 +220,13 @@ public class WechatMpUserModel implements java.io.Serializable {
 
     public void setProfessional(String professional) {
         this.professional = professional;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

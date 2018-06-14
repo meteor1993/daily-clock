@@ -53,6 +53,11 @@ public class ClockConfigModel implements java.io.Serializable {
      */
     private String balanceTopLine;
 
+    /**
+     * 提现上限
+     */
+    private String getMoneyTopLine;
+
     public String getId() {
         return id;
     }
@@ -131,5 +136,13 @@ public class ClockConfigModel implements java.io.Serializable {
 
     public void setBalanceTopLine(String balanceTopLine) {
         this.balanceTopLine = balanceTopLine;
+    }
+
+    public String getGetMoneyTopLine() {
+        return getMoneyTopLine;
+    }
+
+    public void setGetMoneyTopLine(String getMoneyTopLine) {
+        this.getMoneyTopLine = getMoneyTopLine;
     }
 }

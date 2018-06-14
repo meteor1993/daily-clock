@@ -90,8 +90,8 @@ public class ClockController {
 
         String code = getRandomCode();
         logger.info("---------------sendSMS--------------mobile:" + mobile + ",code" + code);
-//        boolean flag = smsUtils.sendAliyunSMS(mobile, code);
-        boolean flag = true;
+        boolean flag = smsUtils.sendAliyunSMS(mobile, code);
+//        boolean flag = true;
         if (flag) {
             SMSModel smsModel = new SMSModel();
             smsModel.setCreateDate(new Date());
@@ -120,9 +120,9 @@ public class ClockController {
      * @return
      */
     @PostMapping(value = "/binding")
-    public CommonJson binding(@RequestParam WxMpUser wxMpUser, @RequestParam String sessionId, @RequestParam String mobile, @RequestParam String code) {
+    public CommonJson binding(@RequestParam String openid, @RequestParam String sessionId, @RequestParam String mobile, @RequestParam String code) {
 
-        logger.info(">>>>>>>>openid:" + wxMpUser.getOpenId() + ">>>>>>>sessionId:" + sessionId + ">>>>>>>>>>mobile:" + mobile + ">>>>>>>>>>code:" + code);
+        logger.info(">>>>>>>>>>>>openid:" + openid +">>>>>>>sessionId:" + sessionId + ">>>>>>>>>>mobile:" + mobile + ">>>>>>>>>>code:" + code);
 
         CommonJson json = new CommonJson();
         if (StringUtils.isEmpty(mobile) || StringUtils.isEmpty(code)) {
@@ -134,17 +134,17 @@ public class ClockController {
         int checkMinutes = 5; // 校验短信有效期
 
         // 校验短信验证码
-        List<SMSModel> smsModelList = smsDao.findAllByCreateSessionIDAndIsValidOrderByCreateDateDesc(sessionId, code);
-        SMSModel smsModel = smsModelList.get(0);
-        SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        String createDate = simpleFormat.format(smsModel.getCreateDate());
-        String nowDate = simpleFormat.format(new Date());
+        List<SMSModel> smsModelList = smsDao.findAllByCreateSessionIDAndIsValidAndVerificationCodeOrderByCreateDateDesc(sessionId, "1", code);
         try {
-            long create = simpleFormat.parse(createDate).getTime();
-            long now = simpleFormat.parse(nowDate).getTime();
-            int times = (int) ((now - create)/(1000 * 60));
             if (smsModelList.size() > 0) { // 查询到相关数据
-                if (Constant.FAIL_CODE.equals(smsModel.getIsValid())) { // 判断当前验证码是否有效
+                SMSModel smsModel = smsModelList.get(0);
+                SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                String createDate = simpleFormat.format(smsModel.getCreateDate());
+                String nowDate = simpleFormat.format(new Date());
+                long create = simpleFormat.parse(createDate).getTime();
+                long now = simpleFormat.parse(nowDate).getTime();
+                int times = (int) ((now - create)/(1000 * 60));
+                if (Constant.SUCCESS_CODE.equals(smsModel.getIsValid())) { // 判断当前验证码是否有效
                     if (times < checkMinutes) { // 判断时间是否小于有效时间
                         // 将验证码变为无效
                         smsModel.setIsValid(Constant.FAIL_CODE);
@@ -158,12 +158,12 @@ public class ClockController {
                     }
                 } else {
                     json.setResultCode(Constant.JSON_ERROR_CODE);
-                    json.setResultMsg("您到验证码已失效，请重新获取");
+                    json.setResultMsg("您的验证码已失效，请重新获取");
                     return json;
                 }
             } else {
                 json.setResultCode(Constant.JSON_ERROR_CODE);
-                json.setResultMsg("请输入正确到验证码");
+                json.setResultMsg("请输入正确的验证码");
                 return json;
             }
         } catch (ParseException e) {
@@ -171,24 +171,19 @@ public class ClockController {
         }
 
         if (Constant.JSON_SUCCESS_CODE.equals(json.getResultCode())) { // 验证码校验通过
-//            WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
-            if (StringUtils.isEmpty(wxMpUser.getOpenId())) { //判断当前是否存在openid
-                WechatMpUserModel wechatMpUserModel = new WechatMpUserModel();
+            WechatMpUserModel wechatMpUserModel = wechatMpUserDao.getByWechatOpenIdIs(openid);
+            if (wechatMpUserModel != null) {
                 wechatMpUserModel.setMobile(mobile);
-                wechatMpUserModel.setCreateDate(new Date());
-                wechatMpUserModel.setWechatOpenId(wxMpUser.getOpenId());
-                wechatMpUserModel.setWechatUnionId(wxMpUser.getUnionId());
-                wechatMpUserModel.setWechatCity(wxMpUser.getCity());
-                wechatMpUserModel.setWechatCountry(wxMpUser.getCountry());
-                wechatMpUserModel.setWechatHeadImgUrl(wxMpUser.getHeadImgUrl());
-                wechatMpUserModel.setWechatLanguage(wxMpUser.getLanguage());
-                wechatMpUserModel.setWechatNickName(wxMpUser.getNickname());
-                wechatMpUserModel.setWechatProvince(wxMpUser.getProvince());
-                wechatMpUserModel.setWechatSex(wxMpUser.getSex());
                 wechatMpUserDao.save(wechatMpUserModel);
                 json.setResultCode(Constant.JSON_SUCCESS_CODE);
-                json.setResultMsg("绑定成功");
+                json.setResultMsg("success");
+                json.setResultData(null);
+            } else {
+                json.setResultCode(Constant.JSON_ERROR_CODE);
+                json.setResultMsg("fail");
+                json.setResultData(null);
             }
+
         }
 
         return json;

@@ -27,5 +27,5 @@ public interface SMSDao extends PagingAndSortingRepository<SMSModel, Long>, JpaS
      * @param isValid
      * @return
      */
-    List<SMSModel> findAllByCreateSessionIDAndIsValidOrderByCreateDateDesc(String sessionID, String isValid);
+    List<SMSModel> findAllByCreateSessionIDAndIsValidAndVerificationCodeOrderByCreateDateDesc(String sessionID, String isValid, String code);
 }

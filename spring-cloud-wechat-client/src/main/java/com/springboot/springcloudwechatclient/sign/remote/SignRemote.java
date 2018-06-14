@@ -27,14 +27,14 @@ public interface SignRemote {
 
     /**
      * 绑定微信信息
-     * @param wxMpUser
+     * @param openid
      * @param sessionId
      * @param mobile
      * @param code
      * @return
      */
     @PostMapping(value = "/api/binding")
-    CommonJson binding(@RequestBody WxMpUser wxMpUser, @RequestParam(value = "sessionId") String sessionId, @RequestParam(value = "mobile") String mobile, @RequestParam(value = "code") String code);
+    CommonJson binding(@RequestParam(value = "openid") String openid, @RequestParam(value = "sessionId") String sessionId, @RequestParam(value = "mobile") String mobile, @RequestParam(value = "code") String code);
 
     /**
      * 早晨打卡

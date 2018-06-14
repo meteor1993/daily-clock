@@ -33,14 +33,14 @@ public class SignRestController {
         return signRemote.sendSMS(ContextHolderUtils.getSession().getId(), mobile);
     }
 
-    @PostMapping(value = "/binding")
-    @ResponseBody
-    public CommonJson binding(@RequestParam String mobile, @RequestParam String code) {
-        logger.info(">>>>>>>>>>>>>mobile:" + mobile + ">>>>>>>>>>>>>>>>code:" + code);
-        WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
-        String sessionId = ContextHolderUtils.getSession().getId();
-        return signRemote.binding(wxMpUser, sessionId, mobile, code);
-    }
+//    @PostMapping(value = "/binding")
+//    @ResponseBody
+//    public CommonJson binding(@RequestParam String mobile, @RequestParam String code) {
+//        logger.info(">>>>>>>>>>>>>mobile:" + mobile + ">>>>>>>>>>>>>>>>code:" + code);
+//        WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
+//        String sessionId = ContextHolderUtils.getSession().getId();
+//        return signRemote.binding(wxMpUser, sessionId, mobile, code);
+//    }
 
     @PostMapping(value = "/clock")
     @ResponseBody

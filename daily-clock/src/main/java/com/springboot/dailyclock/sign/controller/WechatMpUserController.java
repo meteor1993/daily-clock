@@ -10,10 +10,7 @@ import com.springboot.dailyclock.system.utils.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -47,6 +44,21 @@ public class WechatMpUserController {
         json.setResultCode(Constant.JSON_SUCCESS_CODE);
         json.setResultData(map);
         json.setResultMsg("成功");
+        return json;
+    }
+
+    @PostMapping(value = "/saveWechatMpUser")
+    public CommonJson saveWechatMpUser(@RequestBody WechatMpUserModel wechatMpUserModel) {
+        CommonJson json = new CommonJson();
+        WechatMpUserModel wechatMpUserModel1 = wechatMpUserDao.save(wechatMpUserModel);
+
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("wechatMpUserModel", wechatMpUserModel1);
+
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("success");
+        json.setResultData(map);
+
         return json;
     }
 }
