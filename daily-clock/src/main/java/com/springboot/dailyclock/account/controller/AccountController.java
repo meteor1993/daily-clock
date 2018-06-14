@@ -7,6 +7,11 @@ import com.springboot.dailyclock.account.dao.UserAccountLogDao;
 import com.springboot.dailyclock.account.model.ProductModel;
 import com.springboot.dailyclock.account.model.UserAccountLogModel;
 import com.springboot.dailyclock.account.model.UserAccountModel;
+import com.springboot.dailyclock.sign.dao.NeedClockUserDao;
+import com.springboot.dailyclock.sign.dao.UserClockLogDao;
+import com.springboot.dailyclock.sign.dao.WechatMpUserDao;
+import com.springboot.dailyclock.sign.model.UserClockLogModel;
+import com.springboot.dailyclock.sign.model.WechatMpUserModel;
 import com.springboot.dailyclock.system.model.CommonJson;
 import com.springboot.dailyclock.system.utils.Constant;
 import org.slf4j.Logger;
@@ -14,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +40,16 @@ public class AccountController {
     ProductDao productDao;
 
     @Autowired
+    UserClockLogDao userClockLogDao;
+
+    @Autowired
     UserAccountLogDao userAccountLogDao;
+
+    @Autowired
+    NeedClockUserDao needClockUserDao;
+
+    @Autowired
+    WechatMpUserDao wechatMpUserDao;
 
     private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 
@@ -110,6 +125,44 @@ public class AccountController {
         json.setResultCode(Constant.JSON_SUCCESS_CODE);
         json.setResultMsg("succee");
         json.setResultData(map);
+        return json;
+    }
+
+    /**
+     * 根据openid查询进出账日志
+     * @param openid
+     * @param no
+     * @return
+     */
+    @PostMapping(value = "/accountCenter")
+    public CommonJson accountCenter(@RequestParam String openid, @RequestParam String no) {
+        CommonJson json = new CommonJson();
+//        List<UserAccountLogModel> userAccountLogModelList = userAccountLogDao.findAllByOpenidAndTypeAndNoOrderByCreateDateDesc(openid, type, no);
+        String amountSum = userAccountLogDao.getAmountSum(openid);
+
+        List<UserClockLogModel> userClockLogModelList = userClockLogDao.findAllByOpenIdOrderByCreateDateDesc(openid);
+
+        UserAccountModel userAccountModel = userAccountDao.getByOpenidIs(openid);
+
+        WechatMpUserModel wechatMpUserModel = wechatMpUserDao.getByWechatOpenIdIs(openid);
+
+        // 当日总打卡金额
+        String clockBalanceSum = userClockLogDao.clockBalanceSum(no, new Date());
+
+        // 当日未打卡金额
+        String unClockBalanceSum = userAccountDao.getUnClockUserBalance0Sum(new Date());
+
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("amountSum", amountSum);
+        map.put("userClockLogSize", String.valueOf(userClockLogModelList.size()));
+        map.put("userAccountModel", userAccountModel);
+        map.put("wechatMpUserModel", wechatMpUserModel);
+        map.put("clockBalanceSum", clockBalanceSum);
+        map.put("unClockBalanceSum", unClockBalanceSum);
+
+        json.setResultData(map);
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("success");
         return json;
     }
 

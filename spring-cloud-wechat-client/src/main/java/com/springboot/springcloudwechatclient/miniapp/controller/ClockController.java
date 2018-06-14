@@ -82,6 +82,7 @@ public class ClockController {
             }
             // 盘口0 当日打卡最近10人
             List<WechatMpUserModel> wechatMpUserModelList = JSON.parseArray(JSON.toJSONString(dataAmountJson.getResultData().get("wechatMpUserModelList")), WechatMpUserModel.class);
+            this.logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>wechatMpUserModelList:" + JSON.toJSONString(wechatMpUserModelList));
 
             if (wechatMpUserModel != null) { // 已绑定
                 CommonJson commonJson = wechatMpUserRemote.signInfo0();

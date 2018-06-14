@@ -45,4 +45,13 @@ public interface AccountRemote {
      */
     @PostMapping(value = "/api/saveAccountModelLog")
     CommonJson saveAccountModelLog(@RequestBody UserAccountLogModel userAccountLogModel);
+
+    /**
+     * 根据openid查询进出账日志
+     * @param openid
+     * @param no
+     * @return
+     */
+    @PostMapping(value = "/api/accountCenter")
+    CommonJson accountCenter(@RequestParam(value = "openid") String openid, @RequestParam(value = "no") String no);
 }

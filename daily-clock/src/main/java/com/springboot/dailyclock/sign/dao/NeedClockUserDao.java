@@ -32,7 +32,7 @@ public interface NeedClockUserDao extends PagingAndSortingRepository<NeedClockUs
      * @param now
      * @return
      */
-    @Query("select n.openid from NeedClockUserModel n where n.no = '0' and TO_DAYS(n.createDate) = TO_DAYS(?1)")
+    @Query("select n.openid from NeedClockUserModel n where n.no = '0' and TO_DAYS(n.needDate) = TO_DAYS(?1)")
     List<String> findAllNeedClockUserModel(Date now);
 
     /**

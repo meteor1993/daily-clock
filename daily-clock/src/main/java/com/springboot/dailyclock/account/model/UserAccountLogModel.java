@@ -28,9 +28,11 @@ public class UserAccountLogModel implements java.io.Serializable {
     private Date updateDate;
 
     /**
-     * 账户交易业务类型，充值、提现
+     * 账户交易业务类型，1.充值2.奖金发放3.提现
      */
     private String type;
+
+    private String openid;
 
     /**
      * 交易金额
@@ -72,6 +74,14 @@ public class UserAccountLogModel implements java.io.Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getOpenid() {
+        return openid;
+    }
+
+    public void setOpenid(String openid) {
+        this.openid = openid;
     }
 
     public String getAmount() {

@@ -1,6 +1,9 @@
 package com.springboot.springcloudwechatclient.miniapp.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.springboot.springcloudwechatclient.account.model.UserAccountModel;
 import com.springboot.springcloudwechatclient.account.remote.AccountRemote;
+import com.springboot.springcloudwechatclient.sign.remote.SignRemote;
 import com.springboot.springcloudwechatclient.system.model.CommonJson;
 import com.springboot.springcloudwechatclient.system.utils.Constant;
 import com.springboot.springcloudwechatclient.system.utils.ContextHolderUtils;
@@ -24,18 +27,18 @@ public class CenterController {
     @Autowired
     AccountRemote accountRemote;
 
+    @Autowired
+    SignRemote signRemote;
+
     @PostMapping(value = "/center")
     public CommonJson center() {
-        System.out.println("CenterController.center");
         String token = ContextHolderUtils.getRequest().getHeader("token");
         String openid = (String) redisTemplate.opsForHash().get(token, Constant.WX_MINIAPP_OPENID);
         this.logger.info(">>>>>>>>CenterController.center>>>>>>>>>token:" + token + ">>>>>openid:" + openid);
 
+        CommonJson accountJson = accountRemote.accountCenter(openid, "0");
+        logger.info(">>>>>>>>>>>>accountRemote.accountCenter:" + JSON.toJSONString(accountJson));
 
-
-
-        CommonJson json = new CommonJson();
-
-        return json;
+        return accountJson;
     }
 }

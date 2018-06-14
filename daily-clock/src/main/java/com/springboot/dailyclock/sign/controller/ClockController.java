@@ -344,7 +344,7 @@ public class ClockController {
         List<String> needClockUser =  needClockUserDao.findAllNeedClockUserModel(new Date());
         if (openidList.size() > 0) {
             wechatMpUserModel = wechatMpUserDao.getByWechatOpenIdIs(openidList.get(0));
-            userClockLogModel = userClockLogDao.getByOpenId(openidList.get(0));
+            userClockLogModel = userClockLogDao.getByOpenIdAndCreateDate(openidList.get(0), new Date());
             logger.info(">>>>>>>>>>>>>>>date:" + userClockLogModel.getCreateDate().getTime());
         }
         List<String> openidLaterList = userClockLogDao.findLaterClockUser(no, new Date());

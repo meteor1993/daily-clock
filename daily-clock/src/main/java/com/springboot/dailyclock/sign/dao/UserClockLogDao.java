@@ -18,7 +18,8 @@ public interface UserClockLogDao extends PagingAndSortingRepository<UserClockLog
 
     List<UserClockLogModel> findAllByOpenIdOrderByCreateDateDesc(String openid);
 
-    UserClockLogModel getByOpenId(String openid);
+    @Query("select u from UserClockLogModel u where u.openId=?1 and u.type = '1' and TO_DAYS(u.createDate) = TO_DAYS(?2) order by u.createDate asc")
+    UserClockLogModel getByOpenIdAndCreateDate(String openid, Date nowDate);
 
     /**
      * 查询当日打卡列表，按时间正序
@@ -36,4 +37,13 @@ public interface UserClockLogDao extends PagingAndSortingRepository<UserClockLog
      */
     @Query("select u.openId from UserClockLogModel u where u.no=?1 and u.type = '1' and TO_DAYS(u.createDate) = TO_DAYS(?2) order by u.createDate desc")
     List<String> findLaterClockUser(String no, Date now);
+
+    /**
+     * 根据盘口，日期查询当日打卡总押金
+     * @param no
+     * @param date
+     * @return
+     */
+    @Query("select round(sum (u.balance), 0) from UserClockLogModel u where u.no=?1 and TO_DAYS(u.createDate) = TO_DAYS(?2) ")
+    String clockBalanceSum(String no, Date date);
 }
