@@ -1,6 +1,8 @@
 package com.springboot.dailyclock.account.dao;
 
 import com.springboot.dailyclock.account.model.UserAccountModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -16,6 +18,8 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
     List<UserAccountModel> findAllByType0(String type);
 
     UserAccountModel getByOpenidIs(String openid);
+
+    Page<UserAccountModel> findAllByType0OrderByOrderDate0Desc(String type0, Pageable pageable);
 
     /**
      * 盘口0所有账户总押金

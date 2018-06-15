@@ -331,6 +331,25 @@ public class WxMaPayController {
     }
 
     /**
+     * 微信支付成功后数据处理
+     * @param wxPayOrderId
+     * @return
+     */
+    @PostMapping(value = "/minipaySuccess")
+    public CommonJson minipaySuccess(@RequestParam String wxPayOrderId) {
+        String token = ContextHolderUtils.getRequest().getHeader("token");
+        String openid = (String) redisTemplate.opsForHash().get(token, Constant.WX_MINIAPP_OPENID);
+        this.logger.info(">>>>>>>>>>>>>>WxMaPayController.payByBalance>>>>>>>>>>token:" + token + ">>>>>>>>>>>>>openid:" + openid);
+
+
+        CommonJson wxPayOrderJson = payRemote.getWxPayOrderModelById(wxPayOrderId);
+
+        WxPayOrderModel wxPayOrderModel = JSON.parseObject(JSON.toJSONString(wxPayOrderJson.getResultData().get("wxPayOrderModel")), WxPayOrderModel.class);
+
+        return null;
+    }
+
+    /**
      * 生成订单号
      * @return
      */

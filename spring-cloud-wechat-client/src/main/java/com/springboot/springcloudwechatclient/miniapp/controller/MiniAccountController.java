@@ -121,8 +121,9 @@ public class MiniAccountController {
 //        wechatEntPayModel.setSpbill_create_ip(getIp(ContextHolderUtils.getRequest()));
         wechatEntPayModel.setStatus("0");
         CommonJson wechatEntyPayJson = payRemote.saveWechatEntPayModel(wechatEntPayModel);
-        wechatEntPayModel = JSON.parseObject(JSON.toJSONString(wechatEntyPayJson.getResultData().get("userAccountModel")), WechatEntPayModel.class);
         this.logger.info(">>>>>>>>>>>>>>>>>>payRemote.saveWechatEntPayModel:" + JSON.toJSONString(wechatEntyPayJson));
+        wechatEntPayModel = JSON.parseObject(JSON.toJSONString(wechatEntyPayJson.getResultData().get("wechatEntPayModel1")), WechatEntPayModel.class);
+        this.logger.info(">>>>>>>>>>>>>>>>>>payRemote.saveWechatEntPayModel>>>>>>>>>>>wechatEntPayModel:" + JSON.toJSONString(wechatEntPayModel));
 
 
         WxEntPayRequest wxEntPayRequest = WxEntPayRequest.newBuilder().build();

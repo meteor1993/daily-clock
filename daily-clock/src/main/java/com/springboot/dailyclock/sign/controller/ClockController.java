@@ -24,6 +24,8 @@ import org.joda.time.PeriodType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -342,19 +344,29 @@ public class ClockController {
             userClockLogModel = userClockLogDao.getByOpenIdAndCreateDate(openidList.get(0), new Date());
             logger.info(">>>>>>>>>>>>>>>date:" + userClockLogModel.getCreateDate().getTime());
         }
+
         List<String> openidLaterList = userClockLogDao.findLaterClockUser(no, new Date());
-        int num = 0;
+
+        Page<UserAccountModel> userAccountModelPage = userAccountDao.findAllByType0OrderByOrderDate0Desc("1", new PageRequest(0, 16));
         List<WechatMpUserModel> wechatMpUserModelList = new ArrayList<>();
         WechatMpUserModel wechatMpUserModel1 = null;
-        if (openidLaterList.size() > 9) { // 如果当前打卡人数超过9人，就取十条数据
-            num = 10;
-        } else { // 如果不大于9人，则有几条取几条
-            num = openidLaterList.size();
-        }
-        for (int i = 0; i < num; i++) {
-            wechatMpUserModel1 = wechatMpUserDao.getByWechatOpenIdIs(openidList.get(i));
+        for (int i = 0; i < userAccountModelPage.getContent().size(); i ++) {
+            wechatMpUserModel1 = wechatMpUserDao.getByWechatOpenIdIs(userAccountModelPage.getContent().get(i).getOpenid());
             wechatMpUserModelList.add(wechatMpUserModel1);
         }
+
+//        int num = 0;
+//        List<WechatMpUserModel> wechatMpUserModelList = new ArrayList<>();
+//        WechatMpUserModel wechatMpUserModel1 = null;
+//        if (openidLaterList.size() > 9) { // 如果当前打卡人数超过9人，就取十条数据
+//            num = 10;
+//        } else { // 如果不大于9人，则有几条取几条
+//            num = openidLaterList.size();
+//        }
+//        for (int i = 0; i < num; i++) {
+//            wechatMpUserModel1 = wechatMpUserDao.getByWechatOpenIdIs(openidList.get(i));
+//            wechatMpUserModelList.add(wechatMpUserModel1);
+//        }
         Map<String, Object> map = Maps.newHashMap();
         map.put("userBalance0Sum", userBalance0Sum);
         map.put("userCount0", userCount0);
