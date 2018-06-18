@@ -39,6 +39,11 @@ public class NeedClockUserModel implements java.io.Serializable {
 
     private String useBalance;
 
+    /**
+     * 订单号
+     */
+    private String orderNo;
+
     public String getId() {
         return id;
     }
@@ -85,6 +90,14 @@ public class NeedClockUserModel implements java.io.Serializable {
 
     public void setUseBalance(String useBalance) {
         this.useBalance = useBalance;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
     }
 
     @Override

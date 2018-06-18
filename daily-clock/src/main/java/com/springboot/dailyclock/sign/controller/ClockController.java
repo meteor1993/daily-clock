@@ -1,5 +1,6 @@
 package com.springboot.dailyclock.sign.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.springboot.dailyclock.account.dao.UserAccountDao;
 import com.springboot.dailyclock.account.model.UserAccountModel;
@@ -196,16 +197,17 @@ public class ClockController {
      * @return
      */
     @PostMapping(value = "/clock")
-    public CommonJson clock(@RequestParam WxMpUser wxMpUser, @RequestParam String no) throws ParseException {
-        logger.info(">>>>>>>>openid:" + wxMpUser.getOpenId() + ">>>>>>>>>>no:" + no);
+    public CommonJson clock(@RequestParam String openid, @RequestParam String no) throws ParseException {
         CommonJson json = new CommonJson();
-//        WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         // 判断盘口静态变量付值
         String TODAY_NEED_SIGN_USER, TODAY_SIGN_USER_LOG;
         switch (no) {
             case "0":
-                TODAY_NEED_SIGN_USER = Constant.TODAY_NEED_SIGN_USER_0;
-                TODAY_SIGN_USER_LOG = Constant.TODAY_SIGN_USER_LOG_0;
+//                TODAY_NEED_SIGN_USER = Constant.TODAY_NEED_SIGN_USER_0;
+                TODAY_NEED_SIGN_USER = sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0;
+                TODAY_SIGN_USER_LOG = sdf.format(new Date()) + "," + Constant.TODAY_SIGN_USER_LOG_0;
                 break;
             case "1":
                 TODAY_NEED_SIGN_USER = Constant.TODAY_NEED_SIGN_USER_1;
@@ -226,21 +228,20 @@ public class ClockController {
         }
 
         boolean hasNeedSign = redisTemplate.hasKey(TODAY_NEED_SIGN_USER);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
 
         if (!hasNeedSign) { // 如果需打卡列表不存在
             // 获取当日所有需要打卡列表
-            List<NeedClockUserModel> needClockUserModelList = needClockUserDao.findAllByCreateDateBetweenAndNo(simpleDateFormat.parse(sdf.format(new Date()) + " 00:00:00"), simpleDateFormat.parse(sdf.format(new Date()) + " 23:59:59"), no);
+            List<NeedClockUserModel> needClockUserModelList = needClockUserDao.findAllByNeedDateBetweenAndNo(simpleDateFormat.parse(sdf.format(new Date()) + " 00:00:00"), simpleDateFormat.parse(sdf.format(new Date()) + " 23:59:59"), no);
             Map<String, Object> map = Maps.newHashMap();
             for (NeedClockUserModel model : needClockUserModelList) {
-                map.put(model.getOpenid(), model);
+                map.put(model.getOpenid(), JSON.toJSONString(model));
             }
             redisTemplate.opsForHash().putAll(TODAY_NEED_SIGN_USER, map);
-            redisTemplate.expire(TODAY_NEED_SIGN_USER, 4, TimeUnit.HOURS); // 设定4小时过期
+            redisTemplate.expire(TODAY_NEED_SIGN_USER, 24, TimeUnit.HOURS); // 设定24小时过期
         }
 
-        if (!redisTemplate.opsForHash().hasKey(TODAY_NEED_SIGN_USER, wxMpUser.getOpenId())) { // 如果当前openid不存在需打卡列表
+        if (!redisTemplate.opsForHash().hasKey(TODAY_NEED_SIGN_USER, openid)) { // 如果当前openid不存在需打卡列表
             json.setResultCode(Constant.JSON_ERROR_CODE);
             json.setResultMsg("您当前无需打卡");
             return json;
@@ -248,8 +249,8 @@ public class ClockController {
 
         ClockConfigModel clockConfigModel = clockConfigDao.getByIdIs(no);
 
-        Long startTime = simpleDateFormat.parse(sdf.format(new Date()) + clockConfigModel.getClockStartTime()).getTime();
-        Long endTime = simpleDateFormat.parse(sdf.format(new Date()) + clockConfigModel.getClockEndTime()).getTime();
+        Long startTime = simpleDateFormat.parse(sdf.format(new Date()) + " " + clockConfigModel.getClockStartTime()).getTime();
+        Long endTime = simpleDateFormat.parse(sdf.format(new Date()) + " " + clockConfigModel.getClockEndTime()).getTime();
         Long nowTime = new Date().getTime();
 
         if (nowTime < startTime || nowTime > endTime) { // 当前时间不在打卡时间中
@@ -262,18 +263,103 @@ public class ClockController {
         boolean haskey = redisTemplate.hasKey(TODAY_SIGN_USER_LOG);
 
         if (haskey) { // 先判断缓存是否存在
-            boolean hasSign = redisTemplate.opsForHash().hasKey(TODAY_SIGN_USER_LOG, wxMpUser.getOpenId());
+            boolean hasSign = redisTemplate.opsForHash().hasKey(TODAY_SIGN_USER_LOG, openid);
             if (hasSign) { // 判断当前用户是否打卡
                 json.setResultCode(Constant.JSON_ERROR_CODE);
                 json.setResultMsg("您今日已打卡，请勿重复打卡");
                 return json;
             } else { // 正常打卡流程
-                commonSign(wxMpUser.getOpenId(), no, clockConfigModel, TODAY_SIGN_USER_LOG);
+                commonSign(openid, no, TODAY_SIGN_USER_LOG);
             }
         } else {
-            commonSign(wxMpUser.getOpenId(), no, clockConfigModel, TODAY_SIGN_USER_LOG);
+            commonSign(openid, no, TODAY_SIGN_USER_LOG);
         }
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("success");
         return json;
+    }
+
+    /**
+     * 正常打卡流程
+     * 1.先保存用户打卡日志
+     * 2.向账户信息中写入最近一次打卡时间 并计算当前用户连续打卡时间
+     * 3.如果打卡周期结束，更新相关数据
+     * @param openid
+     * @param no
+     * @param TODAY_SIGN_USER_LOG
+     */
+    private void commonSign(String openid, String no, String TODAY_SIGN_USER_LOG) {
+        UserAccountModel userAccountModel = userAccountDao.getByOpenidIs(openid);
+        UserClockLogModel userClockLogModel = new UserClockLogModel();
+        userClockLogModel.setCreateDate(new Date());
+        userClockLogModel.setOpenId(openid);
+        userClockLogModel.setType(Constant.CLOCK_TYPE_1);
+        userClockLogModel.setNo(no);
+        userClockLogModel.setUseBalance(userAccountModel.getUseBalance0());
+        userClockLogModel = userClockLogDao.save(userClockLogModel);
+
+        // 向账户信息中写入最近一次打卡时间 并计算当前用户连续打卡时间
+        switch (no) {
+            case "0":
+                if ("1".equals(userAccountModel.getType0())) {
+                    userAccountModel.setClockDate0(new Date());
+                    if (userAccountModel.getContinuousClockNum() != null) {
+                        userAccountModel.setContinuousClockNum(new BigDecimal(userAccountModel.getContinuousClockNum()).add(new BigDecimal("1")).toString());
+                    } else {
+                        userAccountModel.setContinuousClockNum("1");
+                    }
+                }
+                break;
+            case "1":
+                if ("1".equals(userAccountModel.getType1())) {
+                    userAccountModel.setClockDate1(new Date());
+                    if (userAccountModel.getContinuousClockNum() != null) {
+                        userAccountModel.setContinuousClockNum(new BigDecimal(userAccountModel.getContinuousClockNum()).add(new BigDecimal("1")).toString());
+                    } else {
+                        userAccountModel.setContinuousClockNum("1");
+                    }
+                }
+                break;
+            case "2":
+                if ("1".equals(userAccountModel.getType2())) {
+                    userAccountModel.setClockDate2(new Date());
+                    if (userAccountModel.getContinuousClockNum() != null) {
+                        userAccountModel.setContinuousClockNum(new BigDecimal(userAccountModel.getContinuousClockNum()).add(new BigDecimal("1")).toString());
+                    } else {
+                        userAccountModel.setContinuousClockNum("1");
+                    }
+                }
+                break;
+            case "3":
+                if ("1".equals(userAccountModel.getType3())) {
+                    userAccountModel.setClockDate3(new Date());
+                    if (userAccountModel.getContinuousClockNum() != null) {
+                        userAccountModel.setContinuousClockNum(new BigDecimal(userAccountModel.getContinuousClockNum()).add(new BigDecimal("1")).toString());
+                    } else {
+                        userAccountModel.setContinuousClockNum("1");
+                    }
+                }
+                break;
+            default:
+                if ("1".equals(userAccountModel.getType0())) {
+                    userAccountModel.setClockDate0(new Date());
+                    if (userAccountModel.getContinuousClockNum() != null) {
+                        userAccountModel.setContinuousClockNum(new BigDecimal(userAccountModel.getContinuousClockNum()).add(new BigDecimal("1")).toString());
+                    } else {
+                        userAccountModel.setContinuousClockNum("1");
+                    }
+                }
+                break;
+        }
+        userAccountDao.save(userAccountModel);
+        Map<String, Object> map = Maps.newHashMap();
+        map.put(openid, JSON.toJSONString(userClockLogModel));
+        if (redisTemplate.hasKey(TODAY_SIGN_USER_LOG)) {
+            redisTemplate.opsForHash().put(TODAY_SIGN_USER_LOG, openid, JSON.toJSONString(userClockLogModel));
+        } else {
+            redisTemplate.opsForHash().putAll(TODAY_SIGN_USER_LOG, map);
+        }
+        redisTemplate.expire(TODAY_SIGN_USER_LOG, 24, TimeUnit.HOURS); // 设定2小时过期
     }
 
     /**
@@ -334,6 +420,10 @@ public class ClockController {
         String userCount0 = userAccountDao.getUserCount0();
         // 盘口0 当日打卡列表
         List<String> openidList = userClockLogDao.findEarlyClockUser(no, new Date());
+        // 当日已打卡人数
+        String clockUserCount0 = userAccountDao.getClockUserCount0(new Date());
+        // 当日未打卡人数
+        String unClockUserCount0 = userAccountDao.getUnClockUserCount0(new Date());
         WechatMpUserModel wechatMpUserModel = null;
         // 盘口0 每日第一打卡人记录
         UserClockLogModel userClockLogModel = null;
@@ -346,6 +436,13 @@ public class ClockController {
         }
 
         List<String> openidLaterList = userClockLogDao.findLaterClockUser(no, new Date());
+
+        // 毅力之星
+        Page<UserAccountModel> maxContinuousClockUserPage = userAccountDao.getMaxContinuousClockUser(new PageRequest(0, 1));
+
+        UserAccountModel maxContinuousClockUserAccount = maxContinuousClockUserPage.getContent().get(0);
+
+        WechatMpUserModel maxContinuousClockUserWechat = wechatMpUserDao.getByWechatOpenIdIs(maxContinuousClockUserPage.getContent().get(0).getOpenid());
 
         Page<UserAccountModel> userAccountModelPage = userAccountDao.findAllByType0OrderByOrderDate0Desc("1", new PageRequest(0, 16));
         List<WechatMpUserModel> wechatMpUserModelList = new ArrayList<>();
@@ -368,112 +465,28 @@ public class ClockController {
 //            wechatMpUserModelList.add(wechatMpUserModel1);
 //        }
         Map<String, Object> map = Maps.newHashMap();
+
         map.put("userBalance0Sum", userBalance0Sum);
         map.put("userCount0", userCount0);
         map.put("userClockLogModel", userClockLogModel);
         map.put("wechatMpUserModel", wechatMpUserModel);
         map.put("wechatMpUserModelList", wechatMpUserModelList);
+        // 毅力之星微信信息
+        map.put("maxContinuousClockUserWechat", maxContinuousClockUserWechat);
+        // 毅力之星账户信息
+        map.put("maxContinuousClockUserAccount", maxContinuousClockUserAccount);
         // 盘口0 当日总需打卡数
         map.put("needClockUserSum", needClockUser.size());
-        // 盘口0 当日事实打卡人数
-        map.put("todayClockUserSum", openidList.size());
+        // 盘口0 当日实时已打卡人数
+        map.put("todayClockUserSum", clockUserCount0);
+        // 盘口0当日实时未打卡人数
+        map.put("todayUnClockUserSum", unClockUserCount0);
         json.setResultCode(Constant.JSON_SUCCESS_CODE);
         json.setResultData(map);
         json.setResultMsg("成功");
         return json;
     }
 
-    /**
-     * 正常打卡流程
-     * 1.先保存用户打卡日志
-     * 2.向账户信息中写入最近一次打卡时间 并判断当前用户是否打卡周期结束
-     * 3.如果打卡周期结束，更新相关数据
-     * @param openid
-     * @param no
-     * @param clockConfigModel
-     * @param TODAY_SIGN_USER_LOG
-     */
-    private void commonSign(String openid, String no, ClockConfigModel clockConfigModel, String TODAY_SIGN_USER_LOG) {
-        UserAccountModel userAccountModel = userAccountDao.getByOpenidIs(openid);
-        UserClockLogModel userClockLogModel = new UserClockLogModel();
-        userClockLogModel.setCreateDate(new Date());
-        userClockLogModel.setOpenId(openid);
-        userClockLogModel.setType(Constant.CLOCK_TYPE_1);
-        userClockLogModel.setNo(no);
-        userClockLogDao.save(userClockLogModel);
-
-        // 向账户信息中写入最近一次打卡时间 并判断当前用户是否打卡周期结束
-        DateTime begin;
-        DateTime end = new DateTime(new Date());
-        Period p;
-        switch (no) {
-            case "0":
-                userAccountModel.setClockDate0(new Date());
-                begin = new DateTime(userAccountModel.getOrderDate0());
-                p = new Period(begin, end, PeriodType.days());
-                if (p.getDays() + 1 == clockConfigModel.getClockTime()) {
-                    userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance0())).toString());
-                    userAccountModel.setUseBalance0("");
-                    userAccountModel.setOrderDate0(null);
-                    userAccountModel.setUpdateDate(new Date());
-                    userAccountModel.setType0("");
-                }
-                break;
-            case "1":
-                userAccountModel.setClockDate1(new Date());
-                begin = new DateTime(userAccountModel.getOrderDate1());
-                p = new Period(begin, end, PeriodType.days());
-                if (p.getDays() + 1 == clockConfigModel.getClockTime()) {
-                    userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance1())).toString());
-                    userAccountModel.setUseBalance1("");
-                    userAccountModel.setOrderDate1(null);
-                    userAccountModel.setUpdateDate(new Date());
-                    userAccountModel.setType1("");
-                }
-                break;
-            case "2":
-                userAccountModel.setClockDate2(new Date());
-                begin = new DateTime(userAccountModel.getOrderDate2());
-                p = new Period(begin, end, PeriodType.days());
-                if (p.getDays() + 1 == clockConfigModel.getClockTime()) {
-                    userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance2())).toString());
-                    userAccountModel.setUseBalance2("");
-                    userAccountModel.setOrderDate2(null);
-                    userAccountModel.setUpdateDate(new Date());
-                    userAccountModel.setType2("");
-                }
-                break;
-            case "3":
-                userAccountModel.setClockDate3(new Date());
-                begin = new DateTime(userAccountModel.getOrderDate3());
-                p = new Period(begin, end, PeriodType.days());
-                if (p.getDays() + 1 == clockConfigModel.getClockTime()) {
-                    userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance3())).toString());
-                    userAccountModel.setUseBalance3("");
-                    userAccountModel.setOrderDate3(null);
-                    userAccountModel.setUpdateDate(new Date());
-                    userAccountModel.setType3("");
-                }
-                break;
-            default:
-                userAccountModel.setClockDate0(new Date());
-                begin = new DateTime(userAccountModel.getOrderDate0());
-                p = new Period(begin, end, PeriodType.days());
-                if (p.getDays() + 1 == clockConfigModel.getClockTime()) {
-                    userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(new BigDecimal(userAccountModel.getUseBalance0())).toString());
-                    userAccountModel.setUseBalance0("");
-                    userAccountModel.setOrderDate0(null);
-                    userAccountModel.setUpdateDate(new Date());
-                    userAccountModel.setType0("");
-                }
-                break;
-        }
-        userAccountDao.save(userAccountModel);
-        Map<String, Object> map = Maps.newHashMap();
-        map.put(openid, userClockLogModel);
-        redisTemplate.opsForHash().putAll(TODAY_SIGN_USER_LOG, map);
-        redisTemplate.expire(TODAY_SIGN_USER_LOG, 2, TimeUnit.HOURS); // 设定2小时过期
-    }
 
     /**
      * 获取随机数

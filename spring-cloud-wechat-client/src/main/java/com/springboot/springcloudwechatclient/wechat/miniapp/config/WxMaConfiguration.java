@@ -1,6 +1,8 @@
 package com.springboot.springcloudwechatclient.wechat.miniapp.config;
 
+import cn.binarywang.wx.miniapp.api.WxMaMsgService;
 import cn.binarywang.wx.miniapp.api.WxMaService;
+import cn.binarywang.wx.miniapp.api.impl.WxMaMsgServiceImpl;
 import cn.binarywang.wx.miniapp.api.impl.WxMaServiceImpl;
 import cn.binarywang.wx.miniapp.bean.WxMaKefuMessage;
 import cn.binarywang.wx.miniapp.bean.WxMaTemplateMessage;
@@ -101,6 +103,13 @@ public class WxMaConfiguration {
         WxMaService service = new WxMaServiceImpl();
         service.setWxMaConfig(maConfig);
         return service;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public WxMaMsgService wxMaMsgService() {
+        WxMaMsgService wxMaMsgService = new WxMaMsgServiceImpl(this.wxMaService(maConfig()));
+        return wxMaMsgService;
     }
 
     @Bean

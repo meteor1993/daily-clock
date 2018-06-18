@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0" />
+    <title>参数设置</title>
+    <link rel="stylesheet" href="../static/plug-in/weui/_css/weui.min.css"/>
+    <link rel="stylesheet" href="../static/plug-in/weui/_css/example.css"/>
+</head>
+<body>
+<div id="app">
+    <div class="weui-cells__title">打卡参数</div>
+    <div class="weui-cells">
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>盘口</p>
+            </div>
+            <div class="weui-cell__ft">{{no}}</div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>打卡成功总人数</p>
+            </div>
+            <div class="weui-cell__ft">{{sumClockUser}}</div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>打卡成功总金额</p>
+            </div>
+            <div class="weui-cell__ft">{{sumClockAmount}}</div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>未打卡总人数</p>
+            </div>
+            <div class="weui-cell__ft">{{sumUnClockUser}}</div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>未打卡总金额</p>
+            </div>
+            <div class="weui-cell__ft">{{sumUnClockAmount}}</div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>抽水金额</p>
+            </div>
+            <div class="weui-cell__ft">{{forMeAmount}}</div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__bd">
+                <p>千份奖金</p>
+            </div>
+            <div class="weui-cell__ft">{{qianfenAmount}}</div>
+        </div>
+    </div>
+
+    <div class="weui-cells__title">金额输入</div>
+    <div class="weui-cells weui-cells_form">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">抽水金额</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" v-model="money">
+            </div>
+        </div>
+    </div>
+
+    <div class="page__bd page__bd_spacing" style="padding: 15px 15px;">
+        <button v-on:click="fresh" class="weui-btn weui-btn_primary">刷新</button>
+        <button v-on:click="saveData" class="weui-btn weui-btn_warn">保存</button>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="../static/plug-in/weui/_js/weui.min.js"></script>
+<script>
+var app = new Vue({
+    el: '#app',
+    data: {
+        no: '',
+        sumClockUser: '',
+        sumClockAmount: '',
+        sumUnClockUser: '',
+        sumUnClockAmount: '',
+        forMeAmount: '',
+        money: '0',
+        qianfenAmount: ''
+    },
+    beforeCreate: function () {
+        console.group('beforeCreate 创建前状态===============》');
+        console.log("%c%s", "color:red" , "el     : " + this.$el); //undefined
+        console.log("%c%s", "color:red","data   : " + this.$data); //undefined
+        console.log("%c%s", "color:red","message: " + this.message)
+    },
+    created: function () {
+        console.group('created 创建完毕状态===============》');
+        console.log("%c%s", "color:red","el     : " + this.$el); //undefined
+        console.log("%c%s", "color:red","data   : " + this.$data); //已被初始化
+        console.log("%c%s", "color:red","message: " + this.message); //已被初始化
+        let data = this.$data;
+        axios.get('initAdminInfo').then(function (res) {
+            if (res.data.resultCode === "1") {
+                let adminInfoModel = res.data.resultData.adminInfoModel;
+                console.log(adminInfoModel);
+                data.no = adminInfoModel.no;
+                data.sumClockUser = adminInfoModel.sumClockUser;
+                data.sumClockAmount = adminInfoModel.sumClockAmount;
+                data.sumUnClockUser = adminInfoModel.sumUnClockUser;
+                data.sumUnClockAmount = adminInfoModel.sumUnClockAmount;
+                data.forMeAmount = adminInfoModel.forMeAmount;
+                data.qianfenAmount = adminInfoModel.qianfenAmount;
+            }
+        });
+    },
+    beforeMount: function () {
+        console.group('beforeMount 挂载前状态===============》');
+        console.log("%c%s", "color:red","el     : " + (this.$el)); //已被初始化
+        console.log(this.$el);
+        console.log("%c%s", "color:red","data   : " + this.$data); //已被初始化
+        console.log("%c%s", "color:red","message: " + this.message); //已被初始化
+    },
+    mounted: function () {
+        console.group('mounted 挂载结束状态===============》');
+        console.log("%c%s", "color:red","el     : " + this.$el); //已被初始化
+        console.log(this.$el);
+        console.log("%c%s", "color:red","data   : " + this.$data); //已被初始化
+        console.log("%c%s", "color:red","message: " + this.message); //已被初始化
+    },
+    beforeUpdate: function () {
+        console.group('beforeUpdate 更新前状态===============》');
+        console.log("%c%s", "color:red","el     : " + this.$el);
+        console.log(this.$el);
+        console.log("%c%s", "color:red","data   : " + this.$data);
+        console.log("%c%s", "color:red","message: " + this.message);
+    },
+    updated: function () {
+        console.group('updated 更新完成状态===============》');
+        console.log("%c%s", "color:red","el     : " + this.$el);
+        console.log(this.$el);
+        console.log("%c%s", "color:red","data   : " + this.$data);
+        console.log("%c%s", "color:red","message: " + this.message);
+    },
+    beforeDestroy: function () {
+        console.group('beforeDestroy 销毁前状态===============》');
+        console.log("%c%s", "color:red","el     : " + this.$el);
+        console.log(this.$el);
+        console.log("%c%s", "color:red","data   : " + this.$data);
+        console.log("%c%s", "color:red","message: " + this.message);
+    },
+    destroyed: function () {
+        console.group('destroyed 销毁完成状态===============》');
+        console.log("%c%s", "color:red","el     : " + this.$el);
+        console.log(this.$el);
+        console.log("%c%s", "color:red","data   : " + this.$data);
+        console.log("%c%s", "color:red","message: " + this.message)
+    },
+    methods: {
+        fresh: function () {
+            axios.get('getAdminInfo',{
+                params: {
+                    no: 0,
+                    money: app.money
+                }
+            }).then(function (res) {
+                if (res.data.resultCode === "1") {
+                    let adminInfoModel = res.data.resultData.adminInfoModel;
+                    console.log(adminInfoModel);
+                    app.no = adminInfoModel.no;
+                    app.sumClockUser = adminInfoModel.sumClockUser;
+                    app.sumClockAmount = adminInfoModel.sumClockAmount;
+                    app.sumUnClockUser = adminInfoModel.sumUnClockUser;
+                    app.sumUnClockAmount = adminInfoModel.sumUnClockAmount;
+                    app.forMeAmount = adminInfoModel.forMeAmount;
+                    app.qianfenAmount = adminInfoModel.qianfenAmount;
+                }
+            });
+        },
+        saveData: function () {
+            axios({
+                method: 'post',
+                url: 'saveAdminInfo',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                params: {
+                    no: 0,
+                    money: app.money,
+                    qianfenAmount: app.qianfenAmount
+                }
+            }).then(function (res) {
+                if (res.data.resultCode === "1") {
+                    let adminInfoModel = res.data.resultData.adminInfoModel;
+                    console.log(adminInfoModel);
+                    app.no = adminInfoModel.no;
+                    app.sumClockUser = adminInfoModel.sumClockUser;
+                    app.sumClockAmount = adminInfoModel.sumClockAmount;
+                    app.sumUnClockUser = adminInfoModel.sumUnClockUser;
+                    app.sumUnClockAmount = adminInfoModel.sumUnClockAmount;
+                    app.forMeAmount = adminInfoModel.forMeAmount;
+                    app.qianfenAmount = adminInfoModel.qianfenAmount;
+                    weui.alert("success");
+                }
+            });
+        }
+    }
+});
+
+</script>
+</body>
+</html>

@@ -1,8 +1,5 @@
-package com.springboot.dailyclock.admin.model;
+package com.springboot.springcloudwechatclient.admin.model;
 
-import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -11,14 +8,8 @@ import java.util.Date;
  * @author: weishiyao
  * @create: 2018-05-16 23:30
  **/
-@Entity
-@Table(name = "admin_info")
 public class AdminInfoModel {
 
-    @Id
-    @GeneratedValue(generator = "paymentableGenerator")
-    @GenericGenerator(name = "paymentableGenerator", strategy = "uuid")
-    @Column(name ="id",nullable=false,length=36)
     private String id;
 
     private Date createDate;

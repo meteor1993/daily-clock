@@ -18,7 +18,7 @@ public interface NeedClockRemote {
      * @param needDate
      * @return
      */
-    @PostMapping(value = "/api/getByOpenidAndNeedDate")
+    @PostMapping(value = "/api/needClock/getByOpenidAndNeedDate")
     CommonJson getByOpenidAndNeedDate(@RequestParam(value = "openid") String openid, @RequestParam(value = "needDate") Date needDate);
 
     /**
@@ -26,7 +26,7 @@ public interface NeedClockRemote {
      * @param needClockUserModel
      * @return
      */
-    @PostMapping(value = "/deleteNeedClock")
+    @PostMapping(value = "/api/needClock/deleteNeedClock")
     CommonJson deleteNeedClock(@RequestBody NeedClockUserModel needClockUserModel);
 
     /**
@@ -34,6 +34,6 @@ public interface NeedClockRemote {
      * @param needClockUserModel
      * @return
      */
-    @PostMapping(value = "/saveNeedClock")
+    @PostMapping(value = "/api/needClock/saveNeedClock")
     CommonJson saveNeedClock(@RequestBody NeedClockUserModel needClockUserModel);
 }

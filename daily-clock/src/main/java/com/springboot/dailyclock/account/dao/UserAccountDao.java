@@ -22,6 +22,22 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
     Page<UserAccountModel> findAllByType0OrderByOrderDate0Desc(String type0, Pageable pageable);
 
     /**
+     * 查询盘口0所有当日打卡账户
+     * @param nowDate
+     * @return
+     */
+    @Query("select u from UserAccountModel u where u.type0 = '1' and TO_DAYS(u.orderDate0) = TO_DAYS(?1)")
+    List<UserAccountModel> findAllClockUser(Date nowDate);
+
+    /**
+     * 查询所有当日未打卡账户
+     * @param nowDate
+     * @return
+     */
+    @Query("select u from UserAccountModel u where u.type0 = '1' and TO_DAYS(?1) - TO_DAYS(u.orderDate0) >= 1")
+    List<UserAccountModel> findAllUnClockUser(Date nowDate);
+
+    /**
      * 盘口0所有账户总押金
      * @return
      */
@@ -29,11 +45,11 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
     String getUserBalance0Sum();
 
     /**
-     * 盘口0当日打卡总金额
+     * 盘口0当日已打卡总金额
      * @param now
      * @return
      */
-    @Query("select sum (u.useBalance0) from UserAccountModel u where u.type0 = '1' and TO_DAYS(u.clockDate0) = TO_DAYS(?1)")
+    @Query("select round(sum (u.useBalance0), 2) from UserAccountModel u where u.type0 = '1' and TO_DAYS(u.clockDate0) = TO_DAYS(?1)")
     String getClockUserBalance0Sum(Date now);
 
     /**
@@ -41,7 +57,7 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
      * @param now
      * @return
      */
-    @Query("select sum (u.useBalance0) from UserAccountModel u where u.type0 = '1' and u.useBalance0 <> '' and TO_DAYS(?1) - TO_DAYS(u.clockDate0) <= 1")
+    @Query("select round(sum (u.useBalance0), 2) from UserAccountModel u where u.type0 = '1' and u.useBalance0 <> '' and TO_DAYS(?1) - TO_DAYS(u.clockDate0) >= 1")
     String getUnClockUserBalance0Sum(Date now);
 
     /**
@@ -66,4 +82,7 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
      */
     @Query("select count (1) from UserAccountModel u where u.type0 = '1' and u.useBalance0 <> '' and TO_DAYS(?1) - TO_DAYS(u.clockDate0) >= 1")
     String getUnClockUserCount0(Date now);
+
+    @Query("select u from UserAccountModel u where u.type0 = '1' order by u.continuousClockNum desc")
+    Page<UserAccountModel> getMaxContinuousClockUser(Pageable pageable);
 }

@@ -38,12 +38,12 @@ public interface SignRemote {
 
     /**
      * 早晨打卡
-     * @param wxMpUser
+     * @param openid
      * @param no
      * @return
      */
     @PostMapping(value = "/api/clock")
-    CommonJson clock(@RequestBody WxMpUser wxMpUser, @RequestParam(value = "no") String no);
+    CommonJson clock(@RequestParam(value = "openid") String openid, @RequestParam(value = "no") String no);
 
     /**
      * 盘口0数据汇总

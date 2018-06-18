@@ -28,7 +28,7 @@ public class UserAccountLogModel implements java.io.Serializable {
     private Date updateDate;
 
     /**
-     * 账户交易业务类型，1.充值2.奖金发放3.提现
+     * 账户交易业务类型，1.充值2.奖金发放3.提现4.余额到押金（零钱支付）5.押金到余额（打卡周期结束）6.打卡失败押金清零
      */
     private String type;
 
@@ -43,6 +43,16 @@ public class UserAccountLogModel implements java.io.Serializable {
      * 来源盘口
      */
     private String no;
+
+    /**
+     * 订单号
+     */
+    private String orderNo;
+
+    /**
+     * 充值是否有效1.有效0.无效
+     */
+    private String typeFlag;
 
     public String getId() {
         return id;
@@ -98,5 +108,21 @@ public class UserAccountLogModel implements java.io.Serializable {
 
     public void setNo(String no) {
         this.no = no;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public String getTypeFlag() {
+        return typeFlag;
+    }
+
+    public void setTypeFlag(String typeFlag) {
+        this.typeFlag = typeFlag;
     }
 }

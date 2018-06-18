@@ -44,6 +44,6 @@ public interface UserClockLogDao extends PagingAndSortingRepository<UserClockLog
      * @param date
      * @return
      */
-    @Query("select round(sum (u.balance), 0) from UserClockLogModel u where u.no=?1 and TO_DAYS(u.createDate) = TO_DAYS(?2) ")
+    @Query("select round(sum (u.useBalance), 2) from UserClockLogModel u where u.no=?1 and TO_DAYS(u.createDate) = TO_DAYS(?2) ")
     String clockBalanceSum(String no, Date date);
 }

@@ -1,9 +1,12 @@
 package com.springboot.springcloudwechatclient;
 
+import com.springboot.springcloudwechatclient.system.utils.Constant;
 import org.joda.time.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.text.SimpleDateFormat;
@@ -14,13 +17,15 @@ import java.util.Date;
 @SpringBootTest
 public class SpringCloudWechatClientApplicationTests {
 
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
     @Test
     public void contextLoads() {
-//        Period p = new Period(new DateTime(),new DateTime("2018-06-12 07:00:00"), PeriodType.hours());
-        Duration duration = new Duration(new DateTime(), new DateTime(2018, 06, 12, 07, 00 ,00));
-        Calendar c = Calendar.getInstance();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        redisTemplate.delete(simpleDateFormat.format(new Date()) + "," + Constant.TODAY_SIGN_USER_LOG_0);
 
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>" + Hours.hoursBetween(new DateTime(), new DateTime(2018, 06, 12, 07, 00 ,00)).getHours());
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>" + System.currentTimeMillis() / 1000);
     }
 
     private String getOrderNo(){

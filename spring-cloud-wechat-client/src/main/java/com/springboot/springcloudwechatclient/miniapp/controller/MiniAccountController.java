@@ -1,19 +1,17 @@
 package com.springboot.springcloudwechatclient.miniapp.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.github.binarywang.wxpay.bean.request.WxEntPayRequest;
-import com.github.binarywang.wxpay.bean.result.WxEntPayResult;
+import com.github.binarywang.wxpay.bean.entpay.EntPayRequest;
+import com.github.binarywang.wxpay.bean.entpay.EntPayResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
 import com.google.common.collect.Maps;
-import com.springboot.springcloudwechatclient.account.controller.AccountController;
 import com.springboot.springcloudwechatclient.account.model.UserAccountLogModel;
 import com.springboot.springcloudwechatclient.account.model.UserAccountModel;
 import com.springboot.springcloudwechatclient.account.remote.AccountRemote;
 import com.springboot.springcloudwechatclient.pay.model.WechatEntPayModel;
 import com.springboot.springcloudwechatclient.pay.remote.PayRemote;
 import com.springboot.springcloudwechatclient.sign.model.ClockConfigModel;
-import com.springboot.springcloudwechatclient.sign.model.WechatMpUserModel;
 import com.springboot.springcloudwechatclient.sign.remote.SignRemote;
 import com.springboot.springcloudwechatclient.system.model.CommonJson;
 import com.springboot.springcloudwechatclient.system.utils.Constant;
@@ -107,6 +105,7 @@ public class MiniAccountController {
         userAccountLogModel.setCreateDate(new Date());
         userAccountLogModel.setNo("0");
         userAccountLogModel.setType("3");
+        userAccountLogModel.setOpenid(openid);
 
         WechatEntPayModel  wechatEntPayModel = new WechatEntPayModel();
         wechatEntPayModel.setCreateDate(new Date());
@@ -117,8 +116,8 @@ public class MiniAccountController {
         wechatEntPayModel.setCheck_name("NO_CHECK");
         wechatEntPayModel.setAmount(new BigDecimal(money).multiply(new BigDecimal("100")).intValue());
         wechatEntPayModel.setDesc("开心打卡");
-        wechatEntPayModel.setSpbill_create_ip("192.168.0.1");
-//        wechatEntPayModel.setSpbill_create_ip(getIp(ContextHolderUtils.getRequest()));
+//        wechatEntPayModel.setSpbill_create_ip("192.168.0.1");
+        wechatEntPayModel.setSpbill_create_ip(getIp(ContextHolderUtils.getRequest()));
         wechatEntPayModel.setStatus("0");
         CommonJson wechatEntyPayJson = payRemote.saveWechatEntPayModel(wechatEntPayModel);
         this.logger.info(">>>>>>>>>>>>>>>>>>payRemote.saveWechatEntPayModel:" + JSON.toJSONString(wechatEntyPayJson));
@@ -126,47 +125,53 @@ public class MiniAccountController {
         this.logger.info(">>>>>>>>>>>>>>>>>>payRemote.saveWechatEntPayModel>>>>>>>>>>>wechatEntPayModel:" + JSON.toJSONString(wechatEntPayModel));
 
 
-        WxEntPayRequest wxEntPayRequest = WxEntPayRequest.newBuilder().build();
-        wxEntPayRequest.setNonceStr(wechatEntPayModel.getNonce_str());
+        EntPayRequest entPayRequest = EntPayRequest.newBuilder().build();
+        entPayRequest.setNonceStr(wechatEntPayModel.getNonce_str());
         // 设备号，非必填
-        wxEntPayRequest.setDeviceInfo("");
+        entPayRequest.setDeviceInfo("");
         // 订单号
-        wxEntPayRequest.setPartnerTradeNo(wechatEntPayModel.getPartner_trade_no());
+        entPayRequest.setPartnerTradeNo(wechatEntPayModel.getPartner_trade_no());
         // openid
-        wxEntPayRequest.setOpenid(wechatEntPayModel.getOpenid());
+        entPayRequest.setOpenid(wechatEntPayModel.getOpenid());
         // 校验用户姓名选项 NO_CHECK：不校验真实姓名  FORCE_CHECK：强校验真实姓名
-        wxEntPayRequest.setCheckName(wechatEntPayModel.getCheck_name());
+        entPayRequest.setCheckName(wechatEntPayModel.getCheck_name());
         // 金额
-        wxEntPayRequest.setAmount(wechatEntPayModel.getAmount());
+        entPayRequest.setAmount(wechatEntPayModel.getAmount());
         // 企业付款描述信息
-        wxEntPayRequest.setDescription(wechatEntPayModel.getDesc());
+        entPayRequest.setDescription(wechatEntPayModel.getDesc());
         // Ip地址
-        wxEntPayRequest.setSpbillCreateIp(wechatEntPayModel.getSpbill_create_ip());
+        entPayRequest.setSpbillCreateIp(wechatEntPayModel.getSpbill_create_ip());
 
         try {
-            WxEntPayResult wxEntPayResult = wxPayService.entPay(wxEntPayRequest);
-            if ("SUCCESS".equals(wxEntPayResult.getResultCode())) { // 如果企业付款成功
+            EntPayResult entPayResult = wxPayService.getEntPayService().entPay(entPayRequest);
+            if ("SUCCESS".equals(entPayResult.getResultCode())) { // 如果企业付款成功
                 wechatEntPayModel.setStatus("1");
                 wechatEntPayModel.setSendDate(new Date());
-                wechatEntPayModel.setSendMsg(wxEntPayResult.getReturnMsg());
+                wechatEntPayModel.setSendMsg(entPayResult.getReturnMsg());
                 payRemote.saveWechatEntPayModel(wechatEntPayModel);
                 accountRemote.saveAccountModel(userAccountModel);
                 accountRemote.saveAccountModelLog(userAccountLogModel);
-            } else if ("FAIL".equals(wxEntPayResult.getResultCode()) && "SYSTEMERROR".equals(wxEntPayResult.getErrCode())) { // 如果满足当前条件，使用原订单号重试
-                wxEntPayResult = wxPayService.entPay(wxEntPayRequest);
-                if ("SUCCESS".equals(wxEntPayResult.getResultCode())) { // 如果企业付款成功
+                json.setResultCode(Constant.JSON_SUCCESS_CODE);
+                json.setResultMsg("success");
+            } else if ("FAIL".equals(entPayResult.getResultCode()) && "SYSTEMERROR".equals(entPayResult.getErrCode())) { // 如果满足当前条件，使用原订单号重试
+                entPayResult = wxPayService.getEntPayService().entPay(entPayRequest);
+                if ("SUCCESS".equals(entPayResult.getResultCode())) { // 如果企业付款成功
                     wechatEntPayModel.setStatus("1");
                     wechatEntPayModel.setSendDate(new Date());
-                    wechatEntPayModel.setSendMsg(wxEntPayResult.getReturnMsg());
+                    wechatEntPayModel.setSendMsg(entPayResult.getReturnMsg());
                     accountRemote.saveAccountModel(userAccountModel);
                     accountRemote.saveAccountModelLog(userAccountLogModel);
                     payRemote.saveWechatEntPayModel(wechatEntPayModel);
+                    json.setResultCode(Constant.JSON_SUCCESS_CODE);
+                    json.setResultMsg("success");
                 }
             } else {
                 wechatEntPayModel.setStatus("0");
                 wechatEntPayModel.setSendDate(new Date());
-                wechatEntPayModel.setSendMsg(wxEntPayResult.getReturnMsg());
+                wechatEntPayModel.setSendMsg(entPayResult.getReturnMsg());
                 payRemote.saveWechatEntPayModel(wechatEntPayModel);
+                json.setResultCode(Constant.JSON_ERROR_CODE);
+                json.setResultMsg("fail");
             }
         } catch (WxPayException e) {
             wechatEntPayModel.setFalseReason(e.getErrCodeDes());
@@ -174,9 +179,9 @@ public class MiniAccountController {
             payRemote.saveWechatEntPayModel(wechatEntPayModel);
             e.printStackTrace();
             logger.info("提现失败,订单号为:" + wechatEntPayModel.getPartner_trade_no());
+            json.setResultCode(Constant.JSON_ERROR_CODE);
+            json.setResultMsg("fail");
         }
-
-
 
         return json;
     }

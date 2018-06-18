@@ -1,37 +1,101 @@
 package com.springboot.springcloudwechatclient.wechat.pay.controller;
 
-import com.github.binarywang.wxpay.bean.WxPayApiData;
-import com.github.binarywang.wxpay.bean.coupon.*;
-import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
-import com.github.binarywang.wxpay.bean.notify.WxPayRefundNotifyResult;
-import com.github.binarywang.wxpay.bean.request.*;
-import com.github.binarywang.wxpay.bean.result.*;
-import com.github.binarywang.wxpay.config.WxPayConfig;
-import com.github.binarywang.wxpay.exception.WxPayException;
-import com.github.binarywang.wxpay.service.WxPayService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
 import java.io.File;
 import java.util.Date;
 import java.util.Map;
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.github.binarywang.wxpay.bean.WxPayApiData;
+import com.github.binarywang.wxpay.bean.coupon.WxPayCouponInfoQueryRequest;
+import com.github.binarywang.wxpay.bean.coupon.WxPayCouponInfoQueryResult;
+import com.github.binarywang.wxpay.bean.coupon.WxPayCouponSendRequest;
+import com.github.binarywang.wxpay.bean.coupon.WxPayCouponSendResult;
+import com.github.binarywang.wxpay.bean.coupon.WxPayCouponStockQueryRequest;
+import com.github.binarywang.wxpay.bean.coupon.WxPayCouponStockQueryResult;
+import com.github.binarywang.wxpay.bean.entpay.EntPayQueryResult;
+import com.github.binarywang.wxpay.bean.entpay.EntPayRequest;
+import com.github.binarywang.wxpay.bean.entpay.EntPayResult;
+import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
+import com.github.binarywang.wxpay.bean.notify.WxPayRefundNotifyResult;
+import com.github.binarywang.wxpay.bean.notify.WxScanPayNotifyResult;
+import com.github.binarywang.wxpay.bean.request.WxPayAuthcode2OpenidRequest;
+import com.github.binarywang.wxpay.bean.request.WxPayMicropayRequest;
+import com.github.binarywang.wxpay.bean.request.WxPayOrderReverseRequest;
+import com.github.binarywang.wxpay.bean.request.WxPayRefundRequest;
+import com.github.binarywang.wxpay.bean.request.WxPayReportRequest;
+import com.github.binarywang.wxpay.bean.request.WxPaySendRedpackRequest;
+import com.github.binarywang.wxpay.bean.request.WxPayShorturlRequest;
+import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
+import com.github.binarywang.wxpay.bean.result.WxPayBillResult;
+import com.github.binarywang.wxpay.bean.result.WxPayMicropayResult;
+import com.github.binarywang.wxpay.bean.result.WxPayOrderCloseResult;
+import com.github.binarywang.wxpay.bean.result.WxPayOrderQueryResult;
+import com.github.binarywang.wxpay.bean.result.WxPayOrderReverseResult;
+import com.github.binarywang.wxpay.bean.result.WxPayRedpackQueryResult;
+import com.github.binarywang.wxpay.bean.result.WxPayRefundQueryResult;
+import com.github.binarywang.wxpay.bean.result.WxPayRefundResult;
+import com.github.binarywang.wxpay.bean.result.WxPaySendRedpackResult;
+import com.github.binarywang.wxpay.bean.result.WxPayUnifiedOrderResult;
+import com.github.binarywang.wxpay.config.WxPayConfig;
+import com.github.binarywang.wxpay.exception.WxPayException;
+import com.github.binarywang.wxpay.service.EntPayService;
+import com.github.binarywang.wxpay.service.WxPayService;
+
 
 /**
- * Created by weishiyao on 2018/1/26.
  * <pre>
  *  注意此controller类实现接口WxPayService（implements WxPayService ），
  *  仅是为了方便演示所有接口的使用，以免漏掉某一个新增加的接口，实际使用时无需如此实现。
- * </pre>
+ *  </pre>
+ *
+ * @author Binary Wang
  */
 @RestController
-@RequestMapping("/wechatPay")
+@RequestMapping("/pay")
 public class WxPayController implements WxPayService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Resource(name = "wxPayService")
     private WxPayService wxService;
+
+    @Override
+    public String getPayBaseUrl() {
+        //do nothing
+        return null;
+    }
+
+    @Override
+    public byte[] postForBytes(String url, String requestStr, boolean useKey) throws WxPayException {
+        //do nothing
+        return new byte[0];
+    }
+
+    @Override
+    public String post(String url, String requestStr, boolean useKey) throws WxPayException {
+        //do nothing
+        return null;
+    }
+
+    @Override
+    public EntPayService getEntPayService() {
+        //do nothing
+        return null;
+    }
+
+    @Override
+    public void setEntPayService(EntPayService entPayService) {
+        //do nothing
+    }
 
     /**
      * <pre>
@@ -161,7 +225,7 @@ public class WxPayController implements WxPayService {
     }
 
     /**
-     * 此方法需要改造，根据实际需要返回com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse对象
+     * TODO 此方法需要改造，根据实际需要返回com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse对象
      */
     @Override
     @PostMapping("/parseOrderNotifyResult")
@@ -170,12 +234,21 @@ public class WxPayController implements WxPayService {
     }
 
     /**
-     * 此方法需要改造，根据实际需要返回com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse对象
+     * TODO 此方法需要改造，根据实际需要返回com.github.binarywang.wxpay.bean.notify.WxPayNotifyResponse对象
      */
     @Override
     @PostMapping("/parseRefundNotifyResult")
     public WxPayRefundNotifyResult parseRefundNotifyResult(@RequestBody String xmlData) throws WxPayException {
         return this.wxService.parseRefundNotifyResult(xmlData);
+    }
+
+    /**
+     * TODO 此方法需要改造，根据实际需要返回所需对象
+     */
+    @Override
+    @PostMapping("/parseScanPayNotifyResult")
+    public WxScanPayNotifyResult parseScanPayNotifyResult(String xmlData) throws WxPayException {
+        return this.wxService.parseScanPayNotifyResult(xmlData);
     }
 
     /**
@@ -225,10 +298,9 @@ public class WxPayController implements WxPayService {
      *
      * @param request 请求对象
      */
-    @Override
     @PostMapping("/entPay")
-    public WxEntPayResult entPay(@RequestBody WxEntPayRequest request) throws WxPayException {
-        return this.wxService.entPay(request);
+    public EntPayResult entPay(@RequestBody EntPayRequest request) throws WxPayException {
+        return this.wxService.getEntPayService().entPay(request);
     }
 
     /**
@@ -241,10 +313,9 @@ public class WxPayController implements WxPayService {
      *
      * @param partnerTradeNo 商户订单号
      */
-    @Override
     @GetMapping("/queryEntPay/{partnerTradeNo}")
-    public WxEntPayQueryResult queryEntPay(@PathVariable String partnerTradeNo) throws WxPayException {
-        return this.wxService.queryEntPay(partnerTradeNo);
+    public EntPayQueryResult queryEntPay(@PathVariable String partnerTradeNo) throws WxPayException {
+        return this.wxService.getEntPayService().queryEntPay(partnerTradeNo);
     }
 
     /**

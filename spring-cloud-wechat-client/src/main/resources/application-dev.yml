@@ -1,6 +1,6 @@
 #server setting
 server:
-  port: 8081
+  port: 80
   tomcat:
     uri-encoding: utf-8
     #最大连接数
@@ -74,7 +74,7 @@ logging:
     com.fsg.salary: INFO
   pattern:
     level: INFO
-  file: /opt/logs/daily_clock.log
+  file: /opt/logs/wechat_client.log
 eureka:
   instance:
     leaseRenewalIntervalInSeconds: 10

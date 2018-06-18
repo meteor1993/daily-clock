@@ -42,12 +42,12 @@ public class SignRestController {
 //        return signRemote.binding(wxMpUser, sessionId, mobile, code);
 //    }
 
-    @PostMapping(value = "/clock")
-    @ResponseBody
-    public CommonJson clock(@RequestParam String no) {
-        logger.info(">>>>>>>>>>>>>no:" + no);
-        WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
-        return signRemote.clock(wxMpUser, no);
-    }
+//    @PostMapping(value = "/clock")
+//    @ResponseBody
+//    public CommonJson clock(@RequestParam String no) {
+//        logger.info(">>>>>>>>>>>>>no:" + no);
+//        WxMpUser wxMpUser = (WxMpUser) ContextHolderUtils.getSession().getAttribute(Constant.WX_MP_USER);
+//        return signRemote.clock(wxMpUser, no);
+//    }
 
 }

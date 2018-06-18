@@ -16,7 +16,7 @@ import java.util.List;
  **/
 public interface NeedClockUserDao extends PagingAndSortingRepository<NeedClockUserModel, Long>, JpaSpecificationExecutor<NeedClockUserModel>{
 
-    List<NeedClockUserModel> findAllByCreateDateBetweenAndNo(Date startDate, Date endDate, String no);
+    List<NeedClockUserModel> findAllByNeedDateBetweenAndNo(Date startDate, Date endDate, String no);
 
     List<NeedClockUserModel> findAll();
 

@@ -7,6 +7,8 @@ import com.springboot.dailyclock.account.dao.UserAccountLogDao;
 import com.springboot.dailyclock.account.model.ProductModel;
 import com.springboot.dailyclock.account.model.UserAccountLogModel;
 import com.springboot.dailyclock.account.model.UserAccountModel;
+import com.springboot.dailyclock.admin.dao.AdminInfoDao;
+import com.springboot.dailyclock.admin.model.AdminInfoModel;
 import com.springboot.dailyclock.sign.dao.NeedClockUserDao;
 import com.springboot.dailyclock.sign.dao.UserClockLogDao;
 import com.springboot.dailyclock.sign.dao.WechatMpUserDao;
@@ -19,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +54,9 @@ public class AccountController {
 
     @Autowired
     WechatMpUserDao wechatMpUserDao;
+
+    @Autowired
+    AdminInfoDao adminInfoDao;
 
     private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 
@@ -116,6 +123,11 @@ public class AccountController {
         return json;
     }
 
+    /**
+     * 保存进出帐日志
+     * @param userAccountLogModel
+     * @return
+     */
     @PostMapping(value = "/saveAccountModelLog")
     public CommonJson saveAccountModelLog(@RequestBody UserAccountLogModel userAccountLogModel) {
         CommonJson json = new CommonJson();
@@ -129,7 +141,24 @@ public class AccountController {
     }
 
     /**
-     * 根据openid查询进出账日志
+     * 根据订单号查询进出帐日志
+     * @param orderNo
+     * @return
+     */
+    @PostMapping(value = "/getAccountModelLogByOrderNo")
+    public CommonJson getAccountModelLogByOrderNo(@RequestParam String orderNo) {
+        CommonJson json = new CommonJson();
+        UserAccountLogModel userAccountLogModel = userAccountLogDao.getByOrderNo(orderNo);
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("userAccountLogModel", userAccountLogModel);
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("succee");
+        json.setResultData(map);
+        return json;
+    }
+
+    /**
+     * 账户中心数据查询
      * @param openid
      * @param no
      * @return
@@ -138,6 +167,11 @@ public class AccountController {
     public CommonJson accountCenter(@RequestParam String openid, @RequestParam String no) {
         CommonJson json = new CommonJson();
 //        List<UserAccountLogModel> userAccountLogModelList = userAccountLogDao.findAllByOpenidAndTypeAndNoOrderByCreateDateDesc(openid, type, no);
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        AdminInfoModel adminInfoModel = adminInfoDao.getAdminInfoModelByCreateDate(simpleDateFormat.format(new Date()));
+
         String amountSum = userAccountLogDao.getAmountSum(openid);
 
         List<UserClockLogModel> userClockLogModelList = userClockLogDao.findAllByOpenIdOrderByCreateDateDesc(openid);
@@ -151,6 +185,13 @@ public class AccountController {
 
         // 当日未打卡金额
         String unClockBalanceSum = userAccountDao.getUnClockUserBalance0Sum(new Date());
+
+        if (adminInfoModel != null && adminInfoModel.getForMeAmount() != null) {
+            clockBalanceSum = new BigDecimal(clockBalanceSum).add(new BigDecimal(adminInfoModel.getForMeAmount())).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+
+            unClockBalanceSum = new BigDecimal(unClockBalanceSum).subtract(new BigDecimal(adminInfoModel.getForMeAmount())).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+
+        }
 
         Map<String, Object> map = Maps.newHashMap();
         map.put("amountSum", amountSum);

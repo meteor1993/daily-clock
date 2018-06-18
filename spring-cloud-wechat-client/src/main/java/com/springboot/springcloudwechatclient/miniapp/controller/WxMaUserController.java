@@ -102,6 +102,7 @@ public class WxMaUserController {
         this.logger.info(">>>>>>>>>>>>>>wechatMpUserRemote.getWechatMpUserByOpenid>>>>>>>>>>>wechatMpUserModel:" + JSON.toJSONString(wechatMpUserModel));
 
         if (wechatMpUserModel == null) {
+            wechatMpUserModel = new WechatMpUserModel();
             wechatMpUserModel.setCreateDate(new Date());
         } else {
             wechatMpUserModel.setUpdateDate(new Date());

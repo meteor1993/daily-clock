@@ -134,6 +134,11 @@ public class UserAccountModel implements java.io.Serializable {
      */
     private String todayBalance3;
 
+    /**
+     * 连续打卡次数
+     */
+    private String continuousClockNum;
+
     public String getId() {
         return id;
     }
@@ -332,5 +337,13 @@ public class UserAccountModel implements java.io.Serializable {
 
     public void setTodayBalance3(String todayBalance3) {
         this.todayBalance3 = todayBalance3;
+    }
+
+    public String getContinuousClockNum() {
+        return continuousClockNum;
+    }
+
+    public void setContinuousClockNum(String continuousClockNum) {
+        this.continuousClockNum = continuousClockNum;
     }
 }

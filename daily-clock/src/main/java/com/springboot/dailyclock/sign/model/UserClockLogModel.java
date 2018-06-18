@@ -40,7 +40,7 @@ public class UserClockLogModel implements java.io.Serializable {
     /**
      * 打卡押金
      */
-    private String balance;
+    private String useBalance;
 
     public String getId() {
         return id;
@@ -82,11 +82,11 @@ public class UserClockLogModel implements java.io.Serializable {
         this.no = no;
     }
 
-    public String getBalance() {
-        return balance;
+    public String getUseBalance() {
+        return useBalance;
     }
 
-    public void setBalance(String balance) {
-        this.balance = balance;
+    public void setUseBalance(String useBalance) {
+        this.useBalance = useBalance;
     }
 }
