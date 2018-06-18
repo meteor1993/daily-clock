@@ -105,16 +105,23 @@ public class ClockController {
             // 获取相关账户信息
             UserAccountModel userAccountModel = JSON.parseObject(JSON.toJSONString(json.getResultData().get("userAccountModel")), UserAccountModel.class);
             // 盘口0数据汇总
+
+
+//            String userBalance0Sum = dataAmountJson.getResultData().get("userBalance0Sum").toString();
             // 盘口0总押金
-            String userBalance0Sum = dataAmountJson.getResultData().get("userBalance0Sum").toString();
+            String userBalance0Sum = (dataAmountJson.getResultData().get("userBalance0Sum") == null ? "0.00" : dataAmountJson.getResultData().get("userBalance0Sum").toString());
             // 盘口0 当日总账户数（参与打卡人数）
-            String userCount0 = dataAmountJson.getResultData().get("userCount0").toString();
+//            String userCount0 = dataAmountJson.getResultData().get("userCount0").toString();
+            String userCount0 = (dataAmountJson.getResultData().get("userCount0") == null ? "" : dataAmountJson.getResultData().get("userCount0").toString());
             // 盘口0 当日总需打卡数
-            String needClockUserSum = dataAmountJson.getResultData().get("needClockUserSum").toString();
+//            String needClockUserSum = dataAmountJson.getResultData().get("needClockUserSum").toString();
+            String needClockUserSum = (dataAmountJson.getResultData().get("needClockUserSum") == null ? "" : dataAmountJson.getResultData().get("needClockUserSum").toString());
             // 盘口0 当日实时打卡人数
-            String todayClockUserSum = dataAmountJson.getResultData().get("todayClockUserSum").toString();
+//            String todayClockUserSum = dataAmountJson.getResultData().get("todayClockUserSum").toString();
+            String todayClockUserSum = (dataAmountJson.getResultData().get("todayClockUserSum") == null ? "" : dataAmountJson.getResultData().get("todayClockUserSum").toString());
             // 盘口0 当日实时未打卡人数
-            String todayUnClockUserSum = dataAmountJson.getResultData().get("todayUnClockUserSum").toString();
+//            String todayUnClockUserSum = dataAmountJson.getResultData().get("todayUnClockUserSum").toString();
+            String todayUnClockUserSum = (dataAmountJson.getResultData().get("todayUnClockUserSum") == null ? "" : dataAmountJson.getResultData().get("todayUnClockUserSum").toString());
             // 盘口0 当日打卡第一人
             WechatMpUserModel wechatMpUserModelFirst = JSON.parseObject(JSON.toJSONString(dataAmountJson.getResultData().get("wechatMpUserModel")), WechatMpUserModel.class);
             // 盘口0 当日打卡第一人打卡记录

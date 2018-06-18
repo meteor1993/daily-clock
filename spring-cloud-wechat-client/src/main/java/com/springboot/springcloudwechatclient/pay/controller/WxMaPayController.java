@@ -199,7 +199,7 @@ public class WxMaPayController {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
-            Long startTime = simpleDateFormat.parse(sdf.format(new Date()) + clockConfigModel.getClockStartTime()).getTime();
+            Long startTime = simpleDateFormat.parse(sdf.format(new Date()) + " " + clockConfigModel.getClockStartTime()).getTime();
 
             Long nowTime = new Date().getTime();
 
@@ -222,11 +222,11 @@ public class WxMaPayController {
                 needClockRemote.saveNeedClock(needClockUserModel1);
                 // 如果缓存存在
                 if (redisTemplate.hasKey(sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0)) {
-                    redisTemplate.opsForHash().put(sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0, openid, needClockUserModel1);
+                    redisTemplate.opsForHash().put(sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0, openid, JSON.toJSONString(needClockUserModel1));
                 } else {
                     // 如果缓存不存在
                     Map<String, Object> map = Maps.newHashMap();
-                    map.put(openid, needClockUserModel1);
+                    map.put(openid, JSON.toJSONString(needClockUserModel1));
                     redisTemplate.opsForHash().putAll(sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0, map);
                 }
 

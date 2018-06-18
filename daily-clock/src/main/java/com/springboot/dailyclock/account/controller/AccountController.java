@@ -187,9 +187,9 @@ public class AccountController {
         String unClockBalanceSum = userAccountDao.getUnClockUserBalance0Sum(new Date());
 
         if (adminInfoModel != null && adminInfoModel.getForMeAmount() != null) {
-            clockBalanceSum = new BigDecimal(clockBalanceSum).add(new BigDecimal(adminInfoModel.getForMeAmount())).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+            clockBalanceSum = new BigDecimal(clockBalanceSum == null ? "0" : clockBalanceSum).add(new BigDecimal(adminInfoModel.getForMeAmount() == null ? "0" : adminInfoModel.getForMeAmount())).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
 
-            unClockBalanceSum = new BigDecimal(unClockBalanceSum).subtract(new BigDecimal(adminInfoModel.getForMeAmount())).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+            unClockBalanceSum = new BigDecimal(unClockBalanceSum == null ? "0" : unClockBalanceSum).subtract(new BigDecimal(adminInfoModel.getForMeAmount() == null ? "0" : adminInfoModel.getForMeAmount())).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
 
         }
 

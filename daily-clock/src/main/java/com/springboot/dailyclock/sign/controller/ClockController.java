@@ -440,9 +440,15 @@ public class ClockController {
         // 毅力之星
         Page<UserAccountModel> maxContinuousClockUserPage = userAccountDao.getMaxContinuousClockUser(new PageRequest(0, 1));
 
-        UserAccountModel maxContinuousClockUserAccount = maxContinuousClockUserPage.getContent().get(0);
+        UserAccountModel maxContinuousClockUserAccount = null;
+        WechatMpUserModel maxContinuousClockUserWechat = null;
+        if (maxContinuousClockUserPage.getContent().size() > 0) {
+            maxContinuousClockUserAccount = maxContinuousClockUserPage.getContent().get(0);
 
-        WechatMpUserModel maxContinuousClockUserWechat = wechatMpUserDao.getByWechatOpenIdIs(maxContinuousClockUserPage.getContent().get(0).getOpenid());
+            maxContinuousClockUserWechat = wechatMpUserDao.getByWechatOpenIdIs(maxContinuousClockUserPage.getContent().get(0).getOpenid());
+        }
+
+
 
         Page<UserAccountModel> userAccountModelPage = userAccountDao.findAllByType0OrderByOrderDate0Desc("1", new PageRequest(0, 16));
         List<WechatMpUserModel> wechatMpUserModelList = new ArrayList<>();
