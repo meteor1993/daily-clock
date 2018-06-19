@@ -13,4 +13,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface WechatMpUserDao extends PagingAndSortingRepository<WechatMpUserModel, Long>, JpaSpecificationExecutor<WechatMpUserModel> {
 
     WechatMpUserModel getByWechatOpenIdIs(String openid);
+
+    WechatMpUserModel getByMobileIs(String mobile);
 }

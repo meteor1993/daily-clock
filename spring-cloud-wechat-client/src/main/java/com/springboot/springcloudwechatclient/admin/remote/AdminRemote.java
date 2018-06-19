@@ -37,4 +37,7 @@ public interface AdminRemote {
      */
     @PostMapping(value = "/admin/getDataInfo")
     CommonJson getDataInfo();
+
+    @PostMapping(value = "/admin/getUserByMobile")
+    CommonJson getUserByMobile(@RequestParam(value = "mobile") String mobile);
 }

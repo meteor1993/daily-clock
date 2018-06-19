@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>管理员操作</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body>
+<div id="web" class="container-fluid">
+    <div class="form-group">
+        <label for="exampleInputEmail2">手机号</label>
+        <input type="number" class="form-control" id="exampleInputEmail2" placeholder="手机号" v-model="mobile">
+    </div>
+    <button type="button" class="btn btn-primary" v-on:click="findUser">查询</button>
+    <div style="height: 20px;"></div>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <tr>
+                <td>微信名</td>
+                <td>手机号</td>
+                <td>openid</td>
+                <td>是否允许打卡</td>
+                <td>押金</td>
+                <td>上次打卡时间</td>
+                <td>上次充值时间</td>
+                <td>连续打卡次数</td>
+                <td>操作</td>
+            </tr>
+            <tr>
+                <td>{{name}}</td>
+                <td>{{userMobile}}</td>
+                <td>{{openid}}</td>
+                <td>{{type}}</td>
+                <td>{{useBalance0}}</td>
+                <td>{{clockDate}}</td>
+                <td>{{orderDate}}</td>
+                <td>{{continuousClockNum}}</td>
+                <td ><button type="submit" class="btn btn-primary" v-on:click="buClock">补打卡</button></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    var web = new Vue({
+        el: '#web',
+        data: {
+            name: '',
+            headImg: 'https://zaoqi.chuangkapai.com/addons/hai105_daka/static/img/headerimg.png',
+            userMobile: '',
+            mobile: '',
+            openid: '',
+            type: '',
+            useBalance0: '',
+            clockDate: '',
+            orderDate: '',
+            continuousClockNum: ''
+        },
+        methods:  {
+            findUser: function () {
+                axios({
+                    method: 'post',
+                    url: 'getUserByMobile',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    params: {
+                        mobile: web.mobile
+                    }
+                }).then(function (res) {
+                    let data = res.data.resultData;
+                    if (res.data.resultCode === "1") {
+                        web.name = data.name;
+                        web.userMobile = data.mobile;
+                        web.openid = data.openid;
+                        web.type = data.type;
+                        web.useBalance0 = data.useBalance0;
+                        web.clockDate = data.dataclockDate;
+                        web.orderDate = data.orderDate;
+                        web.continuousClockNum = data.continuousClockNum;
+                    }
+                });
+            },
+            buClock: function () {
+
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -10,8 +10,10 @@ import com.springboot.dailyclock.admin.dao.AdminInfoDao;
 import com.springboot.dailyclock.admin.model.AdminInfoModel;
 import com.springboot.dailyclock.sign.dao.ClockConfigDao;
 import com.springboot.dailyclock.sign.dao.NeedClockUserDao;
+import com.springboot.dailyclock.sign.dao.WechatMpUserDao;
 import com.springboot.dailyclock.sign.model.ClockConfigModel;
 import com.springboot.dailyclock.sign.model.NeedClockUserModel;
+import com.springboot.dailyclock.sign.model.WechatMpUserModel;
 import com.springboot.dailyclock.system.model.CommonJson;
 import com.springboot.dailyclock.system.utils.Constant;
 import org.joda.time.DateTime;
@@ -50,6 +52,9 @@ public class AdminInfoController {
 
     @Autowired
     ClockConfigDao clockConfigDao;
+
+    @Autowired
+    WechatMpUserDao wechatMpUserDao;
 
     @Autowired
     NeedClockUserDao needClockUserDao;
@@ -119,6 +124,30 @@ public class AdminInfoController {
         return json;
     }
 
+    /**
+     * 根据手机号查询账户信息
+     * @param mobile
+     * @return
+     */
+    @PostMapping(value = "/getUserByMobile")
+    public CommonJson getUserByMobile(@RequestParam String mobile) {
+        CommonJson json = new CommonJson();
+        WechatMpUserModel wechatMpUserModel = wechatMpUserDao.getByMobileIs(mobile);
+        UserAccountModel userAccountModel = userAccountDao.getByOpenidIs(wechatMpUserModel.getWechatOpenId());
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("wechatMpUserModel", wechatMpUserModel);
+        map.put("userAccountModel", userAccountModel);
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("success");
+        json.setResultData(map);
+        return json;
+    }
+
+    /**
+     * 每日数据结算
+     * @return
+     * @throws ParseException
+     */
     @PostMapping(value = "/gatherData")
     public CommonJson gatherData() throws ParseException {
         CommonJson json = new CommonJson();
