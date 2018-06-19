@@ -174,7 +174,7 @@ public class ClockController {
         String token = ContextHolderUtils.getRequest().getHeader("token");
         String openid = (String) redisTemplate.opsForHash().get(token, Constant.WX_MINIAPP_OPENID);
         this.logger.info(">>>ClockController.index>>>>>>>token:" + token + ">>>>>>>>>>openid:" + openid + ">>>>>>>>>>formid:" + formid);
-        CommonJson clockJson = signRemote.clock(openid, "0");
+        CommonJson clockJson = signRemote.clock(openid, "0", Constant.CLOCK_TYPE_1);
         if ("1".equals(clockJson.getResultCode())) {
             WxMaTemplateMessage wxMaTemplateMessage = WxMaTemplateMessage.builder().build();
             wxMaTemplateMessage.setToUser(openid);

@@ -36,6 +36,7 @@ public class WechatEntPayModel implements java.io.Serializable {
     private String spbill_create_ip;
     //*************************腾讯请求参数结束************************************************
 
+    // 0失败1成功2提交审批
     private String status;
 
     private Date sendDate;

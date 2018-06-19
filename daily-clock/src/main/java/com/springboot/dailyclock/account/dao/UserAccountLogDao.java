@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface UserAccountLogDao extends PagingAndSortingRepository<UserAccountLogModel, Long>, JpaSpecificationExecutor<UserAccountLogModel> {
 
-    List<UserAccountLogModel> findAllByOpenidAndTypeAndNoAndTypeFlagOrderByCreateDateDesc(String openid, String type, String no, String typeFlag);
+    List<UserAccountLogModel> findAllByOpenidAndTypeAndNoAndTypeFlagOrderByCreateDateAsc(String openid, String type, String no, String typeFlag);
 
     @Query("select round(sum (u.amount), 0) from UserAccountLogModel u where u.no = '0' and u.type = '2' and u.openid = ?1")
     String getAmountSum(String openid);

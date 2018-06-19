@@ -22,11 +22,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -149,6 +151,7 @@ public class AdminInfoController {
      * @throws ParseException
      */
     @PostMapping(value = "/gatherData")
+    @Transactional(timeout = 3600)
     public CommonJson gatherData() throws ParseException {
         CommonJson json = new CommonJson();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -211,22 +214,36 @@ public class AdminInfoController {
         // 对于今日已打卡人，打卡状态不变，分奖金（奖池-抽水-保底 按照份额分配 + 保底）生成第二日打卡资格，存入数据库，账户变动log记录
         // 今日打卡满21日，分奖金，押金进余额，是否还有押金剩余，有剩余生成第二日打卡资格
         for (UserAccountModel userAccountModel : clockUserList) {
-            List<UserAccountLogModel> userAccountLogModelList = userAccountLogDao.findAllByOpenidAndTypeAndNoAndTypeFlagOrderByCreateDateDesc(userAccountModel.getOpenid(), "1", "0", "1");
-            UserAccountLogModel userAccountLogModel = userAccountLogModelList.get(0);
+            List<UserAccountLogModel> userAccountLogModelList = userAccountLogDao.findAllByOpenidAndTypeAndNoAndTypeFlagOrderByCreateDateAsc(userAccountModel.getOpenid(), "1", "0", "1");
+
+            List<UserAccountLogModel> userAccountLogModelListCopy = new ArrayList<>();
+            for (UserAccountLogModel model : userAccountLogModelList) {
+                if (simpleDateFormat.format(userAccountLogModelList.get(0).getCreateDate()).equals(simpleDateFormat.format(model.getCreateDate()))) {
+                    userAccountLogModelListCopy.add(model);
+                }
+            }
+
+
+//            UserAccountLogModel userAccountLogModel = userAccountLogModelList.get(0);
 
             // 判断是否满21天
-            int days = Days.daysBetween(new DateTime(new Date()), new DateTime(userAccountLogModel.getCreateDate())).getDays();
+            int days = Days.daysBetween(new DateTime(new Date()), new DateTime(userAccountLogModelListCopy.get(0).getCreateDate())).getDays();
+
+            // 需要扣除的总押金
+            BigDecimal bgAmount = new BigDecimal("0");
+            for (UserAccountLogModel model : userAccountLogModelListCopy) {
+                bgAmount = bgAmount.add(new BigDecimal(model.getAmount()));
+            }
 
             // 剩余押金
-            Double d = new BigDecimal(userAccountModel.getUseBalance0()).subtract(new BigDecimal(userAccountLogModel.getAmount())).doubleValue();
+            Double d = new BigDecimal(userAccountModel.getUseBalance0()).subtract(bgAmount).doubleValue();
 
             // 更新用户账户信息
-            userAccountModel.setBalance(new BigDecimal(userAccountLogModel.getAmount()).add(new BigDecimal(userAccountModel.getBalance())).toString());
+            userAccountModel.setBalance(bgAmount.add(new BigDecimal(userAccountModel.getBalance())).toString());
 
             // 当前时间满21天 押金进余额 是否还有押金剩余，有剩余生成第二日打卡资格
             if (days >= clockConfigModel.getClockTime()) {
-                // 修改该条log无效
-                userAccountLogModel.setTypeFlag("0");
+
 
                 if (d > 0) { // 如果押金还有剩余
                     // 生成第二天打卡资格
@@ -239,14 +256,18 @@ public class AdminInfoController {
                 }
                 // 增加账户变动log，押金付款到余额
                 UserAccountLogModel userAccountLogModel1 = new UserAccountLogModel();
-                userAccountLogModel1.setAmount(userAccountLogModel.getAmount());
+                userAccountLogModel1.setAmount(bgAmount.toString());
                 userAccountLogModel1.setNo("0");
                 userAccountLogModel1.setCreateDate(new Date());
                 userAccountLogModel1.setOpenid(userAccountModel.getOpenid());
                 userAccountLogModel1.setType("5");
 
                 // log保存至数据库
-                userAccountLogDao.save(userAccountLogModel);
+                // 修改该条log无效
+                for (UserAccountLogModel model : userAccountLogModelListCopy) {
+                    model.setTypeFlag("0");
+                    userAccountLogDao.save(model);
+                }
                 userAccountLogDao.save(userAccountLogModel1);
 
             } else { // 时间未满21天，正常处理数据
@@ -255,7 +276,7 @@ public class AdminInfoController {
 
             // 分奖金
             // 按份额分配 个人押金 / 总押金 * 待分配额度
-            BigDecimal personAmount = new BigDecimal(userAccountLogModel.getAmount()).divide(new BigDecimal(clockUserBalance0Sum), 2, BigDecimal.ROUND_HALF_UP).multiply(daiBig).setScale(2, BigDecimal.ROUND_HALF_UP);
+            BigDecimal personAmount = bgAmount.divide(new BigDecimal(clockUserBalance0Sum), 2, BigDecimal.ROUND_HALF_UP).multiply(daiBig).setScale(2, BigDecimal.ROUND_HALF_UP);
             // 个人账户赋值
             userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(personAmount).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
             // 增加账户变动log 奖金发放

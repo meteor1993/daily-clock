@@ -87,15 +87,34 @@ public class MiniAccountController {
         String openid = (String) redisTemplate.opsForHash().get(token, Constant.WX_MINIAPP_OPENID);
         this.logger.info(">>>>>>>>MiniAccountController.getMoney>>>>>>>>>token:" + token + ">>>>>opnid:" + openid + ">>>>>>>>>>>money:" + money);
 
+        // 获取全局配置信息
+        CommonJson configJson = signRemote.getClockConfig("0");
+        this.logger.info(">>>>>>>>>>>>>accountRemote.getClockConfig:" + JSON.toJSONString(configJson));
+        ClockConfigModel clockConfigModel = JSON.parseObject(JSON.toJSONString(configJson.getResultData().get("clockConfigModel")), ClockConfigModel.class);
+
+        // 获取账户信息
         CommonJson accountJson = accountRemote.accountInfo(openid);
         this.logger.info(">>>>>>>>>>>>>accountRemote.accountInfo:" + JSON.toJSONString(accountJson));
         UserAccountModel userAccountModel = JSON.parseObject(JSON.toJSONString(accountJson.getResultData().get("userAccountModel")), UserAccountModel.class);
 
+        // 提现金额大于账户余额
         if (new BigDecimal(userAccountModel.getBalance()).compareTo(new BigDecimal(money)) == -1) {
             json.setResultCode(Constant.JSON_ERROR_CODE);
             json.setResultMsg("提现金额大于账户余额");
             json.setResultData(null);
+            return json;
         }
+
+        // 提现金额大于提现上限
+        if (new BigDecimal(money).compareTo(new BigDecimal(clockConfigModel.getGetMoneyTopLine())) == -1) {
+
+            json.setResultCode(Constant.JSON_ERROR_CODE);
+            json.setResultMsg("您的提现申请超过上限，已提交管理员审批，请耐心等待");
+            json.setResultData(null);
+            return json;
+        }
+
+
 
         userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).subtract(new BigDecimal(money)).toString());
         userAccountModel.setUpdateDate(new Date());

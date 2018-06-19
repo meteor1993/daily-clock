@@ -197,7 +197,7 @@ public class ClockController {
      * @return
      */
     @PostMapping(value = "/clock")
-    public CommonJson clock(@RequestParam String openid, @RequestParam String no) throws ParseException {
+    public CommonJson clock(@RequestParam String openid, @RequestParam String no, @RequestParam String clockType) throws ParseException {
         CommonJson json = new CommonJson();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
@@ -269,10 +269,10 @@ public class ClockController {
                 json.setResultMsg("您今日已打卡，请勿重复打卡");
                 return json;
             } else { // 正常打卡流程
-                commonSign(openid, no, TODAY_SIGN_USER_LOG);
+                commonSign(openid, no, TODAY_SIGN_USER_LOG, clockType);
             }
         } else {
-            commonSign(openid, no, TODAY_SIGN_USER_LOG);
+            commonSign(openid, no, TODAY_SIGN_USER_LOG, clockType);
         }
         json.setResultCode(Constant.JSON_SUCCESS_CODE);
         json.setResultMsg("success");
@@ -288,12 +288,12 @@ public class ClockController {
      * @param no
      * @param TODAY_SIGN_USER_LOG
      */
-    private void commonSign(String openid, String no, String TODAY_SIGN_USER_LOG) {
+    private void commonSign(String openid, String no, String TODAY_SIGN_USER_LOG, String clockType) {
         UserAccountModel userAccountModel = userAccountDao.getByOpenidIs(openid);
         UserClockLogModel userClockLogModel = new UserClockLogModel();
         userClockLogModel.setCreateDate(new Date());
         userClockLogModel.setOpenId(openid);
-        userClockLogModel.setType(Constant.CLOCK_TYPE_1);
+        userClockLogModel.setType(clockType);
         userClockLogModel.setNo(no);
         userClockLogModel.setUseBalance(userAccountModel.getUseBalance0());
         userClockLogModel = userClockLogDao.save(userClockLogModel);

@@ -6,7 +6,7 @@
     <groupId>com.springboot</groupId>
     <artifactId>spring-cloud-wechat-client</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <name>spring-cloud-wechat-client</name>
     <description>Demo spring-cloud-wechat-client for Spring Boot</description>

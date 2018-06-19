@@ -4,6 +4,8 @@ import com.springboot.dailyclock.pay.model.WechatEntPayModel;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+import java.util.List;
+
 /**
  * @program: daily-clock
  * @description:

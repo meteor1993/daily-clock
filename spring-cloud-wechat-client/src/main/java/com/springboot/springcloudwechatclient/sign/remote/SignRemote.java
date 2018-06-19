@@ -43,7 +43,7 @@ public interface SignRemote {
      * @return
      */
     @PostMapping(value = "/api/clock")
-    CommonJson clock(@RequestParam(value = "openid") String openid, @RequestParam(value = "no") String no);
+    CommonJson clock(@RequestParam(value = "openid") String openid, @RequestParam(value = "no") String no, @RequestParam(value = "clockType") String clockType);
 
     /**
      * 盘口0数据汇总
