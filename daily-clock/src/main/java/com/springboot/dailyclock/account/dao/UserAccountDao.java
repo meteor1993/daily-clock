@@ -26,7 +26,7 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
      * @param nowDate
      * @return
      */
-    @Query("select u from UserAccountModel u where u.type0 = '1' and TO_DAYS(u.orderDate0) = TO_DAYS(?1)")
+    @Query("select u from UserAccountModel u where u.type0 = '1' and TO_DAYS(u.clockDate0) = TO_DAYS(?1)")
     List<UserAccountModel> findAllClockUser(Date nowDate);
 
     /**
@@ -34,7 +34,7 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
      * @param nowDate
      * @return
      */
-    @Query("select u from UserAccountModel u where u.type0 = '1' and TO_DAYS(?1) - TO_DAYS(u.orderDate0) >= 1")
+    @Query("select u from UserAccountModel u where u.type0 = '1' and TO_DAYS(?1) - TO_DAYS(u.clockDate0) >= 1")
     List<UserAccountModel> findAllUnClockUser(Date nowDate);
 
     /**

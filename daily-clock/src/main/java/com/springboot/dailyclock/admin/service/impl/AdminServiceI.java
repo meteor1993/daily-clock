@@ -71,6 +71,8 @@ public class AdminServiceI implements AdminService {
         // 当日已打卡总金额
         String clockUserBalance0Sum = userAccountDao.getClockUserBalance0Sum(new Date());
 
+        this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>clockUserBalance0Sum:" + clockUserBalance0Sum);
+
         /**
          * 获取所有有资格打卡的人循环
          * 生成今日打卡列表和今日未打卡列表
@@ -83,8 +85,10 @@ public class AdminServiceI implements AdminService {
 
         // 当日盘口0所有未打卡用户列表
         List<UserAccountModel> unClockUserList = userAccountDao.findAllUnClockUser(new Date());
+        this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>unClockUserList:" + unClockUserList);
         // 当日盘口0所有已打卡用户列表
         List<UserAccountModel> clockUserList = userAccountDao.findAllClockUser(new Date());
+        this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>clockUserList:" + clockUserList);
 
         // 循环所有未打卡用户列表
         for (UserAccountModel userAccountModel : unClockUserList) {
@@ -112,8 +116,13 @@ public class AdminServiceI implements AdminService {
 
         // 保底额度
         BigDecimal baodiBig = new BigDecimal(clockConfigModel.getBaodiAmount()).multiply(new BigDecimal(clockUserList.size()));
+
+        this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>baodiBig:" + baodiBig.toString());
+
         // 待分配额度
         BigDecimal daiBig = amountSumBg.subtract(new BigDecimal(adminInfoModel.getForMeAmount())).subtract(baodiBig);
+
+        this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>daiBig:" + daiBig.toString());
 
         // 循环所有已打卡用户列表
         // 对于今日已打卡人，打卡状态不变，分奖金（奖池-抽水-保底 按照份额分配 + 保底）生成第二日打卡资格，存入数据库，账户变动log记录
@@ -131,8 +140,7 @@ public class AdminServiceI implements AdminService {
 
             // 判断是否满21天
             int days = Days.daysBetween(new DateTime(new Date()), new DateTime(userAccountLogModelListCopy.get(0).getCreateDate())).getDays();
-
-            // 需要扣除的总押金
+            // 需要扣钱的总押金
             BigDecimal bgAmount = new BigDecimal("0");
             for (UserAccountLogModel model : userAccountLogModelListCopy) {
                 bgAmount = bgAmount.add(new BigDecimal(model.getAmount()));
@@ -141,12 +149,33 @@ public class AdminServiceI implements AdminService {
             // 剩余押金
             Double d = new BigDecimal(userAccountModel.getUseBalance0()).subtract(bgAmount).doubleValue();
 
-            // 更新用户账户信息
-            userAccountModel.setBalance(bgAmount.add(new BigDecimal(userAccountModel.getBalance())).toString());
+            if (compTime(simpleDateFormat.format(userAccountLogModelListCopy.get(0).getCreateDate()), clockConfigModel.getClockStartTime())) {
+                days += 1;
+            }
+
+            // 分奖金
+            // 按份额分配 个人押金 / 总押金 * 待分配额度
+            BigDecimal personAmount = new BigDecimal(userAccountModel.getUseBalance0()).divide(new BigDecimal(clockUserBalance0Sum), 8, BigDecimal.ROUND_HALF_UP);
+            this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>personAmount:" + personAmount.toString());
+            BigDecimal zuizhongAmount = personAmount.multiply(daiBig).setScale(2, BigDecimal.ROUND_HALF_UP).add(new BigDecimal(clockConfigModel.getBaodiAmount()));
+            this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>zuizhongAmount:" + zuizhongAmount.toString());
+
+            // 个人账户赋值
+            userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(zuizhongAmount).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            // 增加账户变动log 奖金发放
+            UserAccountLogModel userAccountLogModel2 = new UserAccountLogModel();
+            userAccountLogModel2.setAmount(zuizhongAmount.toString());
+            userAccountLogModel2.setNo("0");
+            userAccountLogModel2.setCreateDate(new Date());
+            userAccountLogModel2.setOpenid(userAccountModel.getOpenid());
+            userAccountLogModel2.setType("2");
+            userAccountLogDao.save(userAccountLogModel2);
 
             // 当前时间满21天 押金进余额 是否还有押金剩余，有剩余生成第二日打卡资格
-            if (days >= clockConfigModel.getClockTime()) {
+            if (days > clockConfigModel.getClockTime()) {
 
+                // 更新用户账户信息
+                userAccountModel.setBalance(bgAmount.add(new BigDecimal(userAccountModel.getBalance())).toString());
 
                 if (d > 0) { // 如果押金还有剩余
                     // 生成第二天打卡资格
@@ -155,7 +184,6 @@ public class AdminServiceI implements AdminService {
                     // 修改账户信息
                     userAccountModel.setUseBalance0(null);
                     userAccountModel.setType0(null);
-                    userAccountModel.setUseBalance0(null);
                 }
                 // 增加账户变动log，押金付款到余额
                 UserAccountLogModel userAccountLogModel1 = new UserAccountLogModel();
@@ -179,17 +207,19 @@ public class AdminServiceI implements AdminService {
 
             // 分奖金
             // 按份额分配 个人押金 / 总押金 * 待分配额度
-            BigDecimal personAmount = bgAmount.divide(new BigDecimal(clockUserBalance0Sum), 2, BigDecimal.ROUND_HALF_UP).multiply(daiBig).setScale(2, BigDecimal.ROUND_HALF_UP);
-            // 个人账户赋值
-            userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(personAmount).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-            // 增加账户变动log 奖金发放
-            UserAccountLogModel userAccountLogModel2 = new UserAccountLogModel();
-            userAccountLogModel2.setAmount(personAmount.toString());
-            userAccountLogModel2.setNo("0");
-            userAccountLogModel2.setCreateDate(new Date());
-            userAccountLogModel2.setOpenid(userAccountModel.getOpenid());
-            userAccountLogModel2.setType("2");
-            userAccountLogDao.save(userAccountLogModel2);
+//            BigDecimal personAmount = bgAmount.divide(new BigDecimal(clockUserBalance0Sum), 2, BigDecimal.ROUND_HALF_UP).multiply(daiBig).setScale(2, BigDecimal.ROUND_HALF_UP);
+//
+//
+//            // 个人账户赋值
+//            userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(personAmount).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+//            // 增加账户变动log 奖金发放
+//            UserAccountLogModel userAccountLogModel2 = new UserAccountLogModel();
+//            userAccountLogModel2.setAmount(personAmount.toString());
+//            userAccountLogModel2.setNo("0");
+//            userAccountLogModel2.setCreateDate(new Date());
+//            userAccountLogModel2.setOpenid(userAccountModel.getOpenid());
+//            userAccountLogModel2.setType("2");
+//            userAccountLogDao.save(userAccountLogModel2);
         }
         CommonJson json = new CommonJson();
         Map<String, Object> map = Maps.newHashMap();
@@ -234,6 +264,25 @@ public class AdminServiceI implements AdminService {
 
         // 设定24小时过期
         redisTemplate.expire(TODAY_NEED_SIGN_USER, 24, TimeUnit.HOURS);
+
+    }
+
+    public static boolean compTime(String s1,String s2){
+        try {
+            if (s1.indexOf(":")<0||s1.indexOf(":")<0) {
+                System.out.println("格式不正确");
+            }else{
+                String[]array1 = s1.split(":");
+                int total1 = Integer.valueOf(array1[0])*3600+Integer.valueOf(array1[1])*60+Integer.valueOf(array1[2]);
+                String[]array2 = s2.split(":");
+                int total2 = Integer.valueOf(array2[0])*3600+Integer.valueOf(array2[1])*60+Integer.valueOf(array2[2]);
+                return total1-total2>0?true:false;
+            }
+        } catch (NumberFormatException e) {
+            // TODO Auto-generated catch block
+            return true;
+        }
+        return false;
 
     }
 }

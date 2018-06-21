@@ -1,10 +1,8 @@
 package com.springboot.dailyclock.admin.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.springboot.dailyclock.account.dao.UserAccountDao;
 import com.springboot.dailyclock.account.dao.UserAccountLogDao;
-import com.springboot.dailyclock.account.model.UserAccountLogModel;
 import com.springboot.dailyclock.account.model.UserAccountModel;
 import com.springboot.dailyclock.admin.dao.AdminInfoDao;
 import com.springboot.dailyclock.admin.model.AdminInfoModel;
@@ -12,28 +10,18 @@ import com.springboot.dailyclock.admin.service.AdminService;
 import com.springboot.dailyclock.sign.dao.ClockConfigDao;
 import com.springboot.dailyclock.sign.dao.NeedClockUserDao;
 import com.springboot.dailyclock.sign.dao.WechatMpUserDao;
-import com.springboot.dailyclock.sign.model.ClockConfigModel;
-import com.springboot.dailyclock.sign.model.NeedClockUserModel;
 import com.springboot.dailyclock.sign.model.WechatMpUserModel;
 import com.springboot.dailyclock.system.model.CommonJson;
 import com.springboot.dailyclock.system.utils.Constant;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by weisy on 2018/5/22
@@ -152,7 +140,6 @@ public class AdminInfoController {
     /**
      * 每日数据结算
      * @return
-     * @throws ParseException
      */
     @PostMapping(value = "/gatherData")
     public CommonJson gatherData() {
@@ -168,4 +155,6 @@ public class AdminInfoController {
 
         return json;
     }
+
+
 }

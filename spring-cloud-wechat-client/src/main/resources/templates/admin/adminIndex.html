@@ -68,6 +68,7 @@
     <div class="page__bd page__bd_spacing" style="padding: 15px 15px;">
         <button v-on:click="fresh" class="weui-btn weui-btn_primary">刷新</button>
         <button v-on:click="saveData" class="weui-btn weui-btn_warn">保存</button>
+        <button v-on:click="gatherData" class="weui-btn weui-btn_warn">发钱</button>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/vue"></script>
@@ -198,6 +199,19 @@ var app = new Vue({
                     app.sumUnClockAmount = adminInfoModel.sumUnClockAmount;
                     app.forMeAmount = adminInfoModel.forMeAmount;
                     app.qianfenAmount = adminInfoModel.qianfenAmount;
+                    weui.alert("success");
+                }
+            });
+        },
+        gatherData: function () {
+            axios({
+                method: 'post',
+                url: 'gatherData',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                }
+            }).then(function (res) {
+                if (res.data.resultCode === "1") {
                     weui.alert("success");
                 }
             });

@@ -5,6 +5,7 @@ import com.springboot.dailyclock.sign.dao.NeedClockUserDao;
 import com.springboot.dailyclock.sign.dao.UserClockLogDao;
 import com.springboot.dailyclock.sign.model.NeedClockUserModel;
 import org.joda.time.DateTime;
+import org.joda.time.Minutes;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
 import org.junit.Test;
@@ -38,13 +39,10 @@ public class DailyClockApplicationTests {
 
 	@Test
 	public void contextLoads() throws ParseException {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:ss:mm");
-		System.out.println(simpleDateFormat.parse("2018-06-10 07:00:00").getTime());
-		System.out.println(simpleDateFormat.format(simpleDateFormat.parse("2018-06-10 07:00:00").getTime()));
-//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>" + userClockLogDao.findEarlyClockUser("0", new Date()));
-//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>" + userAccountDao.getClockUserCount0(new Date()));
-//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>" + new Date(Long.valueOf("1528585200000" + "000")).toString());
-//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>" + userAccountDao.getUnClockUserCount0(new Date()));
+
+//		DateTime dateTime = new DateTime("06:30:00");
+//		DateTime dateTime1 = new DateTime("08:00:00");
+//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>" + Minutes.minutesBetween(dateTime1, dateTime).getMinutes());
 	}
 
 }

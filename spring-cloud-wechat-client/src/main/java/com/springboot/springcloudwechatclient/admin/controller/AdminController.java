@@ -193,4 +193,11 @@ public class AdminController {
         return json;
     }
 
+    @PostMapping(value = "/gatherData")
+    public CommonJson gatherData() {
+        CommonJson json = adminRemote.gatherData();
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        return json;
+    }
+
 }
