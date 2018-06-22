@@ -62,6 +62,8 @@ public class AdminServiceI implements AdminService {
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+
         // 获取盘口配置
         ClockConfigModel clockConfigModel = clockConfigDao.getByIdIs("0");
 
@@ -94,6 +96,8 @@ public class AdminServiceI implements AdminService {
         for (UserAccountModel userAccountModel : unClockUserList) {
             userAccountModel.setType0(null);
             userAccountModel.setOrderDate0(null);
+            userAccountModel.setContinuousClockNum(null);
+            userAccountModel.setClockDate0(null);
             // 增加总奖池奖金
             amountSumBg = amountSumBg.add(new BigDecimal(userAccountModel.getUseBalance0()));
 
@@ -130,6 +134,8 @@ public class AdminServiceI implements AdminService {
         for (UserAccountModel userAccountModel : clockUserList) {
             List<UserAccountLogModel> userAccountLogModelList = userAccountLogDao.findAllByOpenidAndTypeAndNoAndTypeFlagOrderByCreateDateAsc(userAccountModel.getOpenid(), "1", "0", "1");
 
+            this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>userAccountLogModelList:" + userAccountLogModelList.toString());
+
             List<UserAccountLogModel> userAccountLogModelListCopy = new ArrayList<>();
             for (UserAccountLogModel model : userAccountLogModelList) {
                 if (simpleDateFormat.format(userAccountLogModelList.get(0).getCreateDate()).equals(simpleDateFormat.format(model.getCreateDate()))) {
@@ -139,19 +145,24 @@ public class AdminServiceI implements AdminService {
 //            UserAccountLogModel userAccountLogModel = userAccountLogModelList.get(0);
 
             // 判断是否满21天
-            int days = Days.daysBetween(new DateTime(new Date()), new DateTime(userAccountLogModelListCopy.get(0).getCreateDate())).getDays();
+            int days = Days.daysBetween(new DateTime(userAccountLogModelListCopy.get(0).getCreateDate()), new DateTime(new Date())).getDays();
             // 需要扣钱的总押金
             BigDecimal bgAmount = new BigDecimal("0");
             for (UserAccountLogModel model : userAccountLogModelListCopy) {
                 bgAmount = bgAmount.add(new BigDecimal(model.getAmount()));
             }
 
+            this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>days1:" +days);
+
             // 剩余押金
             Double d = new BigDecimal(userAccountModel.getUseBalance0()).subtract(bgAmount).doubleValue();
 
-            if (compTime(simpleDateFormat.format(userAccountLogModelListCopy.get(0).getCreateDate()), clockConfigModel.getClockStartTime())) {
+//            this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>compTime:" +compTime(clockConfigModel.getClockStartTime(), sdf.format(userAccountLogModelListCopy.get(0).getCreateDate())));
+            if (compTime(clockConfigModel.getClockStartTime(), sdf.format(userAccountLogModelListCopy.get(0).getCreateDate()))) {
                 days += 1;
             }
+
+            this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>days2:" +days);
 
             // 分奖金
             // 按份额分配 个人押金 / 总押金 * 待分配额度
@@ -172,7 +183,7 @@ public class AdminServiceI implements AdminService {
             userAccountLogDao.save(userAccountLogModel2);
 
             // 当前时间满21天 押金进余额 是否还有押金剩余，有剩余生成第二日打卡资格
-            if (days > clockConfigModel.getClockTime()) {
+            if (days >= clockConfigModel.getClockTime()) {
 
                 // 更新用户账户信息
                 userAccountModel.setBalance(bgAmount.add(new BigDecimal(userAccountModel.getBalance())).toString());
@@ -184,6 +195,9 @@ public class AdminServiceI implements AdminService {
                     // 修改账户信息
                     userAccountModel.setUseBalance0(null);
                     userAccountModel.setType0(null);
+                    userAccountModel.setClockDate0(null);
+                    userAccountModel.setContinuousClockNum(null);
+                    userAccountModel.setOrderDate0(null);
                 }
                 // 增加账户变动log，押金付款到余额
                 UserAccountLogModel userAccountLogModel1 = new UserAccountLogModel();
@@ -267,16 +281,19 @@ public class AdminServiceI implements AdminService {
 
     }
 
-    public static boolean compTime(String s1,String s2){
+    private boolean compTime(String s1,String s2){
+        this.logger.info(">>>>>>>>>>>>>>>AdminServiceI.compTime>>>>>>>>>>>s1:" + s1 + ">>>>>>>>>>>s2:" + s2);
         try {
-            if (s1.indexOf(":")<0||s1.indexOf(":")<0) {
-                System.out.println("格式不正确");
+            if (s1.indexOf(":") < 0 || s1.indexOf(":") < 0) {
+                this.logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>格式不正确");
             }else{
-                String[]array1 = s1.split(":");
-                int total1 = Integer.valueOf(array1[0])*3600+Integer.valueOf(array1[1])*60+Integer.valueOf(array1[2]);
-                String[]array2 = s2.split(":");
-                int total2 = Integer.valueOf(array2[0])*3600+Integer.valueOf(array2[1])*60+Integer.valueOf(array2[2]);
-                return total1-total2>0?true:false;
+                String[] array1 = s1.split(":");
+                int total1 = Integer.valueOf(array1[0]) * 3600 + Integer.valueOf(array1[1]) * 60 + Integer.valueOf(array1[2]);
+                this.logger.info(">>>>>>>>>>>>>>>AdminServiceI.compTime>>>>>>>>>>>total1:" + total1);
+                String[] array2 = s2.split(":");
+                int total2 = Integer.valueOf(array2[0]) * 3600 + Integer.valueOf(array2[1]) * 60 + Integer.valueOf(array2[2]);
+                this.logger.info(">>>>>>>>>>>>>>>AdminServiceI.compTime>>>>>>>>>>>total2:" + total2);
+                return total1 - total2 > 0 ? true : false;
             }
         } catch (NumberFormatException e) {
             // TODO Auto-generated catch block
