@@ -187,6 +187,7 @@ public class AdminController {
      * @return
      */
     @PostMapping(value = "/helpUserClock")
+    @ResponseBody
     public CommonJson helpUserClock(@RequestParam String openid) {
         CommonJson json = signRemote.clock(openid, "0", Constant.CLOCK_TYPE_2);
         json.setResultData(null);
@@ -194,6 +195,7 @@ public class AdminController {
     }
 
     @PostMapping(value = "/gatherData")
+    @ResponseBody
     public CommonJson gatherData() {
         CommonJson json = adminRemote.gatherData();
         json.setResultCode(Constant.JSON_SUCCESS_CODE);

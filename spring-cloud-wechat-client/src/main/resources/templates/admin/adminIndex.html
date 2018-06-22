@@ -213,6 +213,8 @@ var app = new Vue({
             }).then(function (res) {
                 if (res.data.resultCode === "1") {
                     weui.alert("success");
+                } else {
+                    weui.alert("fail");
                 }
             });
         }
