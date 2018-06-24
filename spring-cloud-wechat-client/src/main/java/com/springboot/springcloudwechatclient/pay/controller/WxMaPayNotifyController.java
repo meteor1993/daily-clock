@@ -95,6 +95,10 @@ public class WxMaPayNotifyController {
             this.logger.info(">>>>>>>>>>>>>>WxMaPayNotifyController.notify>>>>>>>>>accountRemote.getAccountModelLogByOrderNo:" + JSON.toJSONString(logJson));
             UserAccountLogModel userAccountLogModel = JSON.parseObject(JSON.toJSONString(logJson.getResultData().get("userAccountLogModel")), UserAccountLogModel.class);
 
+            CommonJson clockConfigJson = signRemote.getClockConfig("0");
+            this.logger.info(">>>>>>>>>>>>>>>>>>>>signRemote.getClockConfig:" + JSON.toJSONString(clockConfigJson));
+            ClockConfigModel clockConfigModel = JSON.parseObject(JSON.toJSONString(clockConfigJson.getResultData().get("clockConfigModel")), ClockConfigModel.class);
+
             // 保存账户进账数据
             if (userAccountLogModel == null) {
                 // 更新账户数据 只更新一次
@@ -102,7 +106,20 @@ public class WxMaPayNotifyController {
                 userAccountModel.setOrderDate0(wxPayOrderModel.getPayTime());
                 userAccountModel.setUpdateDate(new Date());
                 userAccountModel.setType0("1");
+
+                // 操作上级账户
+                if (userAccountModel.getPreOpenid() != null && "1".equals(userAccountModel.getPreOpenidFlag())) {
+                    CommonJson preAccountJson = accountRemote.accountInfo(userAccountModel.getPreOpenid());
+                    this.logger.info(">>>>>>>>>>>>>>WxMaPayNotifyController.notify>>>>>>>>>preAccountJson:" + JSON.toJSONString(preAccountJson));
+                    UserAccountModel preUserAccountModel = JSON.parseObject(JSON.toJSONString(preAccountJson.getResultData().get("userAccountModel")), UserAccountModel.class);
+                    // 更新上级账户奖励金
+                    preUserAccountModel.setRewardBalance(new BigDecimal(clockConfigModel.getRewardBalanceLines()).add(new BigDecimal(preUserAccountModel.getRewardBalance() == null ? "0" : preUserAccountModel.getRewardBalance())).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+                    accountRemote.saveAccountModel(preUserAccountModel);
+                }
+
+                userAccountModel.setPreOpenidFlag("0");
                 accountRemote.saveAccountModel(userAccountModel);
+
                 userAccountLogModel = new UserAccountLogModel();
                 userAccountLogModel.setType("1");
                 userAccountLogModel.setNo("0");
@@ -112,9 +129,7 @@ public class WxMaPayNotifyController {
                 userAccountLogModel.setOrderNo(wxPayOrderModel.getOrderNo());
                 userAccountLogModel.setTypeFlag("1");
                 accountRemote.saveAccountModelLog(userAccountLogModel);
-                CommonJson clockConfigJson = signRemote.getClockConfig("0");
-                this.logger.info(">>>>>>>>>>>>>>>>>>>>signRemote.getClockConfig:" + JSON.toJSONString(clockConfigJson));
-                ClockConfigModel clockConfigModel = JSON.parseObject(JSON.toJSONString(clockConfigJson.getResultData().get("clockConfigModel")), ClockConfigModel.class);
+
 
                 // 获取待打卡数据
                 CommonJson needClockJson = needClockRemote.getByOpenidAndNeedDate(openid, new Date());

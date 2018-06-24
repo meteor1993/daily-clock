@@ -6,6 +6,8 @@ import cn.binarywang.wx.miniapp.bean.WxMaPhoneNumberInfo;
 import cn.binarywang.wx.miniapp.bean.WxMaUserInfo;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
+import com.springboot.springcloudwechatclient.account.model.UserAccountModel;
+import com.springboot.springcloudwechatclient.account.remote.AccountRemote;
 import com.springboot.springcloudwechatclient.sign.model.WechatMpUserModel;
 import com.springboot.springcloudwechatclient.sign.remote.WechatMpUserRemote;
 import com.springboot.springcloudwechatclient.system.model.CommonJson;
@@ -39,6 +41,9 @@ public class WxMaUserController {
 
     @Autowired
     WechatMpUserRemote wechatMpUserRemote;
+
+    @Autowired
+    AccountRemote accountRemote;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -82,7 +87,7 @@ public class WxMaUserController {
      * </pre>
      */
     @PostMapping("/info")
-    public CommonJson info(@RequestParam String sessionKey, @RequestParam String signature, @RequestParam String rawData, @RequestParam String encryptedData, @RequestParam String iv) {
+    public CommonJson info(@RequestParam String sessionKey, @RequestParam String signature, @RequestParam String rawData, @RequestParam String encryptedData, @RequestParam String iv, @RequestParam String openid) {
         this.logger.info("WxMaUserController.info>>>>>>>>>>>>sessionKey:" + sessionKey + ", signature:" + signature + ", rawData:" + rawData + ", encryptedData:"+ encryptedData + ", iv:" + iv);
         CommonJson json = new CommonJson();
         // 用户信息校验
@@ -119,8 +124,30 @@ public class WxMaUserController {
         wechatMpUserModel.setWechatUnionId(userInfo.getUnionId());
         wechatMpUserModel.setType("miniapp");
 
-        wechatMpUserRemote.saveWechatMpUser(wechatMpUserModel);
+        CommonJson accountJson = accountRemote.accountInfo(userInfo.getOpenId());
+        this.logger.info(">>>>>>>>>>>>accountRemote.accountInfo:" + JSON.toJSONString(accountJson));
 
+        UserAccountModel userAccountModel = JSON.parseObject(JSON.toJSONString(accountJson.getResultData().get("userAccountModel")), UserAccountModel.class);
+
+        if (userAccountModel == null) { // 当前openid未开通账户,则开通账户
+            userAccountModel = new UserAccountModel();
+            // 设置默认余额
+            userAccountModel.setBalance("0.00");
+            userAccountModel.setUseBalance0("0.00");
+            userAccountModel.setOpenid(userInfo.getOpenId());
+            // 设置默认数据
+            userAccountModel.setBalanceSum0("0.00");
+            userAccountModel.setTodayBalance0("0.00");
+            // 设置打卡标记位
+            userAccountModel.setType0("0");
+            userAccountModel.setCreateDate(new Date());
+            // 设置上级
+            userAccountModel.setPreOpenid(openid);
+            userAccountModel.setPreOpenidFlag("1");
+            accountRemote.saveAccountModel(userAccountModel);
+        }
+
+        wechatMpUserRemote.saveWechatMpUser(wechatMpUserModel);
 
         redisTemplate.opsForHash().put(ContextHolderUtils.getRequest().getHeader("token"), Constant.WX_MINIAPP_USER, JSON.toJSONString(userInfo));
         Map<String, Object> map = Maps.newHashMap();

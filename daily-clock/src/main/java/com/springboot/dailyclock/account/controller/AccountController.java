@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.springboot.dailyclock.account.dao.ProductDao;
 import com.springboot.dailyclock.account.dao.UserAccountDao;
 import com.springboot.dailyclock.account.dao.UserAccountLogDao;
+import com.springboot.dailyclock.account.model.MpAccountModel;
 import com.springboot.dailyclock.account.model.ProductModel;
 import com.springboot.dailyclock.account.model.UserAccountLogModel;
 import com.springboot.dailyclock.account.model.UserAccountModel;
@@ -19,6 +20,8 @@ import com.springboot.dailyclock.system.utils.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -172,7 +175,7 @@ public class AccountController {
 
         AdminInfoModel adminInfoModel = adminInfoDao.getAdminInfoModelByCreateDate(simpleDateFormat.format(new Date()));
 
-        String amountSum = userAccountLogDao.getAmountSum(openid);
+//        String amountSum = userAccountLogDao.getAmountSum(openid);
 
         List<UserClockLogModel> userClockLogModelList = userClockLogDao.findAllByOpenIdOrderByCreateDateDesc(openid);
 
@@ -194,7 +197,7 @@ public class AccountController {
         }
 
         Map<String, Object> map = Maps.newHashMap();
-        map.put("amountSum", amountSum);
+//        map.put("amountSum", amountSum);
         map.put("userClockLogSize", String.valueOf(userClockLogModelList.size()));
         map.put("userAccountModel", userAccountModel);
         map.put("wechatMpUserModel", wechatMpUserModel);
@@ -207,4 +210,28 @@ public class AccountController {
         return json;
     }
 
+    /**
+     * 分页查询首页list
+     * @param page
+     * @param size
+     * @return
+     */
+    @PostMapping(value = "/findMpAccountList")
+    public CommonJson findMpAccountList(@RequestParam int page, @RequestParam int size) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
+        Page<Map<String,Object>> listPage = userAccountDao.findMpAccountList(new Date(), new PageRequest(page, size));
+        List<Map<String,Object>> mapList = listPage.getContent();
+        for (Map<String, Object> maps : mapList) {
+            maps.put("0", simpleDateFormat.format(maps.get("0")));
+        }
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("list", mapList);
+
+        CommonJson json = new CommonJson();
+        json.setResultData(map);
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("success");
+        return json;
+
+    }
 }

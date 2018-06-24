@@ -106,29 +106,64 @@ public class UserAccountModel implements java.io.Serializable {
     private Date clockDate3;
 
     /**
-     * 盘口0 当日新增奖金
+     * 盘口0 今日奖励
      */
     private String todayBalance0;
 
     /**
-     * 盘口1 当日新增奖金
+     * 盘口1 今日奖励
      */
     private String todayBalance1;
 
     /**
-     * 盘口2 当日新增奖金
+     * 盘口2 今日奖励
      */
     private String todayBalance2;
 
     /**
-     * 盘口3 当日新增奖金
+     * 盘口3 今日奖励
      */
     private String todayBalance3;
+
+    /**
+     * 盘口0 奖金总数
+     */
+    private String balanceSum0;
+
+    /**
+     * 盘口1 奖金总数
+     */
+    private String balanceSum1;
+
+    /**
+     * 盘口2 奖金总数
+     */
+    private String balanceSum2;
+
+    /**
+     * 盘口3 奖金总数
+     */
+    private String balanceSum3;
 
     /**
      * 连续打卡次数
      */
     private String continuousClockNum;
+
+    /**
+     * 上级openid
+     */
+    private String preOpenid;
+
+    /**
+     * 上级openid标记位
+     */
+    private String preOpenidFlag;
+
+    /**
+     * 奖励金
+     */
+    private String rewardBalance;
 
     public String getId() {
         return id;
@@ -330,11 +365,67 @@ public class UserAccountModel implements java.io.Serializable {
         this.todayBalance3 = todayBalance3;
     }
 
+    public String getBalanceSum0() {
+        return balanceSum0;
+    }
+
+    public void setBalanceSum0(String balanceSum0) {
+        this.balanceSum0 = balanceSum0;
+    }
+
+    public String getBalanceSum1() {
+        return balanceSum1;
+    }
+
+    public void setBalanceSum1(String balanceSum1) {
+        this.balanceSum1 = balanceSum1;
+    }
+
+    public String getBalanceSum2() {
+        return balanceSum2;
+    }
+
+    public void setBalanceSum2(String balanceSum2) {
+        this.balanceSum2 = balanceSum2;
+    }
+
+    public String getBalanceSum3() {
+        return balanceSum3;
+    }
+
+    public void setBalanceSum3(String balanceSum3) {
+        this.balanceSum3 = balanceSum3;
+    }
+
     public String getContinuousClockNum() {
         return continuousClockNum;
     }
 
     public void setContinuousClockNum(String continuousClockNum) {
         this.continuousClockNum = continuousClockNum;
+    }
+
+    public String getPreOpenid() {
+        return preOpenid;
+    }
+
+    public void setPreOpenid(String preOpenid) {
+        this.preOpenid = preOpenid;
+    }
+
+    public String getPreOpenidFlag() {
+        return preOpenidFlag;
+    }
+
+    public void setPreOpenidFlag(String preOpenidFlag) {
+        this.preOpenidFlag = preOpenidFlag;
+    }
+
+    public String getRewardBalance() {
+        return rewardBalance;
+    }
+
+    public void setRewardBalance(String rewardBalance) {
+        this.rewardBalance = rewardBalance;
     }
 }

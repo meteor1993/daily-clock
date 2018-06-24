@@ -86,6 +86,9 @@ public class WxMaPayController {
             userAccountModel.setBalance("0.00");
             userAccountModel.setUseBalance0("0.00");
             userAccountModel.setOpenid(openid);
+            // 设置默认数据
+            userAccountModel.setBalanceSum0("0.00");
+            userAccountModel.setTodayBalance0("0.00");
             // 设置打卡标记位
             userAccountModel.setType0("0");
             userAccountModel.setCreateDate(new Date());
@@ -314,8 +317,8 @@ public class WxMaPayController {
         // 标价金额
         wxPayUnifiedOrderRequest.setTotalFee(new BigDecimal(wxPayOrderModel.getOrderMoney()).multiply(new BigDecimal("100")).intValue());
         // 终端IP
-        wxPayUnifiedOrderRequest.setSpbillCreateIp(getIp(request));
-//        wxPayUnifiedOrderRequest.setSpbillCreateIp("172.16.13.50");
+//        wxPayUnifiedOrderRequest.setSpbillCreateIp(getIp(request));
+        wxPayUnifiedOrderRequest.setSpbillCreateIp("172.16.13.50");
         // 通知地址
         wxPayUnifiedOrderRequest.setNotifyUrl(basePath + payCallUrl);
                 //.setNotifyURL(basePath + payCallUrl);

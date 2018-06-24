@@ -111,10 +111,13 @@ public class AdminServiceI implements AdminService {
 
             // 账户押金归零
             userAccountModel.setUseBalance0(null);
+            userAccountModel.setRewardBalance(null);
 
             userAccountDao.save(userAccountModel);
             userAccountLogDao.save(userAccountLogModel);
         }
+
+        amountSumBg = amountSumBg.add(new BigDecimal(clockConfigModel.getSubsidy() == null ? "0" : clockConfigModel.getSubsidy()));
 
         this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>amountSum:" + amountSumBg.toString());
 
@@ -166,13 +169,22 @@ public class AdminServiceI implements AdminService {
 
             // 分奖金
             // 按份额分配 个人押金 / 总押金 * 待分配额度
-            BigDecimal personAmount = new BigDecimal(userAccountModel.getUseBalance0()).divide(new BigDecimal(clockUserBalance0Sum), 8, BigDecimal.ROUND_HALF_UP);
+            // 个人额度
+            BigDecimal personAmount = new BigDecimal(userAccountModel.getUseBalance0()).add(new BigDecimal(userAccountModel.getRewardBalance() == null ? "0" : userAccountModel.getRewardBalance()));
             this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>personAmount:" + personAmount.toString());
-            BigDecimal zuizhongAmount = personAmount.multiply(daiBig).setScale(2, BigDecimal.ROUND_HALF_UP).add(new BigDecimal(clockConfigModel.getBaodiAmount()));
+            // 当前占比
+            BigDecimal personScale = personAmount.divide(new BigDecimal(clockUserBalance0Sum), 8, BigDecimal.ROUND_HALF_UP);
+            this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>personScale:" + personScale.toString());
+            // 最终分钱额度
+            BigDecimal zuizhongAmount = personScale.multiply(daiBig).setScale(2, BigDecimal.ROUND_HALF_UP).add(new BigDecimal(clockConfigModel.getBaodiAmount()));
             this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>zuizhongAmount:" + zuizhongAmount.toString());
 
             // 个人账户赋值
             userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(zuizhongAmount).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            // 当日奖金赋值
+            userAccountModel.setTodayBalance0(zuizhongAmount.toString());
+            // 总奖金额度赋值
+            userAccountModel.setBalanceSum0(new BigDecimal(userAccountModel.getUseBalance0() == null ? "0" : userAccountModel.getUseBalance0()).add(zuizhongAmount).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
             // 增加账户变动log 奖金发放
             UserAccountLogModel userAccountLogModel2 = new UserAccountLogModel();
             userAccountLogModel2.setAmount(zuizhongAmount.toString());
@@ -198,6 +210,8 @@ public class AdminServiceI implements AdminService {
                     userAccountModel.setClockDate0(null);
                     userAccountModel.setContinuousClockNum(null);
                     userAccountModel.setOrderDate0(null);
+                    // 奖励金清零
+                    userAccountModel.setRewardBalance(null);
                 }
                 // 增加账户变动log，押金付款到余额
                 UserAccountLogModel userAccountLogModel1 = new UserAccountLogModel();
@@ -218,22 +232,6 @@ public class AdminServiceI implements AdminService {
             } else { // 时间未满21天，正常处理数据
                 createClockUser(userAccountModel.getOpenid(), userAccountModel.getUseBalance0());
             }
-
-            // 分奖金
-            // 按份额分配 个人押金 / 总押金 * 待分配额度
-//            BigDecimal personAmount = bgAmount.divide(new BigDecimal(clockUserBalance0Sum), 2, BigDecimal.ROUND_HALF_UP).multiply(daiBig).setScale(2, BigDecimal.ROUND_HALF_UP);
-//
-//
-//            // 个人账户赋值
-//            userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).add(personAmount).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
-//            // 增加账户变动log 奖金发放
-//            UserAccountLogModel userAccountLogModel2 = new UserAccountLogModel();
-//            userAccountLogModel2.setAmount(personAmount.toString());
-//            userAccountLogModel2.setNo("0");
-//            userAccountLogModel2.setCreateDate(new Date());
-//            userAccountLogModel2.setOpenid(userAccountModel.getOpenid());
-//            userAccountLogModel2.setType("2");
-//            userAccountLogDao.save(userAccountLogModel2);
         }
         CommonJson json = new CommonJson();
         Map<String, Object> map = Maps.newHashMap();

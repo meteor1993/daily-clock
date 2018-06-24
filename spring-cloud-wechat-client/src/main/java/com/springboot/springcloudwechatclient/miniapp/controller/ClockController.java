@@ -152,6 +152,8 @@ public class ClockController {
             map.put("nowDate", new Date().getTime());
             map.put("toDate", toDate);
             map.put("clockFlag", clockFlag);
+            map.put("subsidy", clockConfigModel.getSubsidy());
+            map.put("subsidyFlag", clockConfigModel.getSubsidyFlag());
             json.setResultCode(Constant.JSON_SUCCESS_CODE);
             json.setResultData(map);
             return json;

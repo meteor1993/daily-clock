@@ -1,6 +1,7 @@
 package com.springboot.springcloudwechatclient.miniapp.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.github.binarywang.wxpay.bean.entpay.EntPayRequest;
 import com.github.binarywang.wxpay.bean.entpay.EntPayResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
@@ -30,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -203,6 +205,26 @@ public class MiniAccountController {
         }
 
         return json;
+    }
+
+    /**
+     * 首页列表分页查询
+     * @param page
+     * @param size
+     * @return
+     */
+    @PostMapping(value = "/findMpAccountList")
+    public CommonJson findMpAccountList(@RequestParam int page, @RequestParam int size) {
+        CommonJson accountJson = accountRemote.findMpAccountList(page, size);
+//        this.logger.info(">>>>>>>>>>>>>>>>>accountRemote.findMpAccountList:" + JSON.toJSONString(accountJson.getResultData()));
+//        JSONArray list = JSON.parseArray(JSON.toJSONString(accountJson.getResultData().get("list")));
+//        for (Object maps : list) {
+//            Map<String, Object> map = (Map<String, Object>) maps;
+//            String clockDate0 = (String) map.get("0");
+//        }
+
+//        this.logger.info(">>>>>>>>>>>>>>>>>accountRemote.findMpAccountList:" + list.get(0));
+        return accountJson;
     }
 
 

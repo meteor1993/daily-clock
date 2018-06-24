@@ -58,6 +58,21 @@ public class ClockConfigModel implements java.io.Serializable {
      */
     private String getMoneyTopLine;
 
+    /**
+     * 平台补贴
+     */
+    private String subsidy;
+
+    /**
+     * 平台补贴标记位
+     */
+    private String subsidyFlag;
+
+    /**
+     * 奖励金上限
+     */
+    private String rewardBalanceLines;
+
     public String getId() {
         return id;
     }
@@ -144,5 +159,29 @@ public class ClockConfigModel implements java.io.Serializable {
 
     public void setGetMoneyTopLine(String getMoneyTopLine) {
         this.getMoneyTopLine = getMoneyTopLine;
+    }
+
+    public String getSubsidy() {
+        return subsidy;
+    }
+
+    public void setSubsidy(String subsidy) {
+        this.subsidy = subsidy;
+    }
+
+    public String getSubsidyFlag() {
+        return subsidyFlag;
+    }
+
+    public void setSubsidyFlag(String subsidyFlag) {
+        this.subsidyFlag = subsidyFlag;
+    }
+
+    public String getRewardBalanceLines() {
+        return rewardBalanceLines;
+    }
+
+    public void setRewardBalanceLines(String rewardBalanceLines) {
+        this.rewardBalanceLines = rewardBalanceLines;
     }
 }

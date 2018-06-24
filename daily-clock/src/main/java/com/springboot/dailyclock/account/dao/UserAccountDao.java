@@ -1,5 +1,6 @@
 package com.springboot.dailyclock.account.dao;
 
+import com.springboot.dailyclock.account.model.MpAccountModel;
 import com.springboot.dailyclock.account.model.UserAccountModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by weisy on 2018/5/15
@@ -85,4 +87,12 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
 
     @Query("select u from UserAccountModel u where u.type0 = '1' order by u.continuousClockNum desc")
     Page<UserAccountModel> getMaxContinuousClockUser(Pageable pageable);
+
+    /**
+     * 奖金倒序查询用户信息
+     * @param pageable
+     * @return
+     */
+    @Query("select new map(u.clockDate0, u.balanceSum0, u.continuousClockNum, w.wechatHeadImgUrl, w.wechatNickName) from UserAccountModel u, WechatMpUserModel w where u.openid = w.wechatOpenId and TO_DAYS(u.clockDate0) = TO_DAYS(?1)")
+    Page<Map<String,Object>> findMpAccountList(Date today, Pageable pageable);
 }

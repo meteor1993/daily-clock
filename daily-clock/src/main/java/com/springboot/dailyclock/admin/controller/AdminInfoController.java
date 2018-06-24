@@ -109,7 +109,7 @@ public class AdminInfoController {
         String unClockUserCount0 = userAccountDao.getUnClockUserCount0(new Date());
         Map<String, Object> map = Maps.newHashMap();
         map.put("clockUserBalance0Sum", clockUserBalance0Sum);
-        map.put("unClockUserBalance0Sum", unClockUserBalance0Sum);
+        map.put("unClockUserBalance0Sum", unClockUserBalance0Sum == null ? "0" : unClockUserBalance0Sum);
         map.put("clockUserCount0", clockUserCount0);
         map.put("unClockUserCount0", unClockUserCount0);
         json.setResultCode(Constant.JSON_SUCCESS_CODE);
