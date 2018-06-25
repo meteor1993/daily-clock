@@ -174,6 +174,11 @@ public class UserAccountModel implements java.io.Serializable {
      */
     private String rewardBalance;
 
+    /**
+     * 来源渠道
+     */
+    private String channel;
+
     public String getId() {
         return id;
     }
@@ -436,5 +441,13 @@ public class UserAccountModel implements java.io.Serializable {
 
     public void setRewardBalance(String rewardBalance) {
         this.rewardBalance = rewardBalance;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
     }
 }

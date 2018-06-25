@@ -87,7 +87,8 @@ public class WxMaUserController {
      * </pre>
      */
     @PostMapping("/info")
-    public CommonJson info(@RequestParam String sessionKey, @RequestParam String signature, @RequestParam String rawData, @RequestParam String encryptedData, @RequestParam String iv, @RequestParam String openid) {
+    public CommonJson info(@RequestParam String sessionKey, @RequestParam String signature, @RequestParam String rawData, @RequestParam String encryptedData, @RequestParam String iv,
+                           @RequestParam(name = "openid", required=false) String openid, @RequestParam(name = "channel", required=false) String channel) {
         this.logger.info("WxMaUserController.info>>>>>>>>>>>>sessionKey:" + sessionKey + ", signature:" + signature + ", rawData:" + rawData + ", encryptedData:"+ encryptedData + ", iv:" + iv);
         CommonJson json = new CommonJson();
         // 用户信息校验
@@ -144,6 +145,8 @@ public class WxMaUserController {
             // 设置上级
             userAccountModel.setPreOpenid(openid);
             userAccountModel.setPreOpenidFlag("1");
+            // 设置来源渠道
+            userAccountModel.setChannel(channel);
             accountRemote.saveAccountModel(userAccountModel);
         }
 

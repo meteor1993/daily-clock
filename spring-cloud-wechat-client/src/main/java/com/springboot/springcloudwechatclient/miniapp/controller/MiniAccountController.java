@@ -116,8 +116,6 @@ public class MiniAccountController {
             return json;
         }
 
-
-
         userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).subtract(new BigDecimal(money)).toString());
         userAccountModel.setUpdateDate(new Date());
         // 记录出账日志
