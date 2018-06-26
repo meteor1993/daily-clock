@@ -112,8 +112,22 @@ public class WxMaPayNotifyController {
                     CommonJson preAccountJson = accountRemote.accountInfo(userAccountModel.getPreOpenid());
                     this.logger.info(">>>>>>>>>>>>>>WxMaPayNotifyController.notify>>>>>>>>>preAccountJson:" + JSON.toJSONString(preAccountJson));
                     UserAccountModel preUserAccountModel = JSON.parseObject(JSON.toJSONString(preAccountJson.getResultData().get("userAccountModel")), UserAccountModel.class);
+                    // 更新上级账户余额
+                    preUserAccountModel.setBalance(new BigDecimal(clockConfigModel.getBonus()).add(new BigDecimal(preUserAccountModel.getBalance() == null ? "0" : preUserAccountModel.getBalance())).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+
+                    this.logger.info(">>>>>>>>>>>>>>WxMaPayNotifyController.notify>>>>>>>>>preUserAccountModel.openid:" + preUserAccountModel.getOpenid());
+
                     // 更新上级账户奖励金
-                    preUserAccountModel.setRewardBalance(new BigDecimal(clockConfigModel.getRewardBalanceLines()).add(new BigDecimal(preUserAccountModel.getRewardBalance() == null ? "0" : preUserAccountModel.getRewardBalance())).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+//                    preUserAccountModel.setRewardBalance(new BigDecimal(clockConfigModel.getRewardBalanceLines()).add(new BigDecimal(preUserAccountModel.getRewardBalance() == null ? "0" : preUserAccountModel.getRewardBalance())).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+
+                    UserAccountLogModel userAccountLogModel1 = new UserAccountLogModel();
+                    userAccountLogModel1.setOpenid(preUserAccountModel.getOpenid());
+                    userAccountLogModel1.setCreateDate(new Date());
+                    userAccountLogModel1.setNo("0");
+                    userAccountLogModel1.setAmount(clockConfigModel.getBonus());
+                    userAccountLogModel1.setType("7");
+
+                    accountRemote.saveAccountModelLog(userAccountLogModel1);
                     accountRemote.saveAccountModel(preUserAccountModel);
                 }
 

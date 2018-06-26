@@ -13,6 +13,7 @@ import com.springboot.springcloudwechatclient.sign.remote.WechatMpUserRemote;
 import com.springboot.springcloudwechatclient.system.model.CommonJson;
 import com.springboot.springcloudwechatclient.system.utils.Constant;
 import com.springboot.springcloudwechatclient.system.utils.ContextHolderUtils;
+import com.springboot.springcloudwechatclient.system.utils.StringUtil;
 import me.chanjar.weixin.common.exception.WxErrorException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -89,7 +90,7 @@ public class WxMaUserController {
     @PostMapping("/info")
     public CommonJson info(@RequestParam String sessionKey, @RequestParam String signature, @RequestParam String rawData, @RequestParam String encryptedData, @RequestParam String iv,
                            @RequestParam(name = "openid", required=false) String openid, @RequestParam(name = "channel", required=false) String channel) {
-        this.logger.info("WxMaUserController.info>>>>>>>>>>>>sessionKey:" + sessionKey + ", signature:" + signature + ", rawData:" + rawData + ", encryptedData:"+ encryptedData + ", iv:" + iv);
+        this.logger.info("WxMaUserController.info>>>>>>>>>>>>sessionKey:" + sessionKey + ", signature:" + signature + ", rawData:" + rawData + ", encryptedData:"+ encryptedData + ", iv:" + iv + ", openid:" + openid);
         CommonJson json = new CommonJson();
         // 用户信息校验
         if (!this.wxService.getUserService().checkUserInfo(sessionKey, rawData, signature)) {
@@ -143,8 +144,11 @@ public class WxMaUserController {
             userAccountModel.setType0("0");
             userAccountModel.setCreateDate(new Date());
             // 设置上级
-            userAccountModel.setPreOpenid(openid);
-            userAccountModel.setPreOpenidFlag("1");
+            if (StringUtil.isNotEmpty(openid) && !"undefined".equals(openid)) {
+                userAccountModel.setPreOpenid(openid);
+                userAccountModel.setPreOpenidFlag("1");
+            }
+
             // 设置来源渠道
             userAccountModel.setChannel(channel);
             accountRemote.saveAccountModel(userAccountModel);

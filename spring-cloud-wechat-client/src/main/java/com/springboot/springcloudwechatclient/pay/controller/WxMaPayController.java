@@ -317,8 +317,8 @@ public class WxMaPayController {
         // 标价金额
         wxPayUnifiedOrderRequest.setTotalFee(new BigDecimal(wxPayOrderModel.getOrderMoney()).multiply(new BigDecimal("100")).intValue());
         // 终端IP
-//        wxPayUnifiedOrderRequest.setSpbillCreateIp(getIp(request));
-        wxPayUnifiedOrderRequest.setSpbillCreateIp("172.16.13.50");
+        wxPayUnifiedOrderRequest.setSpbillCreateIp(getIp(request));
+//        wxPayUnifiedOrderRequest.setSpbillCreateIp("172.16.13.50");
         // 通知地址
         wxPayUnifiedOrderRequest.setNotifyUrl(basePath + payCallUrl);
                 //.setNotifyURL(basePath + payCallUrl);

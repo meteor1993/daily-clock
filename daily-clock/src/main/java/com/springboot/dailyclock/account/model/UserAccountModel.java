@@ -179,6 +179,8 @@ public class UserAccountModel implements java.io.Serializable {
      */
     private String channel;
 
+
+
     public String getId() {
         return id;
     }

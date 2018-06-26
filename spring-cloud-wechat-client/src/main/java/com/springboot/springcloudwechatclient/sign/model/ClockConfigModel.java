@@ -69,6 +69,12 @@ public class ClockConfigModel implements java.io.Serializable {
     private String subsidyFlag;
 
     /**
+     * 推荐奖金
+     */
+    private String bonus;
+
+
+    /**
      * 奖励金上限
      */
     private String rewardBalanceLines;
@@ -175,6 +181,14 @@ public class ClockConfigModel implements java.io.Serializable {
 
     public void setSubsidyFlag(String subsidyFlag) {
         this.subsidyFlag = subsidyFlag;
+    }
+
+    public String getBonus() {
+        return bonus;
+    }
+
+    public void setBonus(String bonus) {
+        this.bonus = bonus;
     }
 
     public String getRewardBalanceLines() {

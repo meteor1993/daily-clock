@@ -82,6 +82,11 @@ public class ClockConfigModel implements java.io.Serializable {
      */
     private String rewardBalanceLines;
 
+    /**
+     * 推荐奖金
+     */
+    private String bonus;
+
     public String getId() {
         return id;
     }
@@ -192,5 +197,13 @@ public class ClockConfigModel implements java.io.Serializable {
 
     public void setRewardBalanceLines(String rewardBalanceLines) {
         this.rewardBalanceLines = rewardBalanceLines;
+    }
+
+    public String getBonus() {
+        return bonus;
+    }
+
+    public void setBonus(String bonus) {
+        this.bonus = bonus;
     }
 }
