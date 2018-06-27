@@ -19,7 +19,7 @@ public interface NeedClockRemote {
      * @return
      */
     @PostMapping(value = "/api/needClock/getByOpenidAndNeedDate")
-    CommonJson getByOpenidAndNeedDate(@RequestParam(value = "openid") String openid, @RequestParam(value = "needDate") Date needDate);
+    CommonJson getByOpenidAndNeedDate(@RequestParam(value = "openid") String openid, @RequestParam(value = "needDate") String needDate);
 
     /**
      * 删除需打卡人

@@ -194,13 +194,15 @@ public class WxMaPayController {
             userAccountLogModel.setNo("0");
             accountRemote.saveAccountModelLog(userAccountLogModel);
 
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
             // 获取待打卡数据
-            CommonJson needClockJson = needClockRemote.getByOpenidAndNeedDate(openid, new Date());
+            CommonJson needClockJson = needClockRemote.getByOpenidAndNeedDate(openid, sdf.format(new Date()));
             this.logger.info(">>>>>>>>>>>>>>>>>>>>needClockRemote.getByOpenidAndNeedDate:" + JSON.toJSONString(needClockJson));
             NeedClockUserModel needClockUserModel = JSON.parseObject(JSON.toJSONString(needClockJson.getResultData().get("needClockUserModel")), NeedClockUserModel.class);
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
 
             Long startTime = simpleDateFormat.parse(sdf.format(new Date()) + " " + clockConfigModel.getClockStartTime()).getTime();
 

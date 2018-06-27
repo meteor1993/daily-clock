@@ -75,6 +75,7 @@ logging:
   pattern:
     level: INFO
   file: /opt/logs/wechat_client.log
+
 eureka:
   instance:
     leaseRenewalIntervalInSeconds: 10

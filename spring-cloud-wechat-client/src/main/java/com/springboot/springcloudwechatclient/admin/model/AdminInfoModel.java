@@ -51,6 +51,11 @@ public class AdminInfoModel {
      */
     private String qianfenAmount;
 
+    /**
+     * 平台补贴
+     */
+    private String subsidy;
+
     public String getId() {
         return id;
     }
@@ -129,5 +134,13 @@ public class AdminInfoModel {
 
     public void setQianfenAmount(String qianfenAmount) {
         this.qianfenAmount = qianfenAmount;
+    }
+
+    public String getSubsidy() {
+        return subsidy;
+    }
+
+    public void setSubsidy(String subsidy) {
+        this.subsidy = subsidy;
     }
 }

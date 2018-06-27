@@ -269,9 +269,21 @@ public class ClockController {
                 json.setResultMsg("您今日已打卡，请勿重复打卡");
                 return json;
             } else { // 正常打卡流程
+                UserClockLogModel userClockLogModel = userClockLogDao.getByOpenIdAndCreateDate(openid, new Date());
+                if (userClockLogModel != null) {
+                    json.setResultCode(Constant.JSON_ERROR_CODE);
+                    json.setResultMsg("您今日已打卡，请勿重复打卡");
+                    return json;
+                }
                 commonSign(openid, no, TODAY_SIGN_USER_LOG, clockType);
             }
         } else {
+            UserClockLogModel userClockLogModel = userClockLogDao.getByOpenIdAndCreateDate(openid, new Date());
+            if (userClockLogModel != null) {
+                json.setResultCode(Constant.JSON_ERROR_CODE);
+                json.setResultMsg("您今日已打卡，请勿重复打卡");
+                return json;
+            }
             commonSign(openid, no, TODAY_SIGN_USER_LOG, clockType);
         }
         json.setResultCode(Constant.JSON_SUCCESS_CODE);

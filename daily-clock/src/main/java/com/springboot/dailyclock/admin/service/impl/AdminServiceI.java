@@ -135,6 +135,7 @@ public class AdminServiceI implements AdminService {
         // 对于今日已打卡人，打卡状态不变，分奖金（奖池-抽水-保底 按照份额分配 + 保底）生成第二日打卡资格，存入数据库，账户变动log记录
         // 今日打卡满21日，分奖金，押金进余额，是否还有押金剩余，有剩余生成第二日打卡资格
         for (UserAccountModel userAccountModel : clockUserList) {
+            this.logger.info(">>>>>>>>>>>>>>>>>>>>>>>>userAccountModel.getOpenid():" + userAccountModel.getOpenid());
             List<UserAccountLogModel> userAccountLogModelList = userAccountLogDao.findAllByOpenidAndTypeAndNoAndTypeFlagOrderByCreateDateAsc(userAccountModel.getOpenid(), "1", "0", "1");
 
             this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>userAccountLogModelList:" + userAccountLogModelList.toString());
@@ -184,7 +185,7 @@ public class AdminServiceI implements AdminService {
             // 当日奖金赋值
             userAccountModel.setTodayBalance0(zuizhongAmount.toString());
             // 总奖金额度赋值
-            userAccountModel.setBalanceSum0(new BigDecimal(userAccountModel.getUseBalance0() == null ? "0" : userAccountModel.getUseBalance0()).add(zuizhongAmount).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            userAccountModel.setBalanceSum0(new BigDecimal(userAccountModel.getBalanceSum0() == null ? "0" : userAccountModel.getBalanceSum0()).add(zuizhongAmount).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
             // 增加账户变动log 奖金发放
             UserAccountLogModel userAccountLogModel2 = new UserAccountLogModel();
             userAccountLogModel2.setAmount(zuizhongAmount.toString());
@@ -248,7 +249,7 @@ public class AdminServiceI implements AdminService {
     public void createClockUser(String openid, String useBalance) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        NeedClockUserModel needClockUserModel = needClockUserDao.getByOpenidAndNeedDate(openid, new DateTime().plusDays(1).toDate());
+        NeedClockUserModel needClockUserModel = needClockUserDao.getByOpenidAndNeedDate(openid, sdf.format(new DateTime().plusDays(1).toDate()));
         if (needClockUserModel == null) {
             needClockUserModel = new NeedClockUserModel();
             needClockUserModel.setCreateDate(new Date());

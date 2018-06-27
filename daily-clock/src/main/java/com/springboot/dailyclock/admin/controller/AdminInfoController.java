@@ -10,6 +10,7 @@ import com.springboot.dailyclock.admin.service.AdminService;
 import com.springboot.dailyclock.sign.dao.ClockConfigDao;
 import com.springboot.dailyclock.sign.dao.NeedClockUserDao;
 import com.springboot.dailyclock.sign.dao.WechatMpUserDao;
+import com.springboot.dailyclock.sign.model.ClockConfigModel;
 import com.springboot.dailyclock.sign.model.WechatMpUserModel;
 import com.springboot.dailyclock.system.model.CommonJson;
 import com.springboot.dailyclock.system.utils.Constant;

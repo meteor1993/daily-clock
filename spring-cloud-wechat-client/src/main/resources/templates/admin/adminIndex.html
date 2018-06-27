@@ -47,6 +47,12 @@
             </div>
             <div class="weui-cell__ft">{{forMeAmount}}</div>
         </div>
+        <div class="weui-cell" style="color: red">
+            <div class="weui-cell__bd">
+                <p>平台补贴</p>
+            </div>
+            <div class="weui-cell__ft" style="color: red">{{subsidy}}</div>
+        </div>
         <div class="weui-cell">
             <div class="weui-cell__bd">
                 <p>千份奖金</p>
@@ -85,7 +91,8 @@ var app = new Vue({
         sumUnClockAmount: '',
         forMeAmount: '',
         money: '0',
-        qianfenAmount: ''
+        qianfenAmount: '',
+        subsidy: ''
     },
     beforeCreate: function () {
         console.group('beforeCreate 创建前状态===============》');
@@ -110,6 +117,7 @@ var app = new Vue({
                 data.sumUnClockAmount = adminInfoModel.sumUnClockAmount;
                 data.forMeAmount = adminInfoModel.forMeAmount;
                 data.qianfenAmount = adminInfoModel.qianfenAmount;
+                data.subsidy = adminInfoModel.subsidy
             }
         });
     },
@@ -173,6 +181,7 @@ var app = new Vue({
                     app.sumUnClockAmount = adminInfoModel.sumUnClockAmount;
                     app.forMeAmount = adminInfoModel.forMeAmount;
                     app.qianfenAmount = adminInfoModel.qianfenAmount;
+                    app.subsidy = adminInfoModel.subsidy;
                 }
             });
         },

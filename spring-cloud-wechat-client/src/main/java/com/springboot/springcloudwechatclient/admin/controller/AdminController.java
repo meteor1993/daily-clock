@@ -98,14 +98,15 @@ public class AdminController {
         // 保底总额
         String baodiSum = new BigDecimal(unClockUserCount0).multiply(new BigDecimal(clockConfigModel.getBaodiAmount())).toString();
         // 待发放金额
-        String daiSum = new BigDecimal(unClockUserBalance0Sum).subtract(new BigDecimal(baodiSum)).subtract(new BigDecimal(money)).toString();
+        String daiSum = new BigDecimal(unClockUserBalance0Sum).subtract(new BigDecimal(baodiSum)).subtract(new BigDecimal(money)).add(new BigDecimal(clockConfigModel.getSubsidy())).toString();
         // 千份奖金
-        String qianfenAmount = new BigDecimal(daiSum).divide(new BigDecimal(clockUserBalance0Sum), 2, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal("1000")).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+        String qianfenAmount = new BigDecimal(daiSum).divide(new BigDecimal(clockUserBalance0Sum), 8, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal("1000")).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
 
         adminInfoModel.setSumClockUser(clockUserCount0);
         adminInfoModel.setSumClockAmount(clockUserBalance0Sum);
         adminInfoModel.setSumUnClockUser(unClockUserCount0);
         adminInfoModel.setSumUnClockAmount(unClockUserBalance0Sum);
+        adminInfoModel.setSubsidy(clockConfigModel.getSubsidy());
 
         adminJson = adminRemote.saveAdminInfo(adminInfoModel);
         adminInfoModel = JSON.parseObject(JSON.toJSONString(adminJson.getResultData().get("adminInfoModel")), AdminInfoModel.class);

@@ -23,7 +23,7 @@ public class NeedClockController {
     NeedClockUserDao needClockUserDao;
 
     @PostMapping(value = "/getByOpenidAndNeedDate")
-    public CommonJson getByOpenidAndNeedDate(@RequestParam String openid, @RequestParam Date needDate) {
+    public CommonJson getByOpenidAndNeedDate(@RequestParam String openid, @RequestParam String needDate) {
         CommonJson json = new CommonJson();
         NeedClockUserModel needClockUserModel = needClockUserDao.getByOpenidAndNeedDate(openid, needDate);
         Map<String, Object> map = Maps.newHashMap();

@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -144,14 +143,16 @@ public class WxMaPayNotifyController {
                 userAccountLogModel.setTypeFlag("1");
                 accountRemote.saveAccountModelLog(userAccountLogModel);
 
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
                 // 获取待打卡数据
-                CommonJson needClockJson = needClockRemote.getByOpenidAndNeedDate(openid, new Date());
+                this.logger.info(">>>>>>>>>>>>>>>>>>>>needClockRemote.getByOpenidAndNeedDate>>>>>>>>>>openid:" + openid + ", newDate:" + new Date().toString());
+                CommonJson needClockJson = needClockRemote.getByOpenidAndNeedDate(openid, sdf.format(new Date()));
                 this.logger.info(">>>>>>>>>>>>>>>>>>>>needClockRemote.getByOpenidAndNeedDate:" + JSON.toJSONString(needClockJson));
                 NeedClockUserModel needClockUserModel = JSON.parseObject(JSON.toJSONString(needClockJson.getResultData().get("needClockUserModel")), NeedClockUserModel.class);
 
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
 
                 Long startTime = simpleDateFormat.parse(sdf.format(new Date()) + " " + clockConfigModel.getClockStartTime()).getTime();
 
