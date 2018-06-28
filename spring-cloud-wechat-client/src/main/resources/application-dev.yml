@@ -75,7 +75,13 @@ logging:
   pattern:
     level: INFO
   file: /opt/logs/wechat_client.log
-
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
 eureka:
   instance:
     leaseRenewalIntervalInSeconds: 10
@@ -102,6 +108,13 @@ wechat:
     token:
     aesKey:
     msgDataFormat: JSON
-hystrix:
-  metrics:
-    enabled: true
+feign:
+  httpclient:
+    time-to-live: 900
+    connection-timeout: 10000
+    connection-timer-repeat: 1000
+    max-connections-per-route: 50
+    max-connections: 200
+  compression:
+    request:
+      min-request-size: 4096
