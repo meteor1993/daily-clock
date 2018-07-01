@@ -75,13 +75,6 @@ logging:
   pattern:
     level: INFO
   file: /opt/logs/wechat_client.log
-hystrix:
-  command:
-    default:
-      execution:
-        isolation:
-          thread:
-            timeoutInMilliseconds: 5000
 eureka:
   instance:
     leaseRenewalIntervalInSeconds: 10

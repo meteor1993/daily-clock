@@ -90,7 +90,7 @@ public class WxMaUserController {
     @PostMapping("/info")
     public CommonJson info(@RequestParam String sessionKey, @RequestParam String signature, @RequestParam String rawData, @RequestParam String encryptedData, @RequestParam String iv,
                            @RequestParam(name = "openid", required=false) String openid, @RequestParam(name = "channel", required=false) String channel) {
-        this.logger.info("WxMaUserController.info>>>>>>>>>>>>sessionKey:" + sessionKey + ", signature:" + signature + ", rawData:" + rawData + ", encryptedData:"+ encryptedData + ", iv:" + iv + ", openid:" + openid);
+        this.logger.info("WxMaUserController.info>>>>>>>>>>>>sessionKey:" + sessionKey + ", signature:" + signature + ", rawData:" + rawData + ", encryptedData:"+ encryptedData + ", iv:" + iv + ", openid:" + openid + ", channel:" + channel);
         CommonJson json = new CommonJson();
         // 用户信息校验
         if (!this.wxService.getUserService().checkUserInfo(sessionKey, rawData, signature)) {

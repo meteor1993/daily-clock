@@ -15,6 +15,7 @@ import com.springboot.dailyclock.sign.model.WechatMpUserModel;
 import com.springboot.dailyclock.sms.dao.SMSDao;
 import com.springboot.dailyclock.sms.model.SMSModel;
 import com.springboot.dailyclock.sms.utils.AliyunSMSUtils;
+import com.springboot.dailyclock.sms.utils.TxyunSMSUtils;
 import com.springboot.dailyclock.system.model.CommonJson;
 import com.springboot.dailyclock.system.utils.Constant;
 import com.springboot.dailyclock.system.utils.ExceptionUtil;
@@ -89,11 +90,15 @@ public class ClockController {
             return json;
         }
         // ---------------进入发短信流程--------------
-        AliyunSMSUtils smsUtils = AliyunSMSUtils.getInstance();
+        // 阿里云
+//        AliyunSMSUtils smsUtils = AliyunSMSUtils.getInstance();
+        // 腾讯云
+        TxyunSMSUtils smsUtils = TxyunSMSUtils.getInstance();
 
         String code = getRandomCode();
         logger.info("---------------sendSMS--------------mobile:" + mobile + ",code" + code);
-        boolean flag = smsUtils.sendAliyunSMS(mobile, code);
+//        boolean flag = smsUtils.sendAliyunSMS(mobile, code);
+        boolean flag = smsUtils.sendTxyunSMS(mobile, code);
 //        boolean flag = true;
         if (flag) {
             SMSModel smsModel = new SMSModel();

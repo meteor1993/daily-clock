@@ -77,7 +77,7 @@ spring:
       max-wait: 10000
   datasource:
       type: com.alibaba.druid.pool.DruidDataSource
-      url: jdbc:mysql://rm-bp1z19g3k8bs0h1gd9o.mysql.rds.aliyuncs.com:3306/clock?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+      url: jdbc:mysql://rm-bp1z19g3k8bs0h1gd9o.mysql.rds.aliyuncs.com:3306/clock?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false
       name: root
       password: wsy@123456
       driverClassName: com.mysql.cj.jdbc.Driver
