@@ -83,21 +83,25 @@ eureka:
     registryFetchIntervalSeconds: 5
     serviceUrl:
       defaultZone: ${EUREKA_SERVICE_URL:http://172.19.219.108:8761}/eureka/
+# 监控中心配置
+management:
+  security:
+    enabled: false
 #公众号配置
 wechat:
   mp:
-    appId: wx48a65c390fb2cab3
-    secret: a8ec30ba2417e2d3ea99625c8b9e5a07
+    appId: wxea7b5c253702db34
+    secret: cfad2c1a1330ff36bf59fe2fd31a93ef
     token: TdbjScsWLoRDLRFYLA27in6o9YSOa6vI
     aesKey:
   pay:
-    appId: wx48a65c390fb2cab3
-    mchId: 1507089811
-    mchKey: ylduwpbkyzzic3ealeimjwzpa2vm4glg
+    appId: wxea7b5c253702db34
+    mchId: 1508937201
+    mchKey: gTKYLt4Aql6GxID0bV4JcCJy24EXJWbU
     keyPath: classpath:apiclient_cert.p12
   miniapp:
-    appid: wx48a65c390fb2cab3
-    secret: a8ec30ba2417e2d3ea99625c8b9e5a07
+    appid: wxe3aa7312c1de3049
+    secret: 1d645042a2a8d7ad012c9cd280857545
     token:
     aesKey:
     msgDataFormat: JSON

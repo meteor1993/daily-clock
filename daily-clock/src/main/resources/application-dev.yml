@@ -111,6 +111,7 @@ spring:
     host: smtp.qq.com
     username: wsy1993@vip.qq.com
     password: oyeodwbmapakbgdb
+    port: 587
     properties:
       mail:
         smtp:
@@ -134,3 +135,7 @@ eureka:
     registryFetchIntervalSeconds: 5
     serviceUrl:
       defaultZone: ${EUREKA_SERVICE_URL:http://203.195.229.143:8761}/eureka/
+# 监控中心配置
+management:
+  security:
+    enabled: false

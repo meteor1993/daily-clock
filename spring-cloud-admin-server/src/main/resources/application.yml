@@ -6,6 +6,7 @@ spring:
 management:
   security:
     enabled: false
+  port: 80
 eureka:
   instance:
     leaseRenewalIntervalInSeconds: 10

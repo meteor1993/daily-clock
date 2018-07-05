@@ -66,4 +66,13 @@ public interface AccountRemote {
      */
     @PostMapping(value = "/api/findMpAccountList")
     CommonJson findMpAccountList(@RequestParam(value = "page") int page, @RequestParam(value = "size") int size);
+
+    /**
+     * 分页查询当前用户进出账记录
+     * @param page
+     * @param size
+     * @return
+     */
+    @PostMapping(value = "/api/findUserAccountLogPage")
+    CommonJson findUserAccountLogPage(@RequestParam(value = "openid") String openid, @RequestParam(value = "page") int page, @RequestParam(value = "size") int size);
 }

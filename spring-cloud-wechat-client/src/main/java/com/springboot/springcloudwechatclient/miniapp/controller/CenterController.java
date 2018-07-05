@@ -41,4 +41,15 @@ public class CenterController {
 
         return accountJson;
     }
+
+    /**
+     * 分页查询当前用户进出账记录
+     * @return
+     */
+    @PostMapping(value = "/findUserAccountLogPage")
+    public CommonJson findUserAccountLogPage() {
+        String token = ContextHolderUtils.getRequest().getHeader("token");
+        String openid = (String) redisTemplate.opsForHash().get(token, Constant.WX_MINIAPP_OPENID);
+        return accountRemote.findUserAccountLogPage(openid, 0, 10);
+    }
 }

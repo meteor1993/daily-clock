@@ -1,6 +1,8 @@
 package com.springboot.dailyclock.account.dao;
 
 import com.springboot.dailyclock.account.model.UserAccountLogModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -15,4 +17,7 @@ public interface UserAccountLogDao extends PagingAndSortingRepository<UserAccoun
     String getAmountSum(String openid);
 
     UserAccountLogModel getByOrderNo(String orderNo);
+
+    @Query("select u from UserAccountLogModel u where u.type = '2' or u.type = '3' or u.type = '7' and u.openid = ?1 order by u.createDate desc")
+    Page<UserAccountLogModel> findUserAccountLogPage(String openid, Pageable pageable);
 }

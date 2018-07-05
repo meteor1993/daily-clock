@@ -211,6 +211,26 @@ public class AccountController {
     }
 
     /**
+     * 分页查询当前用户进出账记录
+     * @param openid
+     * @param page
+     * @param size
+     * @return
+     */
+    @PostMapping(value = "/findUserAccountLogPage")
+    public CommonJson findUserAccountLogPage(@RequestParam String openid, @RequestParam int page, @RequestParam int size) {
+        Page<UserAccountLogModel> userAccountLogModelPage = userAccountLogDao.findUserAccountLogPage(openid, new PageRequest(page, size));
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("list", userAccountLogModelPage.getContent());
+
+        CommonJson json = new CommonJson();
+        json.setResultData(map);
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("success");
+        return json;
+    }
+
+    /**
      * 分页查询首页list
      * @param page
      * @param size
@@ -232,6 +252,5 @@ public class AccountController {
         json.setResultCode(Constant.JSON_SUCCESS_CODE);
         json.setResultMsg("success");
         return json;
-
     }
 }
