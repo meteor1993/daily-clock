@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>提现审核</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body>
+<div id="web" class="container-fluid">
+    <div style="height: 20px;"></div>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <tr>
+                <td>提现金额(元)</td>
+                <td>创建时间</td>
+                <td>备注</td>
+                <td>openid</td>
+                <td>用户ip</td>
+                <td>状态</td>
+                <td>操作</td>
+            </tr>
+            <tr v-for="list in entPayList">
+                <td>{{list.amount / 100}}</td>
+                <td>{{list.createDate | formatDate}}</td>
+                <td>{{list.desc}}</td>
+                <td>{{list.openid}}</td>
+                <td>{{list.spbill_create_ip}}</td>
+                <td>{{list.status}}</td>
+                <td><button type="button" class="btn btn-primary btn-block" v-on:click="entPay(list.id)">发钱</button></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    var web = new Vue({
+        el: '#web',
+        data: {
+            entPayList: []
+        },
+        filters: {
+            formatDate(time) {
+                var date = new Date(time);
+                return formatDate(date, 'yyyy-MM-dd hh:mm:ss');
+            }
+        },
+        created: function () {
+            let data = this.$data;
+            axios({
+                method: 'post',
+                url: 'findEntPayListByStatus',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                }
+            }).then(function (res) {
+                console.log(data);
+                if (res.data.resultCode === "1") {
+                    data.entPayList = res.data.resultData.list;
+                }
+            });
+        },
+        methods:  {
+            entPay: function (data) {
+                console.log(data);
+                axios({
+                    method: 'post',
+                    url: 'entPay',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    params: {
+                        id: data
+                    }
+                }).then(function (res) {
+                    console.log(res.data.resultMsg);
+                    alert(res.data.resultMsg);
+                    axios({
+                        method: 'post',
+                        url: 'findEntPayListByStatus',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                        }
+                    }).then(function (res) {
+                        console.log(data);
+                        if (res.data.resultCode === "1") {
+                            web.entPayList = res.data.resultData.list;
+                        }
+                    });
+                });
+            }
+        }
+    });
+    function formatDate(date, fmt) {
+        if (/(y+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));
+        }
+        let o = {
+            'M+': date.getMonth() + 1,
+            'd+': date.getDate(),
+            'h+': date.getHours(),
+            'm+': date.getMinutes(),
+            's+': date.getSeconds()
+        };
+        for (let k in o) {
+            if (new RegExp(`(${k})`).test(fmt)) {
+                let str = o[k] + '';
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? str : padLeftZero(str));
+            }
+        }
+        return fmt;
+    }
+    function padLeftZero(str) {
+        return ('00' + str).substr(str.length);
+    }
+</script>
+</body>
+</html>

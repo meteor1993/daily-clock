@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -104,6 +105,40 @@ public class PayController {
         return json;
     }
 
+    /**
+     * 根据状态查询企业付款
+     * @param status
+     * @return
+     */
+    @PostMapping(value = "/findEntPayListByStatus")
+    public CommonJson findEntPayListByStatus(@RequestParam String status) {
+        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>PayController.findEntPayListByStatus>>>>>>>>>>>>>>>>>>status:" + status);
+        CommonJson json = new CommonJson();
+        List<WechatEntPayModel> wechatEntPayModelList = wechatEntPayDao.findAllByStatus(status);
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("list", wechatEntPayModelList);
+        json.setResultData(map);
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("success");
+        return json;
+    }
 
+    /**
+     * 根据id查询企业付款记录
+     * @param id
+     * @return
+     */
+    @PostMapping(value = "/getEntPapById")
+    public CommonJson getEntPapById(@RequestParam String id) {
+        logger.info(">>>>>>>>>>>>>>>>>>>>>>>>PayController.getEntPapById>>>>>>>>>>>>>>>>>>id:" + id);
+        CommonJson json = new CommonJson();
+        WechatEntPayModel wechatEntPayModel = wechatEntPayDao.getById(id);
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("model", wechatEntPayModel);
+        json.setResultData(map);
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("success");
+        return json;
+    }
 
 }

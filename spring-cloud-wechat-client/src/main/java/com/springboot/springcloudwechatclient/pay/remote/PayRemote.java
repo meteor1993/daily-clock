@@ -35,4 +35,15 @@ public interface PayRemote {
      */
     @PostMapping(value = "/payApi/saveWechatEntPayModel")
     CommonJson saveWechatEntPayModel(@RequestBody WechatEntPayModel wechatEntPayModel);
+
+    /**
+     * 根据状态查询企业付款
+     * @param status
+     * @return
+     */
+    @PostMapping(value = "/payApi/findEntPayListByStatus")
+    CommonJson findEntPayListByStatus(@RequestParam(value = "status") String status);
+
+    @PostMapping(value = "/payApi/getEntPapById")
+    CommonJson getEntPapById(@RequestParam(value = "id") String id);
 }

@@ -13,4 +13,7 @@ import java.util.List;
  * @create: 2018-05-22 20:52
  **/
 public interface WechatEntPayDao extends PagingAndSortingRepository<WechatEntPayModel, Long>, JpaSpecificationExecutor<WechatEntPayModel> {
+    List<WechatEntPayModel> findAllByStatus(String status);
+
+    WechatEntPayModel getById(String id);
 }

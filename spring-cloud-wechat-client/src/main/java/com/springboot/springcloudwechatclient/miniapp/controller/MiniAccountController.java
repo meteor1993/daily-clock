@@ -107,15 +107,6 @@ public class MiniAccountController {
             return json;
         }
 
-        // 提现金额大于提现上限
-        if (new BigDecimal(money).compareTo(new BigDecimal(clockConfigModel.getGetMoneyTopLine())) == -1) {
-
-            json.setResultCode(Constant.JSON_ERROR_CODE);
-            json.setResultMsg("您的提现申请超过上限，已提交管理员审批，请耐心等待");
-            json.setResultData(null);
-            return json;
-        }
-
         userAccountModel.setBalance(new BigDecimal(userAccountModel.getBalance()).subtract(new BigDecimal(money)).toString());
         userAccountModel.setUpdateDate(new Date());
         // 记录出账日志
@@ -134,7 +125,7 @@ public class MiniAccountController {
         wechatEntPayModel.setOpenid(openid);
         wechatEntPayModel.setCheck_name("NO_CHECK");
         wechatEntPayModel.setAmount(new BigDecimal(money).multiply(new BigDecimal("100")).intValue());
-        wechatEntPayModel.setDesc("开心打卡");
+        wechatEntPayModel.setDesc("阳光早晨");
 //        wechatEntPayModel.setSpbill_create_ip("192.168.0.1");
         wechatEntPayModel.setSpbill_create_ip(getIp(ContextHolderUtils.getRequest()));
         wechatEntPayModel.setStatus("0");
@@ -143,6 +134,20 @@ public class MiniAccountController {
         wechatEntPayModel = JSON.parseObject(JSON.toJSONString(wechatEntyPayJson.getResultData().get("wechatEntPayModel1")), WechatEntPayModel.class);
         this.logger.info(">>>>>>>>>>>>>>>>>>payRemote.saveWechatEntPayModel>>>>>>>>>>>wechatEntPayModel:" + JSON.toJSONString(wechatEntPayModel));
 
+        // 提现金额大于提现上限
+        if (new BigDecimal(money).compareTo(new BigDecimal(clockConfigModel.getGetMoneyTopLine())) == 1) {
+
+            wechatEntPayModel.setStatus("2");
+            wechatEntPayModel.setSendDate(new Date());
+            payRemote.saveWechatEntPayModel(wechatEntPayModel);
+            accountRemote.saveAccountModel(userAccountModel);
+            accountRemote.saveAccountModelLog(userAccountLogModel);
+
+            json.setResultCode(Constant.JSON_ERROR_CODE);
+            json.setResultMsg("您的提现申请超过上限，已提交管理员审批，请耐心等待");
+            json.setResultData(null);
+            return json;
+        }
 
         EntPayRequest entPayRequest = EntPayRequest.newBuilder().build();
         entPayRequest.setNonceStr(wechatEntPayModel.getNonce_str());

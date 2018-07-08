@@ -1,10 +1,16 @@
 package com.springboot.springcloudwechatclient.admin.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.github.binarywang.wxpay.bean.entpay.EntPayRequest;
+import com.github.binarywang.wxpay.bean.entpay.EntPayResult;
+import com.github.binarywang.wxpay.exception.WxPayException;
+import com.github.binarywang.wxpay.service.WxPayService;
 import com.google.common.collect.Maps;
 import com.springboot.springcloudwechatclient.account.model.UserAccountModel;
 import com.springboot.springcloudwechatclient.admin.model.AdminInfoModel;
 import com.springboot.springcloudwechatclient.admin.remote.AdminRemote;
+import com.springboot.springcloudwechatclient.pay.model.WechatEntPayModel;
+import com.springboot.springcloudwechatclient.pay.remote.PayRemote;
 import com.springboot.springcloudwechatclient.sign.model.ClockConfigModel;
 import com.springboot.springcloudwechatclient.sign.model.WechatMpUserModel;
 import com.springboot.springcloudwechatclient.sign.remote.SignRemote;
@@ -33,6 +39,12 @@ public class AdminController {
 
     @Autowired
     SignRemote signRemote;
+
+    @Autowired
+    PayRemote payRemote;
+
+    @Autowired
+    WxPayService wxPayService;
 
     /**
      * 进入每日统计页面
@@ -203,4 +215,90 @@ public class AdminController {
         return json;
     }
 
+    /**
+     * 提现审核页面
+     * @return
+     */
+    @RequestMapping(value = "/entIndex")
+    public String entIndex() {
+        return "admin/entIndex";
+    }
+
+    /**
+     * 根据状态查询企业付款列表
+     * @return
+     */
+    @PostMapping(value = "/findEntPayListByStatus")
+    @ResponseBody
+    public CommonJson findEntPayListByStatus() {
+        return payRemote.findEntPayListByStatus("2");
+    }
+
+    @PostMapping(value = "/entPay")
+    @ResponseBody
+
+    public CommonJson entPay(@RequestParam String id) {
+        this.logger.info(">>>>>>>>>>>>>>>>>>>>>>AdminController.entPay>>>>>>>>>>>>>>>>>>>>id:" + id);
+        CommonJson payJson = payRemote.getEntPapById(id);
+        WechatEntPayModel wechatEntPayModel = JSON.parseObject(JSON.toJSONString(payJson.getResultData().get("model")), WechatEntPayModel.class);
+        this.logger.info(">>>>>>>>>>>>>>>>>>>>>>payRemote.getEntPapById>>>>>>>>>>>>>>>>>>>>wechatEntPayModel:" + JSON.toJSONString(payJson.getResultData()));
+
+        CommonJson json = new CommonJson();
+
+        EntPayRequest entPayRequest = EntPayRequest.newBuilder().build();
+        entPayRequest.setNonceStr(wechatEntPayModel.getNonce_str());
+        // 设备号，非必填
+        entPayRequest.setDeviceInfo("");
+        // 订单号
+        entPayRequest.setPartnerTradeNo(wechatEntPayModel.getPartner_trade_no());
+        // openid
+        entPayRequest.setOpenid(wechatEntPayModel.getOpenid());
+        // 校验用户姓名选项 NO_CHECK：不校验真实姓名  FORCE_CHECK：强校验真实姓名
+        entPayRequest.setCheckName(wechatEntPayModel.getCheck_name());
+        // 金额
+        entPayRequest.setAmount(wechatEntPayModel.getAmount());
+        // 企业付款描述信息
+        entPayRequest.setDescription(wechatEntPayModel.getDesc());
+        // Ip地址
+        entPayRequest.setSpbillCreateIp(wechatEntPayModel.getSpbill_create_ip());
+
+        try {
+            EntPayResult entPayResult = wxPayService.getEntPayService().entPay(entPayRequest);
+            if ("SUCCESS".equals(entPayResult.getResultCode())) { // 如果企业付款成功
+                wechatEntPayModel.setStatus("1");
+                wechatEntPayModel.setSendDate(new Date());
+                wechatEntPayModel.setSendMsg(entPayResult.getReturnMsg());
+                payRemote.saveWechatEntPayModel(wechatEntPayModel);
+                json.setResultCode(Constant.JSON_SUCCESS_CODE);
+                json.setResultMsg("success");
+            } else if ("FAIL".equals(entPayResult.getResultCode()) && "SYSTEMERROR".equals(entPayResult.getErrCode())) { // 如果满足当前条件，使用原订单号重试
+                entPayResult = wxPayService.getEntPayService().entPay(entPayRequest);
+                if ("SUCCESS".equals(entPayResult.getResultCode())) { // 如果企业付款成功
+                    wechatEntPayModel.setStatus("1");
+                    wechatEntPayModel.setSendDate(new Date());
+                    wechatEntPayModel.setSendMsg(entPayResult.getReturnMsg());
+                    payRemote.saveWechatEntPayModel(wechatEntPayModel);
+                    json.setResultCode(Constant.JSON_SUCCESS_CODE);
+                    json.setResultMsg("success");
+                }
+            } else {
+                wechatEntPayModel.setStatus("0");
+                wechatEntPayModel.setSendDate(new Date());
+                wechatEntPayModel.setSendMsg(entPayResult.getReturnMsg());
+                payRemote.saveWechatEntPayModel(wechatEntPayModel);
+                json.setResultCode(Constant.JSON_ERROR_CODE);
+                json.setResultMsg("fail");
+            }
+        } catch (WxPayException e) {
+            wechatEntPayModel.setFalseReason(e.getErrCodeDes());
+            wechatEntPayModel.setStatus("0");
+            payRemote.saveWechatEntPayModel(wechatEntPayModel);
+            e.printStackTrace();
+            logger.info("提现失败,订单号为:" + wechatEntPayModel.getPartner_trade_no());
+            json.setResultCode(Constant.JSON_ERROR_CODE);
+            json.setResultMsg("fail");
+        }
+
+        return json;
+    }
 }

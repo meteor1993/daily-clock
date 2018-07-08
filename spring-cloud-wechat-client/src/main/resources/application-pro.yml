@@ -95,7 +95,7 @@ wechat:
     token: TdbjScsWLoRDLRFYLA27in6o9YSOa6vI
     aesKey:
   pay:
-    appId: wxea7b5c253702db34
+    appId: wxe3aa7312c1de3049
     mchId: 1508937201
     mchKey: gTKYLt4Aql6GxID0bV4JcCJy24EXJWbU
     keyPath: classpath:apiclient_cert.p12
