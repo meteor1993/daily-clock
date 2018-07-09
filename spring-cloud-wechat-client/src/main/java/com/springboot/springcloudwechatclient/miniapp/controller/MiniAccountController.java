@@ -230,7 +230,6 @@ public class MiniAccountController {
         return accountJson;
     }
 
-
     private String getIdGen(){
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddhhmmss");
         String str = simpleDateFormat.format(new Date());

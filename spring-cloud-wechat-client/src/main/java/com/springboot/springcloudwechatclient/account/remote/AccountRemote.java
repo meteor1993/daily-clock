@@ -69,10 +69,10 @@ public interface AccountRemote {
 
     /**
      * 分页查询当前用户进出账记录
-     * @param page
-     * @param size
+     * @param openid
+     * @param date
      * @return
      */
-    @PostMapping(value = "/api/findUserAccountLogPage")
-    CommonJson findUserAccountLogPage(@RequestParam(value = "openid") String openid, @RequestParam(value = "page") int page, @RequestParam(value = "size") int size);
+    @PostMapping(value = "/api/findUserAccountLogList")
+    CommonJson findUserAccountLogList(@RequestParam(value = "openid") String openid, @RequestParam(value = "date") String date);
 }

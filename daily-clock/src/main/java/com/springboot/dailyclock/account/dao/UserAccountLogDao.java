@@ -18,6 +18,7 @@ public interface UserAccountLogDao extends PagingAndSortingRepository<UserAccoun
 
     UserAccountLogModel getByOrderNo(String orderNo);
 
-    @Query("select u from UserAccountLogModel u where u.type = '2' or u.type = '3' or u.type = '7' and u.openid = ?1 order by u.createDate desc")
-    Page<UserAccountLogModel> findUserAccountLogPage(String openid, Pageable pageable);
+    @Query("select u from UserAccountLogModel u where u.type = '2' or u.type = '3' or u.type = '7' and u.openid = ?1 and MONTH(u.createDate) = MONTH(?2) AND YEAR(u.createDate) = YEAR(?2) order by u.createDate desc")
+    List<UserAccountLogModel> findUserAccountLogPage(String openid, String date);
+
 }

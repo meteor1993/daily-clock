@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -46,10 +47,10 @@ public class CenterController {
      * 分页查询当前用户进出账记录
      * @return
      */
-    @PostMapping(value = "/findUserAccountLogPage")
-    public CommonJson findUserAccountLogPage() {
+    @PostMapping(value = "/findUserAccountLogList")
+    public CommonJson findUserAccountLogPage(@RequestParam String date) {
         String token = ContextHolderUtils.getRequest().getHeader("token");
         String openid = (String) redisTemplate.opsForHash().get(token, Constant.WX_MINIAPP_OPENID);
-        return accountRemote.findUserAccountLogPage(openid, 0, 10);
+        return accountRemote.findUserAccountLogList(openid, date);
     }
 }
