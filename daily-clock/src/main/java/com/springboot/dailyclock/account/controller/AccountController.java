@@ -211,13 +211,14 @@ public class AccountController {
     }
 
     /**
-     * 分页查询当前用户进出账记录
+     * 查询当前用户进出账记录
      * @param openid
      * @param date
      * @return
      */
     @PostMapping(value = "/findUserAccountLogList")
     public CommonJson findUserAccountLogList(@RequestParam String openid, @RequestParam String date) {
+        logger.info(">>>>>>>>>>AccountController.findUserAccountLogList>>>>>>>>>>>>openid:" + openid + ">>>>>>>date:" + date);
         List<UserAccountLogModel> userAccountLogModelList = userAccountLogDao.findUserAccountLogPage(openid, date);
         Map<String, Object> map = Maps.newHashMap();
         map.put("list", userAccountLogModelList);

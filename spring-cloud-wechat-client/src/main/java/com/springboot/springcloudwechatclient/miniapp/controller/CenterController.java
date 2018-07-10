@@ -49,8 +49,10 @@ public class CenterController {
      */
     @PostMapping(value = "/findUserAccountLogList")
     public CommonJson findUserAccountLogPage(@RequestParam String date) {
+        this.logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>CenterController.findUserAccountLogPage>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>date:" + date);
         String token = ContextHolderUtils.getRequest().getHeader("token");
         String openid = (String) redisTemplate.opsForHash().get(token, Constant.WX_MINIAPP_OPENID);
+        date = date + "-01";
         return accountRemote.findUserAccountLogList(openid, date);
     }
 }
