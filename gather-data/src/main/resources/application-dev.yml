@@ -1,0 +1,122 @@
+#server setting
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: utf-8
+    #最大连接数
+    max-connections: 1000
+    #最大线程数，最大并发数
+    max-threads: 1000
+    #最小备用线程数
+    min-spare-threads: 10
+    #线程数达到maxThreads后，后续请求会被放入一个等待队列，accept-count是这个队列的大小
+    accept-count: 500
+    #tomcat连接器
+    connector: org.apache.coyote.http11.Http11NioProtocol
+    #tomcat优化
+    optimize: true
+    #是否开启access log ，默认: false
+    accesslog:
+      enabled: true
+  connection-timeout: 1800
+spring:
+  application:
+      name: gather-data-server
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_default
+  mvc:
+    # 指定静态资源处理路径
+    static-path-pattern: /static/**
+    view:
+      suffix: .html
+  jpa:
+    database: MYSQL
+    # Show or not log for each sql query
+    show-sql: true
+    generate-ddl: true
+    # spring.jpa.database=org.hibernate.dialect.MySQL5InnoDBDialect
+    database-platform: org.hibernate.dialect.MySQL5Dialect
+    hibernate:
+      # Hibernate ddl auto (create, create-drop, update)
+      ddl-auto: update
+  redis:
+    host: 47.98.181.26
+    port: 6379
+    password: ROOT@redis.com
+    timeout: 10000
+    database: 0
+    pool:
+      # 连接池中的最小空闲连接
+      min-idle: 10
+      # 连接池中的最大空闲连接
+      max-idle: 100
+      # 连接池最大连接数（使用负值表示没有限制）
+      max-active: -1
+      # 连接超时时间（毫秒）
+      max-wait: 10000
+  datasource:
+      type: com.alibaba.druid.pool.DruidDataSource
+      url: jdbc:mysql://rm-bp1z19g3k8bs0h1gd9o.mysql.rds.aliyuncs.com:3306/clock?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false
+      name: root
+      password: wsy@123456
+      driverClassName: com.mysql.cj.jdbc.Driver
+      initialSize: 5
+      minIdle: 5
+      maxActive: 20
+      # 配置获取连接等待超时的时间
+      maxWait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      # 打开PSCache，并且指定每个连接上PSCache的大小
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 20
+      # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+      filters: stat,wall,log4j
+      # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      connectionProperties: druid.stat.mergeSql:true;druid.stat.slowSqlMillis:5000
+      # 合并多个DruidDataSource的监控数据
+      useGlobalDataSourceStat: true
+  session:
+    #开启redis方式的session存储
+    store-type: redis
+  mail:
+    default-encoding: UTF-8
+    host: smtp.qq.com
+    username: wsy1993@vip.qq.com
+    password: oyeodwbmapakbgdb
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 25000
+          starttls:
+            enable: true
+            required: true
+logging:
+  level:
+    org.springframework.web: INFO
+    com.fsg.salary: INFO
+  pattern:
+    level: INFO
+  file: /opt/logs/daily_clock.log
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    prefer-ip-address: true
+  client:
+    registryFetchIntervalSeconds: 5
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVICE_URL:http://203.195.229.143:8761}/eureka/
+# 监控中心配置
+management:
+  security:
+    enabled: false

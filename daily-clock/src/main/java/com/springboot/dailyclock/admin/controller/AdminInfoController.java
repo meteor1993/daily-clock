@@ -4,7 +4,9 @@ import com.google.common.collect.Maps;
 import com.springboot.dailyclock.account.dao.UserAccountDao;
 import com.springboot.dailyclock.account.dao.UserAccountLogDao;
 import com.springboot.dailyclock.account.model.UserAccountModel;
+import com.springboot.dailyclock.admin.dao.AdminConfigUserDao;
 import com.springboot.dailyclock.admin.dao.AdminInfoDao;
+import com.springboot.dailyclock.admin.model.AdminConfigUserModel;
 import com.springboot.dailyclock.admin.model.AdminInfoModel;
 import com.springboot.dailyclock.admin.service.AdminService;
 import com.springboot.dailyclock.sign.dao.ClockConfigDao;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,6 +53,9 @@ public class AdminInfoController {
 
     @Autowired
     NeedClockUserDao needClockUserDao;
+
+    @Autowired
+    AdminConfigUserDao adminConfigUserDao;
 
     @Autowired
     AdminService adminService;
@@ -153,9 +159,23 @@ public class AdminInfoController {
             json.setResultCode(Constant.JSON_ERROR_CODE);
             json.setResultMsg("fail");
         }
-
         return json;
     }
 
+    /**
+     * 获取所有管理员配置信息
+     * @return
+     */
+    @PostMapping(value = "/getAllAdminConfigUser")
+    public CommonJson getAllAdminConfigUser() {
+        CommonJson json = new CommonJson();
+        List<AdminConfigUserModel> list = adminConfigUserDao.findAllUsers();
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("list", list);
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("success");
+        json.setResultData(map);
+        return json;
+    }
 
 }

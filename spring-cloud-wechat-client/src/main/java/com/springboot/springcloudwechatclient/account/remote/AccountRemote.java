@@ -75,4 +75,5 @@ public interface AccountRemote {
      */
     @PostMapping(value = "/api/findUserAccountLogList")
     CommonJson findUserAccountLogList(@RequestParam(value = "openid") String openid, @RequestParam(value = "date") String date);
+
 }

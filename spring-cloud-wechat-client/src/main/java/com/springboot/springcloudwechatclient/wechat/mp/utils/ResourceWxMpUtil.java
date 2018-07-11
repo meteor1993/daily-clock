@@ -37,7 +37,7 @@ public class ResourceWxMpUtil {
      * @return
      */
     public static final String getSessionOpenId(){
-        WxMpUser wxMpUser = (WxMpUser) getCurrentSessionValueByName(Constant.WX_MP_OPENID);
+        WxMpUser wxMpUser = (WxMpUser) getCurrentSessionValueByName(Constant.WX_MP_USER);
         if(wxMpUser != null) {
             return wxMpUser.getOpenId();
         }

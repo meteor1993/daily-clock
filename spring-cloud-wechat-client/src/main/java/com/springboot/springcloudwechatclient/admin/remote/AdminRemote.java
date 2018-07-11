@@ -39,13 +39,17 @@ public interface AdminRemote {
     CommonJson getDataInfo();
 
     /**
-     *
+     * 查询用户
      * @param mobile
      * @return
      */
     @PostMapping(value = "/admin/getUserByMobile")
     CommonJson getUserByMobile(@RequestParam(value = "mobile") String mobile);
 
-    @PostMapping(value = "/admin/gatherData")
-    CommonJson gatherData();
+    /**
+     * 查询所有管理员账号
+     * @return
+     */
+    @PostMapping(value = "/admin/getAllAdminConfigUser")
+    CommonJson getAllAdminConfigUser();
 }

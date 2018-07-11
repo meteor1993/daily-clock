@@ -1,5 +1,6 @@
 package com.springboot.springcloudwechatclient.system.config;
 
+import com.springboot.springcloudwechatclient.admin.interceptor.AdminInterceptor;
 import com.springboot.springcloudwechatclient.system.interceptor.WebInterceptor;
 import com.springboot.springcloudwechatclient.wechat.miniapp.interceptor.WxMiniAppInterceptor;
 import com.springboot.springcloudwechatclient.wechat.mp.interceptor.WxMpInterceptor;
@@ -22,6 +23,11 @@ public class WebAppConfigurer extends WebMvcConfigurationSupport {
         return new WxMiniAppInterceptor();
     }
 
+    @Bean
+    AdminInterceptor adminInterceptor() {
+        return new AdminInterceptor();
+    }
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         /*
@@ -35,6 +41,9 @@ public class WebAppConfigurer extends WebMvcConfigurationSupport {
 
         // 微信公众号拦截器
         registry.addInterceptor(new WxMpInterceptor()).addPathPatterns("/wxMp/**").excludePathPatterns("/wxMp/notwechatbrowser");
+
+        // 微信公众号后台管理员拦截器
+        registry.addInterceptor(adminInterceptor()).addPathPatterns("/wxMp/admin/**");
 
         // 微信小程序拦截器
         registry.addInterceptor(wxMiniAppInterceptor()).addPathPatterns("/miniapp/**").excludePathPatterns("/miniapp/getToken");

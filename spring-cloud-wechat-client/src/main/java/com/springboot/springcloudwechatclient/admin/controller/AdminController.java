@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import com.springboot.springcloudwechatclient.account.model.UserAccountModel;
 import com.springboot.springcloudwechatclient.admin.model.AdminInfoModel;
 import com.springboot.springcloudwechatclient.admin.remote.AdminRemote;
+import com.springboot.springcloudwechatclient.admin.remote.GatherDataRemote;
 import com.springboot.springcloudwechatclient.pay.model.WechatEntPayModel;
 import com.springboot.springcloudwechatclient.pay.remote.PayRemote;
 import com.springboot.springcloudwechatclient.sign.model.ClockConfigModel;
@@ -29,7 +30,7 @@ import java.util.Date;
 import java.util.Map;
 
 @Controller
-@RequestMapping(value = "/admin")
+@RequestMapping(value = "/wxMp/admin")
 public class AdminController {
 
     private final Logger logger = LoggerFactory.getLogger(AdminController.class);
@@ -42,6 +43,9 @@ public class AdminController {
 
     @Autowired
     PayRemote payRemote;
+
+    @Autowired
+    GatherDataRemote gatherDataRemote;
 
     @Autowired
     WxPayService wxPayService;
@@ -210,7 +214,7 @@ public class AdminController {
     @PostMapping(value = "/gatherData")
     @ResponseBody
     public CommonJson gatherData() {
-        CommonJson json = adminRemote.gatherData();
+        CommonJson json = gatherDataRemote.gatherData();
         json.setResultCode(Constant.JSON_SUCCESS_CODE);
         return json;
     }
