@@ -5,14 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>补打卡</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/weui/1.1.3/style/weui.min.css"/>
     <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
 <body>
-<ul class="nav nav-tabs">
-    <li role="presentation"><a href="adminIndex">每日统计</a></li>
-    <li role="presentation" class="active"><a href="adminClock">补打卡</a></li>
-    <li role="presentation"><a href="entIndex">审核资金</a></li>
-</ul>
+
 <div id="web" class="container-fluid">
     <div class="form-group">
         <label for="exampleInputEmail2">手机号</label>
@@ -60,6 +57,7 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="../../static/plug-in/weui/_js/weui.min.js"></script>
 <script>
     var web = new Vue({
         el: '#web',
@@ -116,9 +114,8 @@
                     }
                 }).then(function (res) {
                     let data = res.data.resultData;
-                    if (res.data.resultCode === "1") {
-                        alert(data.resultMsg);
-                    }
+                    weui.alert(res.data.resultMsg);
+                    alert(res.data.resultMsg);
                 });
             }
         }

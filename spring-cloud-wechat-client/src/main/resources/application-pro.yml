@@ -22,10 +22,10 @@ server:
   connection-timeout: 1800
 spring:
   application:
-      name: daily-sign-wechat-client
+    name: daily-sign-wechat-client
   jackson:
-      time-zone: Asia/Shanghai
-      default-property-inclusion: non_default
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_default
   thymeleaf:
     # 关闭thymeleaf缓存 开发时使用 否则没有实时画面
     cache: false
@@ -66,12 +66,12 @@ spring:
       # 连接超时时间（毫秒）
       max-wait: 10000
   session:
-      #开启redis方式的session存储
-      store-type: redis
+    #开启redis方式的session存储
+    store-type: redis
 logging:
   level:
     org.springframework.web: INFO
-    com.fsg.salary: INFO
+    com.springboot.springcloudwechatclient: INFO
   pattern:
     level: INFO
   file: /opt/logs/wechat_client.log
@@ -115,3 +115,8 @@ feign:
   compression:
     request:
       min-request-size: 4096
+  hystrix:
+    enabled: false
+ribbon:
+  ConnectTimeout: 30000
+  ReadTimeout: 30000

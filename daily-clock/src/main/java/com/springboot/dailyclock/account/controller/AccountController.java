@@ -8,6 +8,7 @@ import com.springboot.dailyclock.account.model.MpAccountModel;
 import com.springboot.dailyclock.account.model.ProductModel;
 import com.springboot.dailyclock.account.model.UserAccountLogModel;
 import com.springboot.dailyclock.account.model.UserAccountModel;
+import com.springboot.dailyclock.account.service.AccountService;
 import com.springboot.dailyclock.admin.dao.AdminInfoDao;
 import com.springboot.dailyclock.admin.model.AdminInfoModel;
 import com.springboot.dailyclock.sign.dao.NeedClockUserDao;
@@ -60,6 +61,9 @@ public class AccountController {
 
     @Autowired
     AdminInfoDao adminInfoDao;
+
+    @Autowired
+    AccountService accountService;
 
     private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 
@@ -187,13 +191,11 @@ public class AccountController {
         String clockBalanceSum = userClockLogDao.clockBalanceSum(no, new Date());
 
         // 当日未打卡金额
-        String unClockBalanceSum = userAccountDao.getUnClockUserBalance0Sum(new Date());
+        String unClockBalanceSum = accountService.getUnClockUserBalance0Sum(new Date());
 
-        if (adminInfoModel != null && adminInfoModel.getForMeAmount() != null) {
-            clockBalanceSum = new BigDecimal(clockBalanceSum == null ? "0" : clockBalanceSum).add(new BigDecimal(adminInfoModel.getForMeAmount() == null ? "0" : adminInfoModel.getForMeAmount())).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
-
-            unClockBalanceSum = new BigDecimal(unClockBalanceSum == null ? "0" : unClockBalanceSum).subtract(new BigDecimal(adminInfoModel.getForMeAmount() == null ? "0" : adminInfoModel.getForMeAmount())).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
-
+        // 如果admininfo中未打卡总金额不为null，则显示admininfo中的数据
+        if (adminInfoModel != null && adminInfoModel.getUnClockAmountSum() != null) {
+            unClockBalanceSum = adminInfoModel.getUnClockAmountSum();
         }
 
         Map<String, Object> map = Maps.newHashMap();

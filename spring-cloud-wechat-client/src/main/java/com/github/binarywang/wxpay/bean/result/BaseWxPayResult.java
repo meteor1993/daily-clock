@@ -6,6 +6,7 @@
 package com.github.binarywang.wxpay.bean.result;
 
 import com.github.binarywang.wxpay.bean.entpay.EntPayResult;
+import com.github.binarywang.wxpay.bean.notify.WxPayOrderNotifyResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
 import com.github.binarywang.wxpay.util.SignUtils;
@@ -67,7 +68,8 @@ public abstract class BaseWxPayResult implements Serializable {
     public static <T extends BaseWxPayResult> T fromXML(String xmlString, Class<T> clz) {
         XStream xstream = XStreamInitializer.getInstance();
         XStream.setupDefaultSecurity(xstream);
-        xstream.allowTypes(new Class[]{EntPayResult.class, BaseWxPayResult.class, WxPayUnifiedOrderResult.class});
+        // xstream 如果转换类型有安全问题，在这里添加
+        xstream.allowTypes(new Class[]{EntPayResult.class, BaseWxPayResult.class, WxPayUnifiedOrderResult.class, WxPayOrderQueryResult.class, WxPayOrderNotifyResult.class});
         xstream.processAnnotations(clz);
         T result = (T) xstream.fromXML(xmlString);
         result.setXmlString(xmlString);

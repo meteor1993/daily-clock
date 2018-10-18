@@ -11,6 +11,8 @@ import com.springcloud.gatherdata.admin.dao.AdminInfoDao;
 import com.springcloud.gatherdata.admin.model.AdminConfigUserModel;
 import com.springcloud.gatherdata.admin.model.AdminInfoModel;
 import com.springcloud.gatherdata.admin.service.AdminService;
+import com.springcloud.gatherdata.pay.dao.WxPayOrderDao;
+import com.springcloud.gatherdata.pay.model.WxPayOrderModel;
 import com.springcloud.gatherdata.sign.dao.ClockConfigDao;
 import com.springcloud.gatherdata.sign.dao.NeedClockUserDao;
 import com.springcloud.gatherdata.sign.model.ClockConfigModel;
@@ -18,6 +20,7 @@ import com.springcloud.gatherdata.sign.model.NeedClockUserModel;
 import com.springcloud.gatherdata.system.mail.service.MailService;
 import com.springcloud.gatherdata.system.model.CommonJson;
 import com.springcloud.gatherdata.system.utils.Constant;
+import com.springcloud.gatherdata.system.utils.StringUtil;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.slf4j.Logger;
@@ -60,6 +63,9 @@ public class AdminServiceI implements AdminService {
     AdminConfigUserDao adminConfigUserDao;
 
     @Autowired
+    WxPayOrderDao wxPayOrderDao;
+
+    @Autowired
     MailService mailService;
 
     @Autowired
@@ -88,7 +94,7 @@ public class AdminServiceI implements AdminService {
          * 获取所有有资格打卡的人循环
          * 生成今日打卡列表和今日未打卡列表
          * 对于今日未打卡人，打卡状态改变，押金增加至奖池，账户押金归零，账户变动log记录
-         * 对于今日已打卡人，打卡状态不变，分奖金（奖池-抽水-保底 按照份额分配 + 保底）生成第二日打卡资格，存入数据库，账户变动log记录
+         * 对于今日已打卡人，打卡状态不变，分奖金（奖池 - 保底 按照份额分配 + 保底）生成第二日打卡资格，存入数据库，账户变动log记录
          * 今日打卡满21日，分奖金，押金进余额，是否还有押金剩余，有剩余生成第二日打卡资格
          */
         // 总奖池
@@ -96,7 +102,21 @@ public class AdminServiceI implements AdminService {
 
         // 当日盘口0所有未打卡用户列表
         List<UserAccountModel> unClockUserList = userAccountDao.findAllUnClockUser(new Date());
-        this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>unClockUserList:" + unClockUserList);
+        this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>unClockUserList:" + unClockUserList.toString());
+
+        // 查询所有当日充值的账户
+        List<UserAccountModel> todayUserList = userAccountDao.findAllTodayUser();
+        this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>todayUserList:" + todayUserList);
+
+        // 判断是否有八点前充值
+        for (UserAccountModel model : todayUserList) {
+            List<WxPayOrderModel> wxPayOrderModelList = wxPayOrderDao.findAllTodayPayOrder(simpleDateFormat.format(new Date()) + " 08:00:00", model.getOpenid());
+            if (wxPayOrderModelList.size() > 0) {
+                unClockUserList.add(model);
+            }
+        }
+        this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>>>unClockUserList:" + unClockUserList.toString());
+
         // 当日盘口0所有已打卡用户列表
         List<UserAccountModel> clockUserList = userAccountDao.findAllClockUser(new Date());
         this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>clockUserList:" + clockUserList);
@@ -128,6 +148,10 @@ public class AdminServiceI implements AdminService {
 
         amountSumBg = amountSumBg.add(new BigDecimal(clockConfigModel.getSubsidy() == null ? "0" : clockConfigModel.getSubsidy()));
 
+        // 保存未打卡总金额
+        adminInfoModel.setUnClockAmountSum(amountSumBg.toString());
+        adminInfoDao.save(adminInfoModel);
+
         this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>amountSum:" + amountSumBg.toString());
 
         // 保底额度
@@ -136,12 +160,12 @@ public class AdminServiceI implements AdminService {
         this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>baodiBig:" + baodiBig.toString());
 
         // 待分配额度
-        BigDecimal daiBig = amountSumBg.subtract(new BigDecimal(adminInfoModel.getForMeAmount())).subtract(baodiBig);
+        BigDecimal daiBig = amountSumBg.subtract(baodiBig);
 
         this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>daiBig:" + daiBig.toString());
 
         // 循环所有已打卡用户列表
-        // 对于今日已打卡人，打卡状态不变，分奖金（奖池-抽水-保底 按照份额分配 + 保底）生成第二日打卡资格，存入数据库，账户变动log记录
+        // 对于今日已打卡人，打卡状态不变，分奖金（奖池 - 保底 按照份额分配 + 保底）生成第二日打卡资格，存入数据库，账户变动log记录
         // 今日打卡满21日，分奖金，押金进余额，是否还有押金剩余，有剩余生成第二日打卡资格
         for (UserAccountModel userAccountModel : clockUserList) {
             this.logger.info(">>>>>>>>>>>>>>>>>>>>>>>>userAccountModel.getOpenid():" + userAccountModel.getOpenid());
@@ -253,16 +277,6 @@ public class AdminServiceI implements AdminService {
         map.put("unClockUser", unClockUserList.size());
         json.setResultData(map);
 
-        // 管理员邮件推送
-        String title = simpleDateFormat.format(new Date()) + "阳光早晨发钱数据统计";
-        String content = "各位好，今日" + simpleDateFormat.format(new Date()) + ",保底金额为:" + baodiBig.toString() + ",总奖池为:" + amountSumBg.toString() + ",分配金额为:" + daiBig.toString() + ",打卡成功人数为:" + clockUserList.size() + ",未打卡人数为:" + unClockUserList.size();
-
-        List<AdminConfigUserModel> list = adminConfigUserDao.findAllUsers();
-
-        for (AdminConfigUserModel userModel : list) {
-            mailService.sendSimpleMail(userModel.getMail(), title, content);
-        }
-
         return json;
     }
 
@@ -276,6 +290,7 @@ public class AdminServiceI implements AdminService {
             needClockUserModel.setCreateDate(new Date());
             needClockUserModel.setNo("0");
             needClockUserModel.setNeedDate(new DateTime(new Date()).plusDays(1).toDate());
+            needClockUserModel.setOpenid(openid);
         }
         needClockUserModel.setUseBalance(useBalance);
         needClockUserDao.save(needClockUserModel);
@@ -288,7 +303,7 @@ public class AdminServiceI implements AdminService {
         if (hasNeedSign) {
             redisTemplate.opsForHash().put(TODAY_NEED_SIGN_USER, openid, JSON.toJSONString(needClockUserModel));
         } else {
-            List<NeedClockUserModel> needClockUserModelList = needClockUserDao.findAllByNeedDateBetweenAndNo(simpleDateFormat.parse(sdf.format(new Date()) + " 00:00:00"), simpleDateFormat.parse(sdf.format(new Date()) + " 23:59:59"), "0");
+            List<NeedClockUserModel> needClockUserModelList = needClockUserDao.findAllByNeedDateBetweenAndNo(simpleDateFormat.parse(sdf.format(new DateTime().plusDays(1).toDate()) + " 00:00:00"), simpleDateFormat.parse(sdf.format(new DateTime().plusDays(1).toDate()) + " 23:59:59"), "0");
             Map<String, Object> map = Maps.newHashMap();
             for (NeedClockUserModel model : needClockUserModelList) {
                 map.put(model.getOpenid(), JSON.toJSONString(model));

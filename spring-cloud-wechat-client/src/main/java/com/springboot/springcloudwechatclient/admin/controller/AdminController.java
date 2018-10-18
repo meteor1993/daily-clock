@@ -128,7 +128,6 @@ public class AdminController {
         adminInfoModel = JSON.parseObject(JSON.toJSONString(adminJson.getResultData().get("adminInfoModel")), AdminInfoModel.class);
 
         Map<String, Object> map = Maps.newHashMap();
-        adminInfoModel.setForMeAmount(money);
         adminInfoModel.setQianfenAmount(qianfenAmount);
         map.put("adminInfoModel", adminInfoModel);
 
@@ -155,7 +154,6 @@ public class AdminController {
         AdminInfoModel adminInfoModel = JSON.parseObject(JSON.toJSONString(adminJson.getResultData().get("adminInfoModel")), AdminInfoModel.class);
 
         adminInfoModel.setQianfenAmount(qianfenAmount);
-        adminInfoModel.setForMeAmount(money);
         adminInfoModel.setUpdateDate(new Date());
         adminJson = adminRemote.saveAdminInfo(adminInfoModel);
 
@@ -207,6 +205,7 @@ public class AdminController {
     @ResponseBody
     public CommonJson helpUserClock(@RequestParam String openid) {
         CommonJson json = signRemote.clock(openid, "0", Constant.CLOCK_TYPE_2);
+        this.logger.info(">>>>>>>AdminClockController.helpUserClock>>>>>>>" + JSON.toJSONString(json));
         json.setResultData(null);
         return json;
     }
@@ -272,6 +271,7 @@ public class AdminController {
                 wechatEntPayModel.setStatus("1");
                 wechatEntPayModel.setSendDate(new Date());
                 wechatEntPayModel.setSendMsg(entPayResult.getReturnMsg());
+                wechatEntPayModel.setUpdateDate(new Date());
                 payRemote.saveWechatEntPayModel(wechatEntPayModel);
                 json.setResultCode(Constant.JSON_SUCCESS_CODE);
                 json.setResultMsg("success");
@@ -281,21 +281,24 @@ public class AdminController {
                     wechatEntPayModel.setStatus("1");
                     wechatEntPayModel.setSendDate(new Date());
                     wechatEntPayModel.setSendMsg(entPayResult.getReturnMsg());
+                    wechatEntPayModel.setUpdateDate(new Date());
                     payRemote.saveWechatEntPayModel(wechatEntPayModel);
                     json.setResultCode(Constant.JSON_SUCCESS_CODE);
                     json.setResultMsg("success");
                 }
             } else {
-                wechatEntPayModel.setStatus("0");
+                wechatEntPayModel.setStatus("-1");
                 wechatEntPayModel.setSendDate(new Date());
                 wechatEntPayModel.setSendMsg(entPayResult.getReturnMsg());
+                wechatEntPayModel.setUpdateDate(new Date());
                 payRemote.saveWechatEntPayModel(wechatEntPayModel);
                 json.setResultCode(Constant.JSON_ERROR_CODE);
                 json.setResultMsg("fail");
             }
         } catch (WxPayException e) {
             wechatEntPayModel.setFalseReason(e.getErrCodeDes());
-            wechatEntPayModel.setStatus("0");
+            wechatEntPayModel.setStatus("-1");
+            wechatEntPayModel.setUpdateDate(new Date());
             payRemote.saveWechatEntPayModel(wechatEntPayModel);
             e.printStackTrace();
             logger.info("提现失败,订单号为:" + wechatEntPayModel.getPartner_trade_no());

@@ -172,7 +172,7 @@ public class ClockController {
 
     @PostMapping(value = "/clock")
     public CommonJson clock(@RequestParam String formid) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:ss");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
         String token = ContextHolderUtils.getRequest().getHeader("token");
         String openid = (String) redisTemplate.opsForHash().get(token, Constant.WX_MINIAPP_OPENID);
         this.logger.info(">>>ClockController.index>>>>>>>token:" + token + ">>>>>>>>>>openid:" + openid + ">>>>>>>>>>formid:" + formid);
@@ -180,7 +180,7 @@ public class ClockController {
         if ("1".equals(clockJson.getResultCode())) {
             WxMaTemplateMessage wxMaTemplateMessage = WxMaTemplateMessage.builder().build();
             wxMaTemplateMessage.setToUser(openid);
-            wxMaTemplateMessage.setTemplateId("vL3RVoKBr3q_ZI3jhE84zvl_VZ4q-9XJJzEUdB0DpFA");
+            wxMaTemplateMessage.setTemplateId("vUYETMjZwZS6ShjfUbNF7PN4GWdRdePzxFlIvPrVpIA");
             wxMaTemplateMessage.setFormId(formid);
 
             List<Data> list = new ArrayList<>();

@@ -143,7 +143,7 @@ public class MiniAccountController {
             accountRemote.saveAccountModel(userAccountModel);
             accountRemote.saveAccountModelLog(userAccountLogModel);
 
-            json.setResultCode(Constant.JSON_ERROR_CODE);
+            json.setResultCode("2");
             json.setResultMsg("您的提现申请超过上限，已提交管理员审批，请耐心等待");
             json.setResultData(null);
             return json;

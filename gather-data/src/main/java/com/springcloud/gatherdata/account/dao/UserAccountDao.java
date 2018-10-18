@@ -27,7 +27,7 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
      * @param nowDate
      * @return
      */
-    @Query("select u from UserAccountModel u where u.type0 = '1' and TO_DAYS(u.clockDate0) = TO_DAYS(?1)")
+    @Query("select u from UserAccountModel u where u.type0 = '1' and TO_DAYS(u.clockDate0) = TO_DAYS(?1) and length(u.openid) > 5")
     List<UserAccountModel> findAllClockUser(Date nowDate);
 
     /**
@@ -39,10 +39,17 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
     List<UserAccountModel> findAllUnClockUser(Date nowDate);
 
     /**
+     * 查询所有当日充值的账户
+     * @return
+     */
+    @Query("select u from UserAccountModel u where u.type0 = '1' and  u.clockDate0 is null")
+    List<UserAccountModel> findAllTodayUser();
+
+    /**
      * 盘口0所有账户总押金
      * @return
      */
-    @Query("select round(sum (u.useBalance0), 0) from UserAccountModel u where u.type0 = '1'")
+    @Query("select round(sum (u.useBalance0), 0) from UserAccountModel u where u.type0 = '1' and length(u.openid) > 5")
     String getUserBalance0Sum();
 
     /**
@@ -50,7 +57,7 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
      * @param now
      * @return
      */
-    @Query("select round(sum (u.useBalance0), 2) from UserAccountModel u where u.type0 = '1' and TO_DAYS(u.clockDate0) = TO_DAYS(?1)")
+    @Query("select round(sum (u.useBalance0), 2) from UserAccountModel u where u.type0 = '1' and TO_DAYS(u.clockDate0) = TO_DAYS(?1) and length(u.openid) > 5")
     String getClockUserBalance0Sum(Date now);
 
     /**
@@ -58,14 +65,14 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
      * @param now
      * @return
      */
-    @Query("select round(sum (u.useBalance0), 2) from UserAccountModel u where u.type0 = '1' and u.useBalance0 <> '' and TO_DAYS(?1) - TO_DAYS(u.clockDate0) >= 1")
+    @Query("select round(sum (u.useBalance0), 2) from UserAccountModel u where u.type0 = '1' and u.useBalance0 <> '' and (TO_DAYS(?1) - TO_DAYS(u.clockDate0) >= 1 or u.clockDate0 is null)")
     String getUnClockUserBalance0Sum(Date now);
 
     /**
      * 盘口0总账户数
      * @return
      */
-    @Query("select count (1) from UserAccountModel u where u.type0 = '1'")
+    @Query("select count (1) from UserAccountModel u where u.type0 = '1' and length(u.openid) > 5")
     String getUserCount0();
 
     /**
@@ -73,7 +80,7 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
      * @param now
      * @return
      */
-    @Query("select count (1) from UserAccountModel u where u.type0 = '1' and TO_DAYS(u.clockDate0) = TO_DAYS(?1)")
+    @Query("select count (1) from UserAccountModel u where u.type0 = '1' and TO_DAYS(u.clockDate0) = TO_DAYS(?1) and length(u.openid) > 5")
     String getClockUserCount0(Date now);
 
     /**
@@ -81,7 +88,7 @@ public interface UserAccountDao extends PagingAndSortingRepository<UserAccountMo
      * @param now
      * @return
      */
-    @Query("select count (1) from UserAccountModel u where u.type0 = '1' and u.useBalance0 <> '' and TO_DAYS(?1) - TO_DAYS(u.clockDate0) >= 1")
+    @Query("select count (1) from UserAccountModel u where u.type0 = '1' and u.useBalance0 <> '' and (TO_DAYS(?1) - TO_DAYS(u.clockDate0) >= 1 or u.clockDate0 is null)")
     String getUnClockUserCount0(Date now);
 
     @Query("select u from UserAccountModel u where u.type0 = '1' order by u.continuousClockNum desc")

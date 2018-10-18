@@ -9,6 +9,8 @@ import com.springboot.dailyclock.account.model.UserAccountModel;
 import com.springboot.dailyclock.admin.dao.AdminInfoDao;
 import com.springboot.dailyclock.admin.model.AdminInfoModel;
 import com.springboot.dailyclock.admin.service.AdminService;
+import com.springboot.dailyclock.pay.dao.WxPayOrderDao;
+import com.springboot.dailyclock.pay.model.WxPayOrderModel;
 import com.springboot.dailyclock.sign.dao.ClockConfigDao;
 import com.springboot.dailyclock.sign.dao.NeedClockUserDao;
 import com.springboot.dailyclock.sign.model.ClockConfigModel;
@@ -54,6 +56,9 @@ public class AdminServiceI implements AdminService {
     NeedClockUserDao needClockUserDao;
 
     @Autowired
+    WxPayOrderDao wxPayOrderDao;
+
+    @Autowired
     StringRedisTemplate redisTemplate;
 
     @Override
@@ -87,6 +92,16 @@ public class AdminServiceI implements AdminService {
 
         // 当日盘口0所有未打卡用户列表
         List<UserAccountModel> unClockUserList = userAccountDao.findAllUnClockUser(new Date());
+        // 查询所有当日充值金额
+        List<UserAccountModel> todayUserList = userAccountDao.findAllTodayUser();
+
+        for (UserAccountModel model : todayUserList) {
+            List<WxPayOrderModel> wxPayOrderModelList = wxPayOrderDao.findAllTodayPayOrder(simpleDateFormat.format(new Date()) + "08:00:00", model.getOpenid());
+            if (wxPayOrderModelList.size() > 0) {
+                unClockUserList.add(model);
+            }
+        }
+
         this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>unClockUserList:" + unClockUserList);
         // 当日盘口0所有已打卡用户列表
         List<UserAccountModel> clockUserList = userAccountDao.findAllClockUser(new Date());
@@ -127,7 +142,7 @@ public class AdminServiceI implements AdminService {
         this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>baodiBig:" + baodiBig.toString());
 
         // 待分配额度
-        BigDecimal daiBig = amountSumBg.subtract(new BigDecimal(adminInfoModel.getForMeAmount())).subtract(baodiBig);
+        BigDecimal daiBig = amountSumBg.subtract(baodiBig);
 
         this.logger.info(">>>>>>>>>>>>>>>>>>AdminInfoController.gatherData>>>>>>>>>>" + simpleDateFormat.format(new Date()) + ">>>>>>>>>>>>daiBig:" + daiBig.toString());
 

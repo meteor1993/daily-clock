@@ -19,7 +19,7 @@ public class UserAccountLogModel implements java.io.Serializable {
     private Date updateDate;
 
     /**
-     * 账户交易业务类型，1.充值2.奖金发放3.提现4.余额到押金（零钱支付）5.押金到余额（打卡周期结束）6.打卡失败押金清零7.上级账户发放奖金
+     * 账户交易业务类型，1.充值2.奖金发放3.提现4.余额到押金（零钱支付）5.押金到余额（打卡周期结束）6.打卡失败押金清零7.上级账户发放奖金8.账户红包入账
      */
     private String type;
 

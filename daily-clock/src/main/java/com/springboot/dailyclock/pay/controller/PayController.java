@@ -114,7 +114,7 @@ public class PayController {
     public CommonJson findEntPayListByStatus(@RequestParam String status) {
         logger.info(">>>>>>>>>>>>>>>>>>>>>>>>PayController.findEntPayListByStatus>>>>>>>>>>>>>>>>>>status:" + status);
         CommonJson json = new CommonJson();
-        List<WechatEntPayModel> wechatEntPayModelList = wechatEntPayDao.findAllByStatus(status);
+        List<WechatEntPayModel> wechatEntPayModelList = wechatEntPayDao.findStatus();
         Map<String, Object> map = Maps.newHashMap();
         map.put("list", wechatEntPayModelList);
         json.setResultData(map);

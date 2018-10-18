@@ -42,11 +42,6 @@ public class AdminInfoModel {
     private String sumUnClockAmount;
 
     /**
-     * 最终抽水金额
-     */
-    private String forMeAmount;
-
-    /**
      * 千份奖金
      */
     private String qianfenAmount;
@@ -118,14 +113,6 @@ public class AdminInfoModel {
 
     public void setSumUnClockAmount(String sumUnClockAmount) {
         this.sumUnClockAmount = sumUnClockAmount;
-    }
-
-    public String getForMeAmount() {
-        return forMeAmount;
-    }
-
-    public void setForMeAmount(String forMeAmount) {
-        this.forMeAmount = forMeAmount;
     }
 
     public String getQianfenAmount() {

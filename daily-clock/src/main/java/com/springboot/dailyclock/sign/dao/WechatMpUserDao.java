@@ -15,4 +15,6 @@ public interface WechatMpUserDao extends PagingAndSortingRepository<WechatMpUser
     WechatMpUserModel getByWechatOpenIdIs(String openid);
 
     WechatMpUserModel getByMobileIs(String mobile);
+
+    WechatMpUserModel getByWechatUnionId(String unionId);
 }

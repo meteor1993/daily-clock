@@ -3,6 +3,7 @@ package com.springboot.springcloudwechatclient.pay.controller;
 import cn.binarywang.wx.miniapp.api.WxMaService;
 import com.alibaba.fastjson.JSON;
 import com.github.binarywang.wxpay.bean.request.WxPayUnifiedOrderRequest;
+import com.github.binarywang.wxpay.bean.result.WxPayOrderQueryResult;
 import com.github.binarywang.wxpay.bean.result.WxPayUnifiedOrderResult;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
@@ -381,6 +382,157 @@ public class WxMaPayController {
 //
 //        WxPayOrderModel wxPayOrderModel = JSON.parseObject(JSON.toJSONString(wxPayOrderJson.getResultData().get("wxPayOrderModel")), WxPayOrderModel.class);
 
+        return null;
+    }
+
+    /**
+     * 根据订单号查询当前订单是否支付成功
+     * @param orderNo
+     * @return
+     */
+    @PostMapping(value = "/orderquery")
+    public CommonJson orderquery(@RequestParam String orderNo) {
+        this.logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>WxMaPayController.orderquery>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        try {
+            WxPayOrderQueryResult result = this.wxPayService.queryOrder("", orderNo);
+            this.logger.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>WxMaPayController.orderquery>>>>>>>>>>>>>>>>>>>>>>>>>>>result:" + result);
+            if ("SUCCESS".equals(result.getReturnCode()) && "SUCCESS".equals(result.getResultCode()) && "SUCCESS".equals(result.getTradeState())) { // 如果当前用户支付成功
+                try {
+                    CommonJson wxPayJson = payRemote.getWxPayOrderModelByOrderNo(result.getOutTradeNo());
+                    this.logger.info(">>>>>>>>>>>>>>WxMaPayNotifyController.notify>>>>>>>>>payRemote.getWxPayOrderModelByOrderNo:" + JSON.toJSONString(wxPayJson));
+                    WxPayOrderModel wxPayOrderModel = JSON.parseObject(JSON.toJSONString(wxPayJson.getResultData().get("wxPayOrderModel")), WxPayOrderModel.class);
+                    this.logger.info(">>>>>>>>>>>>>>WxMaPayNotifyController.notify>>>>>>>>>wxPayOrderModel:" + JSON.toJSONString(wxPayOrderModel));
+                    wxPayOrderModel.setOrderStatus("1");
+                    wxPayOrderModel.setPaySuccessTime(result.getTimeEnd());
+                    wxPayOrderModel.setTransactionId(result.getTransactionId());
+                    wxPayOrderModel.setUpdateDate(new Date());
+                    wxPayOrderModel.setPayType("miniapp");
+                    payRemote.saveWxPayOrderModel(wxPayOrderModel);
+
+                    String openid = wxPayOrderModel.getOpenId();
+
+                    // 获取账户数据
+                    CommonJson accountJson = accountRemote.accountInfo(openid);
+                    this.logger.info(">>>>>>>>>>>>accountRemote.accountInfo:" + JSON.toJSONString(accountJson));
+                    UserAccountModel userAccountModel = JSON.parseObject(JSON.toJSONString(accountJson.getResultData().get("userAccountModel")), UserAccountModel.class);
+
+                    CommonJson logJson = accountRemote.getAccountModelLogByOrderNo(wxPayOrderModel.getOrderNo());
+                    this.logger.info(">>>>>>>>>>>>>>WxMaPayNotifyController.notify>>>>>>>>>accountRemote.getAccountModelLogByOrderNo:" + JSON.toJSONString(logJson));
+                    UserAccountLogModel userAccountLogModel = JSON.parseObject(JSON.toJSONString(logJson.getResultData().get("userAccountLogModel")), UserAccountLogModel.class);
+
+                    CommonJson clockConfigJson = signRemote.getClockConfig("0");
+                    this.logger.info(">>>>>>>>>>>>>>>>>>>>signRemote.getClockConfig:" + JSON.toJSONString(clockConfigJson));
+                    ClockConfigModel clockConfigModel = JSON.parseObject(JSON.toJSONString(clockConfigJson.getResultData().get("clockConfigModel")), ClockConfigModel.class);
+
+                    // 保存账户进账数据
+                    if (userAccountLogModel == null) {
+                        // 更新账户数据 只更新一次
+                        userAccountModel.setUseBalance0(new BigDecimal(userAccountModel.getUseBalance0() == null ? "0" : userAccountModel.getUseBalance0()).add(new BigDecimal(String.valueOf(wxPayOrderModel.getOrderMoney()))).toString());
+                        userAccountModel.setOrderDate0(wxPayOrderModel.getPayTime());
+                        userAccountModel.setUpdateDate(new Date());
+                        userAccountModel.setType0("1");
+
+                        // 操作上级账户
+                        if (userAccountModel.getPreOpenid() != null && "1".equals(userAccountModel.getPreOpenidFlag())) {
+                            CommonJson preAccountJson = accountRemote.accountInfo(userAccountModel.getPreOpenid());
+                            this.logger.info(">>>>>>>>>>>>>>WxMaPayNotifyController.notify>>>>>>>>>preAccountJson:" + JSON.toJSONString(preAccountJson));
+                            UserAccountModel preUserAccountModel = JSON.parseObject(JSON.toJSONString(preAccountJson.getResultData().get("userAccountModel")), UserAccountModel.class);
+                            // 更新上级账户余额
+                            preUserAccountModel.setBalance(new BigDecimal(clockConfigModel.getBonus()).add(new BigDecimal(preUserAccountModel.getBalance() == null ? "0" : preUserAccountModel.getBalance())).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+
+                            this.logger.info(">>>>>>>>>>>>>>WxMaPayNotifyController.notify>>>>>>>>>preUserAccountModel.openid:" + preUserAccountModel.getOpenid());
+
+                            // 更新上级账户奖励金
+//                    preUserAccountModel.setRewardBalance(new BigDecimal(clockConfigModel.getRewardBalanceLines()).add(new BigDecimal(preUserAccountModel.getRewardBalance() == null ? "0" : preUserAccountModel.getRewardBalance())).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+
+                            UserAccountLogModel userAccountLogModel1 = new UserAccountLogModel();
+                            userAccountLogModel1.setOpenid(preUserAccountModel.getOpenid());
+                            userAccountLogModel1.setCreateDate(new Date());
+                            userAccountLogModel1.setNo("0");
+                            userAccountLogModel1.setAmount(clockConfigModel.getBonus());
+                            userAccountLogModel1.setType("7");
+
+                            accountRemote.saveAccountModelLog(userAccountLogModel1);
+                            accountRemote.saveAccountModel(preUserAccountModel);
+                        }
+
+                        userAccountModel.setPreOpenidFlag("0");
+                        accountRemote.saveAccountModel(userAccountModel);
+
+                        userAccountLogModel = new UserAccountLogModel();
+                        userAccountLogModel.setType("1");
+                        userAccountLogModel.setNo("0");
+                        userAccountLogModel.setAmount(String.valueOf(wxPayOrderModel.getOrderMoney()));
+                        userAccountLogModel.setCreateDate(new Date());
+                        userAccountLogModel.setOpenid(wxPayOrderModel.getOpenId());
+                        userAccountLogModel.setOrderNo(wxPayOrderModel.getOrderNo());
+                        userAccountLogModel.setTypeFlag("1");
+                        accountRemote.saveAccountModelLog(userAccountLogModel);
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+                        // 获取待打卡数据
+                        this.logger.info(">>>>>>>>>>>>>>>>>>>>needClockRemote.getByOpenidAndNeedDate>>>>>>>>>>openid:" + openid + ", newDate:" + new Date().toString());
+                        CommonJson needClockJson = needClockRemote.getByOpenidAndNeedDate(openid, sdf.format(new Date()));
+                        this.logger.info(">>>>>>>>>>>>>>>>>>>>needClockRemote.getByOpenidAndNeedDate:" + JSON.toJSONString(needClockJson));
+                        NeedClockUserModel needClockUserModel = JSON.parseObject(JSON.toJSONString(needClockJson.getResultData().get("needClockUserModel")), NeedClockUserModel.class);
+
+                        Long startTime = simpleDateFormat.parse(sdf.format(new Date()) + " " + clockConfigModel.getClockStartTime()).getTime();
+
+                        Long nowTime = new Date().getTime();
+
+                        // 如果待打卡列表为空，用户为首次充值
+                        if (needClockUserModel == null) {
+                            NeedClockUserModel needClockUserModel1 = new NeedClockUserModel();
+                            needClockUserModel1.setCreateDate(new Date());
+                            needClockUserModel1.setOpenid(openid);
+                            needClockUserModel1.setNo("0");
+                            needClockUserModel1.setUseBalance(userAccountModel.getUseBalance0());
+
+                            // 如果当前时间小于系统预设时间，则可以当日打卡
+                            if (nowTime < startTime) {
+                                needClockUserModel1.setNeedDate(new Date());
+                            } else {
+                                // 设置预计打卡时间为明日
+                                needClockUserModel1.setNeedDate(new DateTime().plusDays(1).toLocalDateTime().toDate());
+                            }
+
+                            needClockRemote.saveNeedClock(needClockUserModel1);
+                            // 如果缓存存在
+                            if (redisTemplate.hasKey(sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0)) {
+                                redisTemplate.opsForHash().put(sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0, openid, JSON.toJSONString(needClockUserModel1));
+                            } else {
+                                // 如果缓存不存在
+                                Map<String, Object> map = Maps.newHashMap();
+                                map.put(openid, JSON.toJSONString(needClockUserModel1));
+                                redisTemplate.opsForHash().putAll(sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0, map);
+                            }
+
+                        } else {
+                            // 如果当前时间小于系统预设时间，更新用户打卡金额
+                            if (nowTime < startTime) {
+                                // 更新数据库
+                                needClockUserModel.setUseBalance(userAccountModel.getUseBalance0());
+                                needClockRemote.saveNeedClock(needClockUserModel);
+                            } else {
+                                // 如果大于系统预设时间，创建第二日打卡数据
+                                needClockUserModel.setOpenid(openid);
+                                needClockUserModel.setNo("0");
+                                needClockUserModel.setUseBalance(userAccountModel.getUseBalance0());
+                                needClockUserModel.setNeedDate(new DateTime().plusDays(1).toLocalDateTime().toDate());
+                                needClockRemote.saveNeedClock(needClockUserModel);
+                            }
+                        }
+
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (WxPayException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 

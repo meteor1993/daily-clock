@@ -25,7 +25,7 @@ public interface NeedClockUserDao extends PagingAndSortingRepository<NeedClockUs
      * 根据时间查找需打卡人
      * @return
      */
-    @Query("select n from NeedClockUserModel n where n.no = '0' and n.openid = ?1 and TO_DAYS(n.createDate) = TO_DAYS(?2)")
+    @Query("select n from NeedClockUserModel n where n.no = '0' and n.openid = ?1 and TO_DAYS(n.needDate) = TO_DAYS(?2)")
     NeedClockUserModel getByOpenidAndNeedDate(String openid, String needDate);
 
     /**

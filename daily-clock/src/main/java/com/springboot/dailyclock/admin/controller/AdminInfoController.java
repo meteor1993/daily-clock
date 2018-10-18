@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.springboot.dailyclock.account.dao.UserAccountDao;
 import com.springboot.dailyclock.account.dao.UserAccountLogDao;
 import com.springboot.dailyclock.account.model.UserAccountModel;
+import com.springboot.dailyclock.account.service.AccountService;
 import com.springboot.dailyclock.admin.dao.AdminConfigUserDao;
 import com.springboot.dailyclock.admin.dao.AdminInfoDao;
 import com.springboot.dailyclock.admin.model.AdminConfigUserModel;
@@ -61,6 +62,9 @@ public class AdminInfoController {
     AdminService adminService;
 
     @Autowired
+    AccountService accountService;
+
+    @Autowired
     StringRedisTemplate redisTemplate;
 
     /**
@@ -109,11 +113,11 @@ public class AdminInfoController {
         // 已打卡总金额
         String clockUserBalance0Sum = userAccountDao.getClockUserBalance0Sum(new Date());
         // 未打卡总金额
-        String unClockUserBalance0Sum = userAccountDao.getUnClockUserBalance0Sum(new Date());
+        String unClockUserBalance0Sum = accountService.getUnClockUserBalance0Sum(new Date());
         // 已打卡总人数
         String clockUserCount0 = userAccountDao.getClockUserCount0(new Date());
         // 未打卡总人数
-        String unClockUserCount0 = userAccountDao.getUnClockUserCount0(new Date());
+        String unClockUserCount0 = accountService.getUnClockUserCount0(new Date());
         Map<String, Object> map = Maps.newHashMap();
         map.put("clockUserBalance0Sum", clockUserBalance0Sum);
         map.put("unClockUserBalance0Sum", unClockUserBalance0Sum == null ? "0" : unClockUserBalance0Sum);

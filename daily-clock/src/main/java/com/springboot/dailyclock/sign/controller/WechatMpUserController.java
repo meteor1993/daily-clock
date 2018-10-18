@@ -61,4 +61,27 @@ public class WechatMpUserController {
 
         return json;
     }
+
+    /**
+     * 根据unionid获取账户信息
+     * @param unionId
+     * @return
+     */
+    @PostMapping(value = "/getUserAccountByUnionId")
+    public CommonJson getUserAccountByUnionId(@RequestParam String unionId) {
+        logger.info("WechatMpUserController.getUserAccountByUnionId>>>>>>>>>>>>>unionId:" + unionId);
+        CommonJson json = new CommonJson();
+        WechatMpUserModel wechatMpUserModel = wechatMpUserDao.getByWechatUnionId(unionId);
+        Map<String, Object> map = Maps.newHashMap();
+        if (wechatMpUserModel != null) { // 如果绑定信息存在
+            UserAccountModel userAccountModel = userAccountDao.getByOpenidIs(wechatMpUserModel.getWechatOpenId());
+            if (userAccountModel != null) { // 如果账户信息存在
+                map.put("userAccountModel", userAccountModel);
+            }
+        }
+        json.setResultCode(Constant.JSON_SUCCESS_CODE);
+        json.setResultMsg("success");
+        json.setResultData(map);
+        return json;
+    }
 }

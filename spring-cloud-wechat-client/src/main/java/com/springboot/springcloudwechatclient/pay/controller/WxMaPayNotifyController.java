@@ -33,6 +33,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping(value = "/miniPayNotify")
@@ -101,13 +102,13 @@ public class WxMaPayNotifyController {
             // 保存账户进账数据
             if (userAccountLogModel == null) {
                 // 更新账户数据 只更新一次
-                userAccountModel.setUseBalance0(new BigDecimal(userAccountModel.getUseBalance0()).add(new BigDecimal(String.valueOf(wxPayOrderModel.getOrderMoney()))).toString());
+                userAccountModel.setUseBalance0(new BigDecimal(userAccountModel.getUseBalance0() == null ? "0" : userAccountModel.getUseBalance0()).add(new BigDecimal(String.valueOf(wxPayOrderModel.getOrderMoney()))).toString());
                 userAccountModel.setOrderDate0(wxPayOrderModel.getPayTime());
                 userAccountModel.setUpdateDate(new Date());
                 userAccountModel.setType0("1");
 
                 // 操作上级账户
-                if (userAccountModel.getPreOpenid() != null && "1".equals(userAccountModel.getPreOpenidFlag())) {
+                if (userAccountModel.getPreOpenid() != null && "1".equals(userAccountModel.getPreOpenidFlag())) { // 操作小程序上级账户
                     CommonJson preAccountJson = accountRemote.accountInfo(userAccountModel.getPreOpenid());
                     this.logger.info(">>>>>>>>>>>>>>WxMaPayNotifyController.notify>>>>>>>>>preAccountJson:" + JSON.toJSONString(preAccountJson));
                     UserAccountModel preUserAccountModel = JSON.parseObject(JSON.toJSONString(preAccountJson.getResultData().get("userAccountModel")), UserAccountModel.class);
@@ -128,6 +129,8 @@ public class WxMaPayNotifyController {
 
                     accountRemote.saveAccountModelLog(userAccountLogModel1);
                     accountRemote.saveAccountModel(preUserAccountModel);
+                } else if(true) { // 操作公众号上级账户
+
                 }
 
                 userAccountModel.setPreOpenidFlag("0");
@@ -152,8 +155,6 @@ public class WxMaPayNotifyController {
                 this.logger.info(">>>>>>>>>>>>>>>>>>>>needClockRemote.getByOpenidAndNeedDate:" + JSON.toJSONString(needClockJson));
                 NeedClockUserModel needClockUserModel = JSON.parseObject(JSON.toJSONString(needClockJson.getResultData().get("needClockUserModel")), NeedClockUserModel.class);
 
-
-
                 Long startTime = simpleDateFormat.parse(sdf.format(new Date()) + " " + clockConfigModel.getClockStartTime()).getTime();
 
                 Long nowTime = new Date().getTime();
@@ -169,53 +170,58 @@ public class WxMaPayNotifyController {
                     // 如果当前时间小于系统预设时间，则可以当日打卡
                     if (nowTime < startTime) {
                         needClockUserModel1.setNeedDate(new Date());
+                        // 如果缓存存在
+                        if (redisTemplate.hasKey(sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0)) {
+                            logger.info("缓存不存在当前key为：" + sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0 + "openid为：" + openid + "写入redis内容为:" + JSON.toJSONString(needClockUserModel1));
+                            redisTemplate.opsForHash().put(sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0, openid, JSON.toJSONString(needClockUserModel1));
+                        } else {
+                            // 如果缓存不存在
+                            logger.info("缓存存在当前key为：" + sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0 + "openid为：" + openid + "写入redis内容为:" + JSON.toJSONString(needClockUserModel1));
+                            Map<String, Object> map = Maps.newHashMap();
+                            map.put(openid, JSON.toJSONString(needClockUserModel1));
+                            redisTemplate.opsForHash().putAll(sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0, map);
+                        }
                     } else {
                         // 设置预计打卡时间为明日
                         needClockUserModel1.setNeedDate(new DateTime().plusDays(1).toLocalDateTime().toDate());
+                        // 如果缓存存在
+                        if (redisTemplate.hasKey(sdf.format(new DateTime().plusDays(1).toLocalDateTime().toDate()) + "," + Constant.TODAY_NEED_SIGN_USER_0)) {
+                            logger.info("缓存不存在当前key为：" + sdf.format(new DateTime().plusDays(1).toLocalDateTime().toDate()) + "," + Constant.TODAY_NEED_SIGN_USER_0 + "openid为：" + openid + "写入redis内容为:" + JSON.toJSONString(needClockUserModel1));
+                            redisTemplate.opsForHash().put(sdf.format(new DateTime().plusDays(1).toLocalDateTime().toDate()) + "," + Constant.TODAY_NEED_SIGN_USER_0, openid, JSON.toJSONString(needClockUserModel1));
+                        } else {
+                            // 如果缓存不存在
+                            logger.info("缓存存在当前key为：" + sdf.format(new DateTime().plusDays(1).toLocalDateTime().toDate()) + "," + Constant.TODAY_NEED_SIGN_USER_0 + "openid为：" + openid + "写入redis内容为:" + JSON.toJSONString(needClockUserModel1));
+                            Map<String, Object> map = Maps.newHashMap();
+                            map.put(openid, JSON.toJSONString(needClockUserModel1));
+                            redisTemplate.opsForHash().putAll(sdf.format(new DateTime().plusDays(1).toLocalDateTime().toDate()) + "," + Constant.TODAY_NEED_SIGN_USER_0, map);
+                        }
                     }
 
                     needClockRemote.saveNeedClock(needClockUserModel1);
-                    // 如果缓存存在
-                    if (redisTemplate.hasKey(sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0)) {
-                        redisTemplate.opsForHash().put(sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0, openid, JSON.toJSONString(needClockUserModel1));
-                    } else {
-                        // 如果缓存不存在
-                        Map<String, Object> map = Maps.newHashMap();
-                        map.put(openid, JSON.toJSONString(needClockUserModel1));
-                        redisTemplate.opsForHash().putAll(sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0, map);
-                    }
 
+                    // 设定24小时过期
+                    redisTemplate.expire(sdf.format(new Date()) + "," + Constant.TODAY_NEED_SIGN_USER_0, 24, TimeUnit.HOURS);
                 } else {
                     // 如果当前时间小于系统预设时间，更新用户打卡金额
                     if (nowTime < startTime) {
                         // 更新数据库
                         needClockUserModel.setUseBalance(userAccountModel.getUseBalance0());
                         needClockRemote.saveNeedClock(needClockUserModel);
-
-
                     } else {
                         // 如果大于系统预设时间，创建第二日打卡数据
-                        NeedClockUserModel needClockUserModel1 = new NeedClockUserModel();
-                        needClockUserModel1.setCreateDate(new Date());
-                        needClockUserModel1.setOpenid(openid);
-                        needClockUserModel1.setNo("0");
-                        needClockUserModel1.setUseBalance(userAccountModel.getUseBalance0());
-                        needClockUserModel1.setNeedDate(new DateTime().plusDays(1).toLocalDateTime().toDate());
-                        needClockRemote.saveNeedClock(needClockUserModel1);
-
+                        needClockUserModel.setOpenid(openid);
+                        needClockUserModel.setNo("0");
+                        needClockUserModel.setUseBalance(userAccountModel.getUseBalance0());
+                        needClockUserModel.setNeedDate(new DateTime().plusDays(1).toLocalDateTime().toDate());
+                        needClockRemote.saveNeedClock(needClockUserModel);
                     }
-
                 }
             }
-
-
-
-
             json.setResultCode(Constant.JSON_SUCCESS_CODE);
             json.setResultMsg("success");
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (WxPayException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return json;

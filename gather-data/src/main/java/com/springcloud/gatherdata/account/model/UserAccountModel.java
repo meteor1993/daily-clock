@@ -452,4 +452,44 @@ public class UserAccountModel implements java.io.Serializable {
     public void setChannel(String channel) {
         this.channel = channel;
     }
+
+    @Override
+    public String toString() {
+        return "UserAccountModel{" +
+                "id='" + id + '\'' +
+                ", openid='" + openid + '\'' +
+                ", createDate=" + createDate +
+                ", updateDate=" + updateDate +
+                ", balance='" + balance + '\'' +
+                ", useBalance0='" + useBalance0 + '\'' +
+                ", useBalance1='" + useBalance1 + '\'' +
+                ", useBalance2='" + useBalance2 + '\'' +
+                ", useBalance3='" + useBalance3 + '\'' +
+                ", type0='" + type0 + '\'' +
+                ", type1='" + type1 + '\'' +
+                ", type2='" + type2 + '\'' +
+                ", type3='" + type3 + '\'' +
+                ", orderDate0=" + orderDate0 +
+                ", orderDate1=" + orderDate1 +
+                ", orderDate2=" + orderDate2 +
+                ", orderDate3=" + orderDate3 +
+                ", clockDate0=" + clockDate0 +
+                ", clockDate1=" + clockDate1 +
+                ", clockDate2=" + clockDate2 +
+                ", clockDate3=" + clockDate3 +
+                ", todayBalance0='" + todayBalance0 + '\'' +
+                ", todayBalance1='" + todayBalance1 + '\'' +
+                ", todayBalance2='" + todayBalance2 + '\'' +
+                ", todayBalance3='" + todayBalance3 + '\'' +
+                ", balanceSum0='" + balanceSum0 + '\'' +
+                ", balanceSum1='" + balanceSum1 + '\'' +
+                ", balanceSum2='" + balanceSum2 + '\'' +
+                ", balanceSum3='" + balanceSum3 + '\'' +
+                ", continuousClockNum='" + continuousClockNum + '\'' +
+                ", preOpenid='" + preOpenid + '\'' +
+                ", preOpenidFlag='" + preOpenidFlag + '\'' +
+                ", rewardBalance='" + rewardBalance + '\'' +
+                ", channel='" + channel + '\'' +
+                '}';
+    }
 }

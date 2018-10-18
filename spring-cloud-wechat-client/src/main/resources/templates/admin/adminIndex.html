@@ -47,12 +47,6 @@
             </div>
             <div class="weui-cell__ft">{{sumUnClockAmount}}</div>
         </div>
-        <div class="weui-cell">
-            <div class="weui-cell__bd">
-                <p>抽水金额</p>
-            </div>
-            <div class="weui-cell__ft">{{forMeAmount}}</div>
-        </div>
         <div class="weui-cell" style="color: red">
             <div class="weui-cell__bd">
                 <p>平台补贴</p>
@@ -80,7 +74,7 @@
     <div class="page__bd page__bd_spacing" style="padding: 15px 15px;">
         <button v-on:click="fresh" class="weui-btn weui-btn_primary">刷新</button>
         <button v-on:click="saveData" class="weui-btn weui-btn_warn">保存</button>
-        <button v-on:click="gatherData" class="weui-btn weui-btn_warn">发钱</button>
+        <button v-on:click="gatherData" class="weui-btn weui-btn_warn" v-if="show">发钱</button>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/vue"></script>
@@ -95,10 +89,10 @@ var app = new Vue({
         sumClockAmount: '',
         sumUnClockUser: '',
         sumUnClockAmount: '',
-        forMeAmount: '',
         money: '0',
         qianfenAmount: '',
-        subsidy: ''
+        subsidy: '',
+        show: true
     },
     beforeCreate: function () {
         console.group('beforeCreate 创建前状态===============》');
@@ -121,7 +115,6 @@ var app = new Vue({
                 data.sumClockAmount = adminInfoModel.sumClockAmount;
                 data.sumUnClockUser = adminInfoModel.sumUnClockUser;
                 data.sumUnClockAmount = adminInfoModel.sumUnClockAmount;
-                data.forMeAmount = adminInfoModel.forMeAmount;
                 data.qianfenAmount = adminInfoModel.qianfenAmount;
                 data.subsidy = adminInfoModel.subsidy
             }
@@ -185,7 +178,6 @@ var app = new Vue({
                     app.sumClockAmount = adminInfoModel.sumClockAmount;
                     app.sumUnClockUser = adminInfoModel.sumUnClockUser;
                     app.sumUnClockAmount = adminInfoModel.sumUnClockAmount;
-                    app.forMeAmount = adminInfoModel.forMeAmount;
                     app.qianfenAmount = adminInfoModel.qianfenAmount;
                     app.subsidy = adminInfoModel.subsidy;
                 }
@@ -212,13 +204,13 @@ var app = new Vue({
                     app.sumClockAmount = adminInfoModel.sumClockAmount;
                     app.sumUnClockUser = adminInfoModel.sumUnClockUser;
                     app.sumUnClockAmount = adminInfoModel.sumUnClockAmount;
-                    app.forMeAmount = adminInfoModel.forMeAmount;
                     app.qianfenAmount = adminInfoModel.qianfenAmount;
                     weui.alert("success");
                 }
             });
         },
         gatherData: function () {
+            app.show = false;
             axios({
                 method: 'post',
                 url: 'gatherData',

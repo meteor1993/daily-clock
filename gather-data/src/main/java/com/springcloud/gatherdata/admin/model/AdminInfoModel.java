@@ -51,11 +51,6 @@ public class AdminInfoModel {
     private String sumUnClockAmount;
 
     /**
-     * 最终抽水金额
-     */
-    private String forMeAmount;
-
-    /**
      * 千份奖金
      */
     private String qianfenAmount;
@@ -64,6 +59,11 @@ public class AdminInfoModel {
      * 平台补贴
      */
     private String subsidy;
+
+    /**
+     * 未打卡总金额
+     */
+    private String unClockAmountSum;
 
     public String getId() {
         return id;
@@ -129,14 +129,6 @@ public class AdminInfoModel {
         this.sumUnClockAmount = sumUnClockAmount;
     }
 
-    public String getForMeAmount() {
-        return forMeAmount;
-    }
-
-    public void setForMeAmount(String forMeAmount) {
-        this.forMeAmount = forMeAmount;
-    }
-
     public String getQianfenAmount() {
         return qianfenAmount;
     }
@@ -151,5 +143,13 @@ public class AdminInfoModel {
 
     public void setSubsidy(String subsidy) {
         this.subsidy = subsidy;
+    }
+
+    public String getUnClockAmountSum() {
+        return unClockAmountSum;
+    }
+
+    public void setUnClockAmountSum(String unClockAmountSum) {
+        this.unClockAmountSum = unClockAmountSum;
     }
 }

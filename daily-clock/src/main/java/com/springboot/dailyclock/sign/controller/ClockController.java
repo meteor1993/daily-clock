@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.springboot.dailyclock.account.dao.UserAccountDao;
 import com.springboot.dailyclock.account.model.UserAccountModel;
+import com.springboot.dailyclock.account.service.AccountService;
 import com.springboot.dailyclock.sign.dao.ClockConfigDao;
 import com.springboot.dailyclock.sign.dao.NeedClockUserDao;
 import com.springboot.dailyclock.sign.dao.UserClockLogDao;
@@ -68,6 +69,9 @@ public class ClockController {
 
     @Autowired
     UserAccountDao userAccountDao;
+
+    @Autowired
+    AccountService accountService;
 
     @Autowired
     SMSDao smsDao;
@@ -407,11 +411,11 @@ public class ClockController {
         // 当日已打卡总金额
         String sumClockBalance0 = userAccountDao.getClockUserBalance0Sum(new Date());
         // 当日未打卡总金额
-        String unClockUserBalance0Sum = userAccountDao.getUnClockUserBalance0Sum(new Date());
+        String unClockUserBalance0Sum = accountService.getUnClockUserBalance0Sum(new Date());
         // 当日打卡总人数
         String clockUserCount = userAccountDao.getClockUserCount0(new Date());
         // 当日未打卡总人数
-        String unClockUserCount = userAccountDao.getUnClockUserCount0(new Date());
+        String unClockUserCount = accountService.getUnClockUserCount0(new Date());
 
         Map<String, Object> map = Maps.newHashMap();
         map.put("sumClockBalance0", sumClockBalance0);
@@ -440,7 +444,7 @@ public class ClockController {
         // 当日已打卡人数
         String clockUserCount0 = userAccountDao.getClockUserCount0(new Date());
         // 当日未打卡人数
-        String unClockUserCount0 = userAccountDao.getUnClockUserCount0(new Date());
+        String unClockUserCount0 = accountService.getUnClockUserCount0(new Date());
         WechatMpUserModel wechatMpUserModel = null;
         // 盘口0 每日第一打卡人记录
         UserClockLogModel userClockLogModel = null;

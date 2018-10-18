@@ -76,4 +76,12 @@ public interface AccountRemote {
     @PostMapping(value = "/api/findUserAccountLogList")
     CommonJson findUserAccountLogList(@RequestParam(value = "openid") String openid, @RequestParam(value = "date") String date);
 
+    /**
+     * 根据unionID查询账户信息
+     * @param unionId
+     * @return
+     */
+    @PostMapping(value = "/api/getUserAccountByUnionId")
+    CommonJson getUserAccountByUnionId(@RequestParam(value = "unionId") String unionId);
+
 }
